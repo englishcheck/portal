@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Class: The Circle | English Elegant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        /* --- VARIABLE & RESET --- */
+        :root {
+            --emerald-dark: #0a2f23;
+            --emerald-primary: #14523d;
+            --emerald-light: #e3f0ea;
+            --gold-accent: #c5a059;
+            --gold-hover: #b08d45;
+            --cream-bg: #fdfcf8;
+            --text-main: #2a2a2a;
+            --white: #ffffff;
+            --danger: #d9534f;
+            --success: #28a745;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: var(--cream-bg);
+            color: var(--text-main);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* --- TYPOGRAPHY --- */
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+            color: var(--emerald-dark);
+        }
+
+        .highlight-gold { color: var(--gold-accent); font-weight: bold; }
+        .highlight-green { color: var(--emerald-primary); font-weight: bold; }
+
+        /* --- HEADER --- */
+        header {
+            background: linear-gradient(135deg, var(--emerald-dark) 0%, var(--emerald-primary) 100%);
+            color: var(--white);
+            padding: 4rem 2rem;
+            text-align: center;
+            position: relative;
+            clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
+        }
+
+        header h1 { color: var(--white); font-size: 3.5rem; margin-bottom: 0.5rem; }
+        header p { font-size: 1.2rem; font-weight: 300; opacity: 0.9; }
+
+        /* --- LAYOUT --- */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        section {
+            margin-bottom: 3rem;
+            opacity: 0; /* Untuk animasi fade-in */
+            transform: translateY(20px);
+            animation: fadeUp 0.8s forwards;
+        }
+
+        /* --- CARDS --- */
+        .card {
+            background: var(--white);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(10, 47, 35, 0.08);
+            border-top: 4px solid var(--gold-accent);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover { transform: translateY(-5px); }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1rem;
+        }
+        
+        .section-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+            color: var(--gold-accent);
+        }
+
+        /* --- TABLE STYLING --- */
+        .elegant-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+        
+        .elegant-table th {
+            background-color: var(--emerald-primary);
+            color: var(--white);
+            padding: 1rem;
+            text-align: left;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .elegant-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .elegant-table tr:hover { background-color: var(--emerald-light); }
+
+        /* --- COMPARISON BOX --- */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 1rem;
+        }
+
+        .compare-box {
+            background: #fcfcfc;
+            border: 1px solid #eee;
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .compare-box h4 {
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--gold-accent);
+            display: inline-block;
+        }
+
+        /* --- TIP BOX --- */
+        .tip-box {
+            background-color: var(--emerald-light);
+            border-left: 5px solid var(--emerald-primary);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            border-radius: 4px;
+        }
+        
+        .tip-title {
+            font-weight: bold;
+            color: var(--emerald-primary);
+            display: block;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        /* --- QUIZ STYLES --- */
+        .quiz-wrapper {
+            background: var(--emerald-dark);
+            color: var(--white);
+            padding: 3rem;
+            border-radius: 15px;
+            position: relative;
+        }
+
+        .quiz-wrapper h2 { color: var(--gold-accent); text-align: center; margin-bottom: 2rem; }
+
+        .question-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .question-text { font-size: 1.15rem; font-weight: bold; margin-bottom: 1rem; }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .option-label {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-main);
+            padding: 0.8rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .option-label:hover { background: var(--gold-accent); color: var(--emerald-dark); }
+        .option-label input { margin-right: 10px; accent-color: var(--emerald-dark); }
+
+        /* Feedback Colors */
+        .correct { background-color: var(--success) !important; color: white !important; }
+        .wrong { background-color: var(--danger) !important; color: white !important; }
+
+        /* Button */
+        .btn-gold {
+            background: var(--gold-accent);
+            color: var(--emerald-dark);
+            border: none;
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            display: block;
+            margin: 2rem auto 0;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(197, 160, 89, 0.4);
+        }
+        
+        .btn-gold:hover { background: var(--gold-hover); transform: scale(1.05); }
+
+        /* Score Display */
+        #score-display {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-top: 1.5rem;
+            font-weight: bold;
+            color: var(--white);
+            display: none;
+        }
+
+        /* --- ANIMATION --- */
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        footer {
+            text-align: center;
+            padding: 3rem;
+            color: var(--emerald-primary);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media(max-width: 600px) {
+            header h1 { font-size: 2.5rem; }
+            .card { padding: 1.5rem; }
+            .comparison-grid { grid-template-columns: 1fr; }
+            .elegant-table { display: block; overflow-x: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <h1>The Circle</h1>
+            <p>COLLABORATING FOR CHANGE, EMPOWERING FOR IMPACT</p>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <section style="animation-delay: 0.2s;">
+            <div class="card">
+                <div class="section-header">
+                    <span class="section-icon">⭕</span>
+                    <h2>Pengelompokan Circle</h2>
+                </div>
+                <p>Metode <strong>Circle</strong> adalah cara cerdas untuk memetakan struktur kalimat. Ini adalah metode yang digunakan untuk mengelompokkan setiap <em>Part of Speech (POS)</em> dan setiap <em>Phrase</em>.</p>
+                <br>
+                <p><strong>Tujuannya:</strong> Memudahkan kita dalam merangkai dan membuat suatu kalimat yang benar dan terstruktur dengan rapi.</p>
+                
+                <div class="tip-box">
+                    <span class="tip-title">KUNCI UTAMA</span>
+                    <p>Dalam metode ini, kita membagi elemen bahasa menjadi 4 lingkaran utama: <strong>Noun, Verb (Predicate), Adverb, dan Adjective</strong>.</p>
+                </div>
+            </div>
+        </section>
+
+        <section style="animation-delay: 0.4s;">
+            <div class="card">
+                <div class="section-header">
+                    <span class="section-icon">📦</span>
+                    <h2>Circle Noun</h2>
+                </div>
+                <p>Lingkaran ini berisi segala sesuatu yang berfungsi sebagai Benda (Subjek atau Objek). Berikut adalah anggota dari Circle Noun:</p>
+
+                <table class="elegant-table">
+                    <thead>
+                        <tr>
+                            <th>Anggota (Component)</th>
+                            <th>Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Pronoun</strong></td>
+                            <td>Kata ganti (I, You, They, We, He, She, It).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Noun</strong></td>
+                            <td>Kata benda tunggal (Car, Book, Person).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Noun Phrase</strong></td>
+                            <td>Frasa benda (The big house, My old friend).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Gerund Phrase</strong></td>
+                            <td>V-ing yang berfungsi sebagai benda (Swimming is fun).</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section style="animation-delay: 0.6s;">
+            <div class="card">
+                <div class="section-header">
+                    <span class="section-icon">⚡</span>
+                    <h2>Circle Verb (Predicate)</h2>
+                </div>
+                <p>Lingkaran ini adalah "mesin" dari kalimat. Berisi kata kerja atau predikat yang menunjukkan aksi atau keadaan.</p>
+
+                <table class="elegant-table">
+                    <thead>
+                        <tr>
+                            <th>Anggota (Component)</th>
+                            <th>Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>V1</strong></td>
+                            <td>Verb bentuk pertama (Present). Contoh: <em>Go, Eat.</em></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Verb Phrase</strong></td>
+                            <td>Gabungan kata kerja bantu dan utama. Contoh: <em>Will go, Can play.</em></td>
+                        </tr>
+                        <tr>
+                            <td><strong>V2</strong></td>
+                            <td>Verb bentuk kedua (Past). Contoh: <em>Went, Ate.</em></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section style="animation-delay: 0.8s;">
+            <div class="card">
+                <div class="section-header">
+                    <span class="section-icon">📍</span>
+                    <h2>Circle Adverb</h2>
+                </div>
+                <p>Lingkaran ini memberikan keterangan tambahan (Waktu, Tempat, Cara, Tujuan).</p>
+
+                <table class="elegant-table">
+                    <thead>
+                        <tr>
+                            <th>Anggota (Component)</th>
+                            <th>Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Adverb</strong></td>
+                            <td>Kata keterangan tunggal. Contoh: <em>Yesterday, Here.</em></td>
+                        </tr>
+                        <tr>
+                            <td><strong>TO V1</strong></td>
+                            <td>To Infinitive (biasanya menunjukkan tujuan). Contoh: <em>To learn, To eat.</em></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Adverb Phrase</strong></td>
+                            <td>Frasa keterangan. Contoh: <em>In the morning, Very quickly.</em></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section style="animation-delay: 1s;">
+            <div class="card">
+                <div class="section-header">
+                    <span class="section-icon">🎨</span>
+                    <h2>Circle Adjective</h2>
+                </div>
+                <p>Lingkaran ini berisi kata-kata yang memberikan sifat atau deskripsi.</p>
+
+                <table class="elegant-table">
+                    <thead>
+                        <tr>
+                            <th>Anggota (Component)</th>
+                            <th>Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Adj</strong></td>
+                            <td>Adjective murni. Contoh: <em>Happy, Sad.</em></td>
+                        </tr>
+                        <tr>
+                            <td><strong>V-ing</strong></td>
+                            <td>Active Participle (Sifat aktif). Contoh: <em>Boring (Membosankan).</em></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Adj + Adj</strong></td>
+                            <td>Gabungan adjective. Contoh: <em>Smart and kind.</em></td>
+                        </tr>
+                        <tr>
+                            <td><strong>V3</strong></td>
+                            <td>Passive Participle (Sifat pasif). Contoh: <em>Bored (Bosan), Tired (Lelah).</em></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section style="animation-delay: 1.1s;">
+            <div class="card" style="border-top-color: var(--emerald-primary);">
+                <div class="section-header">
+                    <span class="section-icon">📋</span>
+                    <h2>Rangkuman Circle (Quick Summary)</h2>
+                </div>
+                <p>Berikut adalah tabel ringkasan isi dari setiap Circle untuk memudahkan hafalan.</p>
+
+                <table class="elegant-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 30%;">Nama Circle</th>
+                            <th>Anggota / Isi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Circle Noun</strong></td>
+                            <td>Pronoun, Noun, Noun Phrase, Gerund phrase</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Circle Verb</strong></td>
+                            <td>V1, Verb Phrase, V2</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Circle Adverb</strong></td>
+                            <td>Adverb, TO V1, Adverb phrase</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Circle Adjective</strong></td>
+                            <td>Adj, Ving, Adj+Adj, V3</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="quiz-wrapper" style="animation-delay: 1.2s;">
+            <h2>Circle Method Knowledge Check</h2>
+            <p style="text-align:center; color:white; margin-bottom:2rem;">Tentukan masuk ke dalam "Circle" manakah komponen berikut ini?</p>
+            <form id="quizForm">
+
+                <div class="question-item">
+                    <p class="question-text">1. "Pronoun" termasuk dalam Circle...</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q1" value="correct"> Circle Noun</label>
+                        <label class="option-label"><input type="radio" name="q1" value="wrong"> Circle Verb</label>
+                        <label class="option-label"><input type="radio" name="q1" value="wrong"> Circle Adjective</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">2. "V2" (Verb 2) adalah anggota dari...</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q2" value="wrong"> Circle Noun</label>
+                        <label class="option-label"><input type="radio" name="q2" value="correct"> Circle Verb</label>
+                        <label class="option-label"><input type="radio" name="q2" value="wrong"> Circle Adverb</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">3. "TO V1" (To Infinitive) dikategorikan dalam...</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q3" value="correct"> Circle Adverb</label>
+                        <label class="option-label"><input type="radio" name="q3" value="wrong"> Circle Verb</label>
+                        <label class="option-label"><input type="radio" name="q3" value="wrong"> Circle Noun</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">4. "V3" (Verb 3) dalam metode ini masuk ke...</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q4" value="wrong"> Circle Verb</label>
+                        <label class="option-label"><input type="radio" name="q4" value="correct"> Circle Adjective</label>
+                        <label class="option-label"><input type="radio" name="q4" value="wrong"> Circle Noun</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">5. "Gerund Phrase" adalah bagian dari...</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q5" value="wrong"> Circle Verb</label>
+                        <label class="option-label"><input type="radio" name="q5" value="wrong"> Circle Adjective</label>
+                        <label class="option-label"><input type="radio" name="q5" value="correct"> Circle Noun</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">6. "Verb Phrase" masuk ke dalam...</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q6" value="correct"> Circle Verb</label>
+                        <label class="option-label"><input type="radio" name="q6" value="wrong"> Circle Adverb</label>
+                        <label class="option-label"><input type="radio" name="q6" value="wrong"> Circle Noun</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">7. "Adverb Phrase" adalah anggota dari...</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q7" value="correct"> Circle Adverb</label>
+                        <label class="option-label"><input type="radio" name="q7" value="wrong"> Circle Adjective</label>
+                        <label class="option-label"><input type="radio" name="q7" value="wrong"> Circle Noun</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">8. "V-ing" (sebagai sifat/participle) masuk ke dalam...</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q8" value="wrong"> Circle Noun</label>
+                        <label class="option-label"><input type="radio" name="q8" value="correct"> Circle Adjective</label>
+                        <label class="option-label"><input type="radio" name="q8" value="wrong"> Circle Verb</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">9. "Noun Phrase" termasuk dalam...</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q9" value="correct"> Circle Noun</label>
+                        <label class="option-label"><input type="radio" name="q9" value="wrong"> Circle Adjective</label>
+                        <label class="option-label"><input type="radio" name="q9" value="wrong"> Circle Verb</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">10. "Adj + Adj" merupakan pola dari...</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q10" value="wrong"> Circle Noun</label>
+                        <label class="option-label"><input type="radio" name="q10" value="correct"> Circle Adjective</label>
+                        <label class="option-label"><input type="radio" name="q10" value="wrong"> Circle Adverb</label>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-gold" onclick="calculateResult()">Submit Answers</button>
+                <div id="score-display"></div>
+            </form>
+        </section>
+
+    </div>
+
+    <footer>
+        <p>&copy; 2026 English Check - Circle Method Edition.</p>
+        <p style="font-size: 0.8rem; margin-top: 10px;">Authored by Kohan, Icha</p>
+    </footer>
+
+    <script>
+        function calculateResult() {
+            let score = 0;
+            const totalQuestions = 10;
+            
+            // Loop through all 10 questions
+            for (let i = 1; i <= totalQuestions; i++) {
+                const options = document.getElementsByName('q' + i);
+                let answered = false;
+
+                // Reset styles
+                options.forEach(opt => {
+                    opt.parentElement.classList.remove('correct', 'wrong');
+                });
+
+                options.forEach(opt => {
+                    if (opt.checked) {
+                        answered = true;
+                        if (opt.value === 'correct') {
+                            score++;
+                            opt.parentElement.classList.add('correct');
+                        } else {
+                            opt.parentElement.classList.add('wrong');
+                        }
+                    }
+                });
+            }
+
+            // Display Score
+            const resultDiv = document.getElementById('score-display');
+            resultDiv.style.display = 'block';
+            
+            let message = "";
+            if(score === 10) message = "Perfect Score! You mastered the Circle Method!";
+            else if(score > 7) message = "Great Job! You understand the groups well.";
+            else message = "Good effort! Review the circles again.";
+
+            resultDiv.innerHTML = `Your Score: ${score} / ${totalQuestions}<br><span style="font-size: 1rem; font-weight:normal">${message}</span>`;
+            
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+
+</body>
+</html>

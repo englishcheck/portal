@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>If Conditional Exam</title>
+    <style>
+        :root {
+            --bg-color: #0a1f13;
+            --card-bg: #142e20;
+            --accent: #4ade80;
+            --highlight: #22c55e;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border: #1e4533;
+            --error: #ef4444;
+            --review-correct-bg: rgba(34, 197, 94, 0.2);
+            --review-wrong-bg: rgba(239, 68, 68, 0.2);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            max-height: 90vh; /* Prevent overly long pages */
+            overflow-y: auto; /* Allow scrolling inside container */
+        }
+
+        /* Scrollbar styling */
+        .container::-webkit-scrollbar { width: 8px; }
+        .container::-webkit-scrollbar-track { background: var(--bg-color); }
+        .container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+        header {
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 { margin: 0; font-size: 1.8rem; color: var(--accent); font-weight: 300; letter-spacing: 1px; }
+
+        .header-right { display: flex; align-items: center; gap: 20px; }
+        .progress { font-size: 0.9rem; color: var(--text-muted); }
+
+        /* Timer */
+        .timer {
+            font-family: monospace;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--accent);
+            padding: 5px 12px;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            background: rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+        .timer.warning {
+            color: var(--error);
+            border-color: var(--error);
+            background: rgba(239, 68, 68, 0.1);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* Question Section */
+        .question-box { margin-bottom: 30px; }
+        .question-text { font-size: 1.2rem; line-height: 1.6; margin-bottom: 25px; font-weight: 500; }
+        .options-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+
+        .option-btn {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 15px 20px;
+            text-align: left;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .option-btn .label { font-weight: bold; color: var(--accent); margin-right: 15px; min-width: 25px; }
+        .option-btn:hover { background-color: rgba(74, 222, 128, 0.1); border-color: var(--accent); }
+
+        /* Selected state during exam */
+        .option-btn.selected {
+            background-color: var(--accent);
+            color: var(--bg-color);
+            font-weight: bold;
+            border-color: var(--accent);
+        }
+        .option-btn.selected .label { color: var(--bg-color); }
+
+        /* Controls */
+        .controls { display: flex; justify-content: flex-end; margin-top: 30px; gap: 15px; }
+
+        button.nav-btn {
+            background: linear-gradient(135deg, #166534 0%, #14532d 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        button.nav-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 10px rgba(0,0,0,0.3); }
+        button.nav-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; background: #333; }
+
+        /* Start Screen */
+        .start-screen { text-align: center; padding: 20px; display: block; }
+        .setting-control { margin: 30px 0; background: rgba(0,0,0,0.2); padding: 20px; border-radius: 10px; border: 1px solid var(--border); }
+        .setting-control label { display: block; margin-bottom: 15px; font-size: 1.1rem; color: var(--accent); }
+        .range-container { display: flex; align-items: center; justify-content: center; gap: 20px; }
+
+        input[type=range] { -webkit-appearance: none; width: 100%; max-width: 300px; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%; background: var(--accent); cursor: pointer; margin-top: -8px; box-shadow: 0 0 10px rgba(74, 222, 128, 0.5); }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: var(--border); border-radius: 2px; }
+        input[type=number] { background: rgba(255, 255, 255, 0.1); border: 1px solid var(--border); color: var(--accent); padding: 8px 12px; border-radius: 6px; font-size: 1.2rem; width: 70px; text-align: center; font-weight: bold; -moz-appearance: textfield; }
+
+        /* Results Screen */
+        .results-screen { text-align: center; display: none; }
+        .score-circle { width: 150px; height: 150px; border-radius: 50%; border: 5px solid var(--accent); display: flex; justify-content: center; align-items: center; margin: 0 auto 30px auto; font-size: 3rem; color: var(--accent); box-shadow: 0 0 20px rgba(74, 222, 128, 0.2); }
+
+        /* REVIEW SECTION STYLES */
+        .review-list { margin-top: 30px; text-align: left; }
+        .review-item { 
+            background: rgba(0,0,0,0.2); 
+            border: 1px solid var(--border); 
+            border-radius: 8px; 
+            padding: 20px; 
+            margin-bottom: 20px; 
+        }
+        .review-question { font-weight: bold; margin-bottom: 15px; color: #fff; }
+        
+        .review-option {
+            padding: 8px 12px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            border: 1px solid transparent;
+        }
+
+        /* Correct answer style in review */
+        .review-option.correct-answer {
+            background-color: var(--review-correct-bg);
+            color: var(--highlight);
+            border-color: var(--highlight);
+            font-weight: bold;
+        }
+
+        /* User's wrong answer style in review */
+        .review-option.user-wrong {
+            background-color: var(--review-wrong-bg);
+            color: var(--error);
+            border-color: var(--error);
+            text-decoration: line-through;
+        }
+
+        .review-explanation {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border);
+            font-size: 0.9rem;
+            color: var(--accent);
+            font-style: italic;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+
+        /* Status badges */
+        .status-badge { padding: 2px 8px; border-radius: 4px; font-weight: bold; }
+        .status-correct { color: var(--highlight); border: 1px solid var(--highlight); }
+        .status-wrong { color: var(--error); border: 1px solid var(--error); }
+        .status-skipped { color: var(--text-muted); border: 1px solid var(--text-muted); }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Exam Mode</h1>
+        <div class="header-right">
+            <div id="timer-display" class="timer">00:00</div>
+            <div class="progress" id="progress-container" style="display:none;">
+                Question <span id="current-q">1</span> of <span id="total-q">50</span>
+            </div>
+        </div>
+    </header>
+
+    <div id="start-screen" class="start-screen">
+        <h2>Exam Configuration</h2>
+        <p>Set up your mock exam parameters.</p>
+        
+        <div class="setting-control">
+            <label>Number of Questions (Max: <span id="max-qty-text">50</span>)</label>
+            <div class="range-container">
+                <input type="range" id="q-range" min="1" max="50" value="10" oninput="syncInputs(this.value)">
+                <input type="number" id="q-number" min="1" max="50" value="10" oninput="syncInputs(this.value)">
+            </div>
+        </div>
+
+        <div class="setting-control">
+            <label>Time Limit (Minutes)</label>
+            <div class="range-container">
+                <input type="range" id="t-range" min="1" max="60" value="20" oninput="syncTimeInputs(this.value)">
+                <input type="number" id="t-number" min="1" max="60" value="20" oninput="syncTimeInputs(this.value)">
+            </div>
+        </div>
+
+        <button class="nav-btn" onclick="startTest()">Start Exam</button>
+    </div>
+
+    <div id="quiz-area" style="display:none;">
+        <div class="question-box">
+            <div class="question-text" id="question-text">
+                Loading Question...
+            </div>
+            <div class="options-grid" id="options-container">
+                </div>
+        </div>
+
+        <div class="controls">
+            <button class="nav-btn" id="next-btn" onclick="nextQuestion()" disabled>Next Question</button>
+        </div>
+    </div>
+
+    <div id="results-area" class="results-screen">
+        <h2>Exam Finished</h2>
+        <div class="score-circle">
+            <span id="final-score">0</span>%
+        </div>
+        <p>You answered <span id="correct-count">0</span> out of <span id="total-count">0</span> correctly.</p>
+        
+        <div style="margin-top: 20px; display: flex; justify-content: center; gap: 15px;">
+             <button class="nav-btn" onclick="location.reload()">Retake Test</button>
+             <button class="nav-btn" style="background: #334155;" onclick="toggleReview()">Review Answers ⬇</button>
+        </div>
+
+        <div id="review-container" class="review-list" style="display:none;">
+            </div>
+    </div>
+</div>
+
+<script src="if exam.js"></script> 
+
+<script>
+    // --- GLOBAL VARIABLES ---
+    let testSession = []; // Stores the ordered questions and shuffled options for this specific session
+    let currentQuestionIndex = 0;
+    let timerInterval;
+    let timeRemaining; 
+    let userAnswers = {}; // Maps question index to selected option index
+
+    // DOM Elements
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const currentQSpan = document.getElementById('current-q');
+    const totalQSpan = document.getElementById('total-q');
+    const nextBtn = document.getElementById('next-btn');
+    const quizArea = document.getElementById('quiz-area');
+    const resultsArea = document.getElementById('results-area');
+    const startScreen = document.getElementById('start-screen');
+    const qRangeInput = document.getElementById('q-range');
+    const qNumberInput = document.getElementById('q-number');
+    const tRangeInput = document.getElementById('t-range');
+    const tNumberInput = document.getElementById('t-number');
+    const timerDisplay = document.getElementById('timer-display');
+    const reviewContainer = document.getElementById('review-container');
+
+    // --- HELPER FUNCTIONS ---
+
+    function shuffleArray(array) {
+        // Create a copy to avoid mutating original source
+        let arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    // --- INITIALIZATION ---
+
+    function initGame() {
+        if (typeof questionsSource === 'undefined') {
+            alert("Error: questions.js not found! Please make sure both files are in the same folder.");
+            return;
+        }
+
+        const maxQuestions = questionsSource.length;
+        document.getElementById('max-qty-text').textContent = maxQuestions;
+        qRangeInput.max = maxQuestions;
+        qNumberInput.max = maxQuestions;
+        
+        // Defaults
+        const defaultVal = Math.min(10, maxQuestions);
+        qRangeInput.value = defaultVal;
+        qNumberInput.value = defaultVal;
+    }
+
+    function syncInputs(val) {
+        qRangeInput.value = val;
+        qNumberInput.value = val;
+    }
+    
+    function syncTimeInputs(val) {
+        tRangeInput.value = val;
+        tNumberInput.value = val;
+    }
+
+    // --- TEST LOGIC ---
+
+    function startTest() {
+        // 1. Prepare Question Set
+        let count = parseInt(qNumberInput.value);
+        const maxQ = questionsSource.length;
+        if (isNaN(count) || count < 1) count = 1;
+        if (count > maxQ) count = maxQ;
+
+        // Shuffle main pool of questions
+        const rawQuestions = shuffleArray([...questionsSource]).slice(0, count);
+
+        // 2. Prepare Session Data (Pre-shuffle options so they stay consistent for review)
+        testSession = rawQuestions.map(q => {
+            // Map options to objects to track original correct index
+            let optionObjs = q.options.map((text, idx) => ({
+                text: text,
+                isCorrect: idx === q.answer
+            }));
+            
+            // Shuffle the options
+            let shuffledOptions = shuffleArray(optionObjs);
+
+            return {
+                question: q.question,
+                options: shuffledOptions,
+                explanation: q.explanation,
+                userSelectedOptionIndex: null // Will store which visual index user picked (0-3)
+            };
+        });
+
+        // 3. Reset State
+        currentQuestionIndex = 0;
+        userAnswers = {};
+        totalQSpan.textContent = testSession.length;
+
+        // 4. UI Switch
+        startScreen.style.display = 'none';
+        quizArea.style.display = 'block';
+        document.getElementById('progress-container').style.display = 'block';
+
+        // 5. Start Timer
+        const mins = parseInt(tNumberInput.value);
+        startTimer(mins);
+
+        // 6. Load First
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        const data = testSession[currentQuestionIndex];
+        
+        currentQSpan.textContent = currentQuestionIndex + 1;
+        questionText.textContent = data.question;
+        optionsContainer.innerHTML = '';
+        nextBtn.disabled = true;
+
+        // Check if last question to change button text
+        if (currentQuestionIndex === testSession.length - 1) {
+            nextBtn.textContent = "Finish Exam";
+        } else {
+            nextBtn.textContent = "Next Question";
+        }
+
+        // Render Options
+        data.options.forEach((opt, index) => {
+            const btn = document.createElement('div');
+            btn.className = 'option-btn';
+            const label = ["(A)", "(B)", "(C)", "(D)"][index];
+            btn.innerHTML = `<span class="label">${label}</span> ${opt.text}`;
+            btn.onclick = () => selectOption(index);
+            
+            // Restore selection if user went back (not implemented here but good practice)
+            if (data.userSelectedOptionIndex === index) {
+                btn.classList.add('selected');
+                nextBtn.disabled = false;
+            }
+            
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function selectOption(index) {
+        // Just visual selection
+        const buttons = document.querySelectorAll('.option-btn');
+        buttons.forEach(b => b.classList.remove('selected'));
+        buttons[index].classList.add('selected');
+        
+        // Temporarily store choice in the UI state
+        optionsContainer.dataset.pendingSelection = index;
+        nextBtn.disabled = false;
+    }
+
+    function nextQuestion() {
+        // 1. Save Answer
+        const selectedIndex = parseInt(optionsContainer.dataset.pendingSelection);
+        testSession[currentQuestionIndex].userSelectedOptionIndex = selectedIndex;
+
+        // 2. Advance
+        if (currentQuestionIndex < testSession.length - 1) {
+            currentQuestionIndex++;
+            loadQuestion();
+        } else {
+            finishTest();
+        }
+    }
+
+    function startTimer(minutes) {
+        timeRemaining = minutes * 60;
+        updateTimerDisplay();
+        timerDisplay.style.display = 'block';
+
+        if (timerInterval) clearInterval(timerInterval);
+
+        timerInterval = setInterval(() => {
+            timeRemaining--;
+            updateTimerDisplay();
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                finishTest(true); // Forced finish
+            }
+        }, 1000);
+    }
+
+    function updateTimerDisplay() {
+        const m = Math.floor(timeRemaining / 60);
+        const s = timeRemaining % 60;
+        timerDisplay.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        if (timeRemaining < 60) timerDisplay.classList.add('warning');
+        else timerDisplay.classList.remove('warning');
+    }
+
+    function finishTest(forced = false) {
+        clearInterval(timerInterval);
+        timerDisplay.style.display = 'none';
+        
+        if(forced) alert("Time is up! Submitting answers.");
+
+        quizArea.style.display = 'none';
+        resultsArea.style.display = 'block';
+
+        calculateScore();
+    }
+
+    // --- SCORING & REVIEW ---
+
+    function calculateScore() {
+        let score = 0;
+        
+        testSession.forEach(item => {
+            // item.userSelectedOptionIndex is 0-3
+            // item.options is the shuffled array. Check if the selected one has isCorrect=true
+            if (item.userSelectedOptionIndex !== null) {
+                const selectedOptionObj = item.options[item.userSelectedOptionIndex];
+                if (selectedOptionObj.isCorrect) {
+                    score++;
+                }
+            }
+        });
+
+        const total = testSession.length;
+        const percentage = Math.round((score / total) * 100);
+        
+        document.getElementById('correct-count').textContent = score;
+        document.getElementById('total-count').textContent = total;
+        document.getElementById('final-score').textContent = percentage;
+
+        generateReview();
+    }
+
+    function generateReview() {
+        reviewContainer.innerHTML = '';
+        
+        testSession.forEach((item, qIdx) => {
+            const reviewItem = document.createElement('div');
+            reviewItem.className = 'review-item';
+
+            // Determine status
+            let statusBadge = '';
+            const userIdx = item.userSelectedOptionIndex;
+            let isCorrect = false;
+
+            if (userIdx === null) {
+                statusBadge = '<span class="status-badge status-skipped">SKIPPED</span>';
+            } else if (item.options[userIdx].isCorrect) {
+                statusBadge = '<span class="status-badge status-correct">CORRECT</span>';
+                isCorrect = true;
+            } else {
+                statusBadge = '<span class="status-badge status-wrong">WRONG</span>';
+            }
+
+            // Build Options HTML
+            let optionsHtml = '';
+            item.options.forEach((opt, oIdx) => {
+                let classes = 'review-option';
+                let icon = '';
+
+                // If this is the correct answer
+                if (opt.isCorrect) {
+                    classes += ' correct-answer';
+                    icon = ' ✓';
+                }
+
+                // If user picked this and it was wrong
+                if (oIdx === userIdx && !opt.isCorrect) {
+                    classes += ' user-wrong';
+                    icon = ' ✗';
+                } 
+                // If user picked this and it was correct (already handled by correct-answer logic, but maybe add marker)
+                else if (oIdx === userIdx && opt.isCorrect) {
+                    icon = ' (You selected)';
+                }
+
+                const label = ["(A)", "(B)", "(C)", "(D)"][oIdx];
+                optionsHtml += `<div class="${classes}">${label} ${opt.text} ${icon}</div>`;
+            });
+
+            reviewItem.innerHTML = `
+                <div class="review-header">
+                    <span>Question ${qIdx + 1}</span>
+                    ${statusBadge}
+                </div>
+                <div class="review-question">${item.question}</div>
+                <div class="review-options">${optionsHtml}</div>
+                <div class="review-explanation">
+                    <strong>Explanation:</strong> ${item.explanation}
+                </div>
+            `;
+            
+            reviewContainer.appendChild(reviewItem);
+        });
+    }
+
+    function toggleReview() {
+        if (reviewContainer.style.display === 'none') {
+            reviewContainer.style.display = 'block';
+            // Scroll to review
+            reviewContainer.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            reviewContainer.style.display = 'none';
+        }
+    }
+
+    // Start
+    initGame();
+
+</script>
+
+</body>
+</html>

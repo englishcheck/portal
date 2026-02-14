@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Conditionals - Practice Hub</title>
+    <style>
+        :root {
+            --bg-color: #05100a; /* Deepest black-green */
+            --card-bg: #142e20;  /* Matching your quiz files */
+            --accent: #4ade80;   /* The elegant light green */
+            --glow: rgba(74, 222, 128, 0.4);
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 50% 50%, #1a3c2b 0%, var(--bg-color) 70%);
+            color: var(--text-main);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+
+        /* Ambient Animation Background */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.3;
+            background-image: radial-gradient(var(--accent) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: moveBackground 60s linear infinite;
+        }
+
+        @keyframes moveBackground {
+            from { background-position: 0 0; }
+            to { background-position: 100% 100%; }
+        }
+
+        .container {
+            z-index: 1;
+            width: 100%;
+            max-width: 1000px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header {
+            margin-bottom: 50px;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin: 0;
+            font-weight: 200;
+            letter-spacing: 2px;
+            color: var(--accent);
+            text-shadow: 0 0 20px var(--glow);
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            margin-top: 10px;
+            letter-spacing: 1px;
+        }
+
+        /* Grid Layout */
+        .grid-menu {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            padding: 10px;
+        }
+
+        /* Card Design */
+        .card {
+            background-color: rgba(20, 46, 32, 0.7);
+            border: 1px solid rgba(74, 222, 128, 0.2);
+            border-radius: 15px;
+            padding: 30px 20px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-main);
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+            z-index: -1;
+        }
+
+        .card:hover {
+            transform: translateY(-10px) scale(1.02);
+            background-color: rgba(20, 46, 32, 0.9);
+            border-color: var(--accent);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5), 0 0 20px var(--glow);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 15px;
+            transition: transform 0.3s;
+        }
+
+        .card:hover .card-icon {
+            transform: scale(1.2) rotate(5deg);
+        }
+
+        .card h2 {
+            margin: 10px 0;
+            font-size: 1.5rem;
+            color: #fff;
+        }
+
+        .card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .card .badge {
+            background-color: rgba(74, 222, 128, 0.1);
+            color: var(--accent);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-top: 15px;
+            border: 1px solid rgba(74, 222, 128, 0.3);
+        }
+
+        /* Sound Toggle */
+        .sound-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+        .sound-toggle:hover {
+            background: var(--accent);
+            color: var(--bg-color);
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 2.5rem; }
+            .grid-menu { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="particles"></div>
+
+    <div class="container">
+        <header>
+            <h1>If Conditional</h1>
+            <p class="subtitle">Master English Conditional Sentences</p>
+        </header>
+
+        <div class="grid-menu">
+            <a href="if 0.html" class="card" onmouseenter="playHover()" onclick="playClick(event, this.href)">
+                <div class="card-icon">0</div>
+                <h2>Zero Conditional</h2>
+                <p>General truths, scientific facts, and habits.</p>
+                <span class="badge">Fundamental</span>
+            </a>
+
+            <a href="if 1.html" class="card" onmouseenter="playHover()" onclick="playClick(event, this.href)">
+                <div class="card-icon">I</div>
+                <h2>First Conditional</h2>
+                <p>Real possibilities in the present or future.</p>
+                <span class="badge">Essential</span>
+            </a>
+
+            <a href="if 2.html" class="card" onmouseenter="playHover()" onclick="playClick(event, this.href)">
+                <div class="card-icon">II</div>
+                <h2>Second Conditional</h2>
+                <p>Hypothetical situations in the present/future.</p>
+                <span class="badge">Intermediate</span>
+            </a>
+
+            <a href="if 3.html" class="card" onmouseenter="playHover()" onclick="playClick(event, this.href)">
+                <div class="card-icon">III</div>
+                <h2>Third Conditional</h2>
+                <p>Regrets and imaginary situations in the past.</p>
+                <span class="badge">Advanced</span>
+            </a>
+        </div>
+    </div>
+
+    <button class="sound-toggle" id="sound-btn" onclick="toggleSound()">
+        🔊
+    </button>
+
+    <script>
+        // --- AUDIO ENGINE ---
+        // Simple Web Audio API to generate sounds without external files
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let isSoundOn = true;
+
+        function toggleSound() {
+            isSoundOn = !isSoundOn;
+            const btn = document.getElementById('sound-btn');
+            btn.innerHTML = isSoundOn ? '🔊' : '🔇';
+            
+            // Browsers require interaction to start audio context
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playHover() {
+            if (!isSoundOn) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            // High pitched sleek blip
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, now);
+            osc.frequency.exponentialRampToValueAtTime(400, now + 0.1);
+            
+            gain.gain.setValueAtTime(0.05, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+
+            osc.start(now);
+            osc.stop(now + 0.1);
+        }
+
+        function playClick(e, url) {
+            // Prevent immediate navigation to play sound first
+            e.preventDefault();
+
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            if (isSoundOn) {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                // Richer "Enter" sound
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.linearRampToValueAtTime(600, now + 0.2);
+
+                gain.gain.setValueAtTime(0, now);
+                gain.gain.linearRampToValueAtTime(0.1, now + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+                osc.start(now);
+                osc.stop(now + 0.4);
+            }
+
+            // Delay navigation slightly to allow visual/audio feedback
+            setTimeout(() => {
+                window.location.href = url;
+            }, 300);
+        }
+    </script>
+</body>
+</html>

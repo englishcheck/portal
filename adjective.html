@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Class: The Adjective | English Elegant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        /* --- VARIABLE & RESET --- */
+        :root {
+            --emerald-dark: #0a2f23;
+            --emerald-primary: #14523d;
+            --emerald-light: #e3f0ea;
+            --gold-accent: #c5a059;
+            --gold-hover: #b08d45;
+            --cream-bg: #fdfcf8;
+            --text-main: #2a2a2a;
+            --white: #ffffff;
+            --danger: #d9534f;
+            --success: #28a745;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: var(--cream-bg);
+            color: var(--text-main);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* --- TYPOGRAPHY --- */
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+            color: var(--emerald-dark);
+        }
+
+        .highlight-gold { color: var(--gold-accent); font-weight: bold; }
+        .highlight-green { color: var(--emerald-primary); font-weight: bold; }
+
+        /* --- HEADER --- */
+        header {
+            background: linear-gradient(135deg, var(--emerald-dark) 0%, var(--emerald-primary) 100%);
+            color: var(--white);
+            padding: 4rem 2rem;
+            text-align: center;
+            position: relative;
+            clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
+        }
+
+        header h1 { color: var(--white); font-size: 3.5rem; margin-bottom: 0.5rem; }
+        header p { font-size: 1.2rem; font-weight: 300; opacity: 0.9; }
+
+        /* --- LAYOUT --- */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        section {
+            margin-bottom: 3rem;
+            opacity: 0; /* Untuk animasi fade-in */
+            transform: translateY(20px);
+            animation: fadeUp 0.8s forwards;
+        }
+
+        /* --- CARDS --- */
+        .card {
+            background: var(--white);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(10, 47, 35, 0.08);
+            border-top: 4px solid var(--gold-accent);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover { transform: translateY(-5px); }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1rem;
+        }
+        
+        .section-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+            color: var(--gold-accent);
+        }
+
+        /* --- TABLE STYLING --- */
+        .elegant-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+        
+        .elegant-table th {
+            background-color: var(--emerald-primary);
+            color: var(--white);
+            padding: 1rem;
+            text-align: left;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .elegant-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .elegant-table tr:hover { background-color: var(--emerald-light); }
+
+        /* --- COMPARISON BOX --- */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 1rem;
+        }
+
+        .compare-box {
+            background: #fcfcfc;
+            border: 1px solid #eee;
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .compare-box h4 {
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--gold-accent);
+            display: inline-block;
+        }
+
+        /* --- TIP BOX --- */
+        .tip-box {
+            background-color: var(--emerald-light);
+            border-left: 5px solid var(--emerald-primary);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            border-radius: 4px;
+        }
+        
+        .tip-title {
+            font-weight: bold;
+            color: var(--emerald-primary);
+            display: block;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        /* --- QUIZ STYLES --- */
+        .quiz-wrapper {
+            background: var(--emerald-dark);
+            color: var(--white);
+            padding: 3rem;
+            border-radius: 15px;
+            position: relative;
+        }
+
+        .quiz-wrapper h2 { color: var(--gold-accent); text-align: center; margin-bottom: 2rem; }
+
+        .question-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .question-text { font-size: 1.15rem; font-weight: bold; margin-bottom: 1rem; }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .option-label {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-main);
+            padding: 0.8rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .option-label:hover { background: var(--gold-accent); color: var(--emerald-dark); }
+        .option-label input { margin-right: 10px; accent-color: var(--emerald-dark); }
+
+        /* Feedback Colors */
+        .correct { background-color: var(--success) !important; color: white !important; }
+        .wrong { background-color: var(--danger) !important; color: white !important; }
+
+        /* Button */
+        .btn-gold {
+            background: var(--gold-accent);
+            color: var(--emerald-dark);
+            border: none;
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            display: block;
+            margin: 2rem auto 0;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(197, 160, 89, 0.4);
+        }
+        
+        .btn-gold:hover { background: var(--gold-hover); transform: scale(1.05); }
+
+        /* Score Display */
+        #score-display {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-top: 1.5rem;
+            font-weight: bold;
+            color: var(--white);
+            display: none;
+        }
+
+        /* --- ANIMATION --- */
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        footer {
+            text-align: center;
+            padding: 3rem;
+            color: var(--emerald-primary);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media(max-width: 600px) {
+            header h1 { font-size: 2.5rem; }
+            .card { padding: 1.5rem; }
+            .comparison-grid { grid-template-columns: 1fr; }
+            .elegant-table { display: block; overflow-x: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <h1>The Adjective</h1>
+            <p>COLLABORATING FOR CHANGE, EMPOWERING FOR IMPACT COLLABORATING FOR CHANGE, EMPOWERING FOR IMPACT</p>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <section style="animation-delay: 0.2s;">
+            <div class="card">
+                <div class="section-header">
+                    <span class="section-icon">✦</span>
+                    <h2>Apa itu Adjective?</h2>
+                </div>
+                <p>Bayangkan Noun (Kata Benda) adalah sebuah kanvas hitam putih. <strong>Adjective</strong> (Kata Sifat) adalah kuas cat yang memberikan warna, bentuk, dan rasa pada kanvas tersebut.</p>
+                <br>
+                <p>Adjective berfungsi <strong>memodifikasi</strong> atau menjelaskan Noun:</p>
+                <ul style="margin-left: 20px; list-style-type: none; margin-top: 10px; background: var(--emerald-light); padding: 15px; border-radius: 8px;">
+                    <li style="margin-bottom: 8px;">🏠 <em>House</em> (Biasa saja) ➝ <em><strong>Big</strong> House</em> (Ada ukurannya).</li>
+                    <li style="margin-bottom: 8px;">🚗 <em>Car</em> (Biasa saja) ➝ <em><strong>Red Sports</strong> Car</em> (Ada warna dan jenisnya).</li>
+                    <li>👩 <em>Girl</em> (Biasa saja) ➝ <em><strong>Smart</strong> Girl</em> (Ada kualitasnya).</li>
+                </ul>
+            </div>
+        </section>
+
+        <section style="animation-delay: 0.4s;">
+            <div class="card">
+                <div class="section-header">
+                    <span class="section-icon">👑</span>
+                    <h2>The Royal Order (Urutan)</h2>
+                </div>
+                <p>Dalam bahasa Inggris, jika kita menggunakan lebih dari satu kata sifat, kita tidak boleh menyusunnya sembarangan. Ada aturan sakral yang disebut <strong>OSASCOMP</strong>.</p>
+
+                <table class="elegant-table">
+                    <thead>
+                        <tr>
+                            <th>Urutan</th>
+                            <th>Kategori</th>
+                            <th>Contoh Kata</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1. <strong>O</strong></td>
+                            <td><strong>Opinion</strong> (Pendapat)</td>
+                            <td>Beautiful, Ugly, Good, Bad</td>
+                        </tr>
+                        <tr>
+                            <td>2. <strong>S</strong></td>
+                            <td><strong>Size</strong> (Ukuran)</td>
+                            <td>Big, Small, Tall, Tiny</td>
+                        </tr>
+                        <tr>
+                            <td>3. <strong>A</strong></td>
+                            <td><strong>Age</strong> (Umur)</td>
+                            <td>Old, Young, New, Ancient</td>
+                        </tr>
+                        <tr>
+                            <td>4. <strong>S</strong></td>
+                            <td><strong>Shape</strong> (Bentuk)</td>
+                            <td>Round, Square, Flat</td>
+                        </tr>
+                        <tr>
+                            <td>5. <strong>C</strong></td>
+                            <td><strong>Color</strong> (Warna)</td>
+                            <td>Red, Blue, Black</td>
+                        </tr>
+                        <tr>
+                            <td>6. <strong>O</strong></td>
+                            <td><strong>Origin</strong> (Asal)</td>
+                            <td>Indonesian, Italian, Japanese</td>
+                        </tr>
+                        <tr>
+                            <td>7. <strong>M</strong></td>
+                            <td><strong>Material</strong> (Bahan)</td>
+                            <td>Wooden, Plastic, Metal</td>
+                        </tr>
+                        <tr>
+                            <td>8. <strong>P</strong></td>
+                            <td><strong>Purpose</strong> (Tujuan)</td>
+                            <td>Sleeping (bag), Running (shoes)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="tip-box">
+                    <span class="tip-title">CONTOH PENERAPAN</span>
+                    <p><em>"A <strong>beautiful big old red Italian</strong> car."</em><br>
+                    (Opinion - Size - Age - Color - Origin)</p>
+                </div>
+            </div>
+        </section>
+
+        <section style="animation-delay: 0.6s;">
+            <div class="card">
+                <div class="section-header">
+                    <span class="section-icon">⚖️</span>
+                    <h2>Degrees of Comparison</h2>
+                </div>
+                <p>Bagaimana cara membandingkan satu benda dengan benda lain? Ada 3 tingkatan:</p>
+
+                <table class="elegant-table">
+                    <thead>
+                        <tr>
+                            <th>Level</th>
+                            <th>Aturan Main</th>
+                            <th>Contoh</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Positive</strong><br>(Setara)</td>
+                            <td>Gunakan <strong>as ... as</strong></td>
+                            <td>She is <strong>as smart as</strong> him.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Comparative</strong><br>(Lebih ...)</td>
+                            <td>1 Suku kata: +<strong>er</strong><br>2+ Suku kata: <strong>more</strong> ...</td>
+                            <td>Faster, Bigger<br>More beautiful, More expensive</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Superlative</strong><br>(Paling ...)</td>
+                            <td>1 Suku kata: The ... +<strong>est</strong><br>2+ Suku kata: <strong>The most</strong> ...</td>
+                            <td>The Fastest, The Biggest<br>The most beautiful</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="tip-box" style="margin-top: 1rem; background-color: #fff3cd; border-left-color: var(--gold-accent);">
+                    <span class="tip-title" style="color: var(--gold-hover);">HATI-HATI: IRREGULAR (TIDAK BERATURAN)</span>
+                    <p>Beberapa kata sifat tidak mengikuti aturan di atas:</p>
+                    <ul style="margin-top: 5px; margin-left: 20px;">
+                        <li>Good ➝ Better ➝ Best (Bukan Gooder)</li>
+                        <li>Bad ➝ Worse ➝ Worst (Bukan Badder)</li>
+                        <li>Far ➝ Farther ➝ Farthest</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section style="animation-delay: 0.8s;">
+            <div class="card">
+                <div class="section-header">
+                    <span class="section-icon">🎭</span>
+                    <h2>The "-ED" vs "-ING" Trap</h2>
+                </div>
+                <p>Banyak siswa bingung antara <em>Bored</em> dan <em>Boring</em>. Keduanya adalah Adjective, tapi fungsinya berbeda total.</p>
+
+                <div class="comparison-grid">
+                    <div class="compare-box">
+                       <h4>Akhiran -ED (Perasaan)</h4>
+                       <p>Menjelaskan <strong>perasaan</strong> subjek (hanya untuk manusia/makhluk hidup).</p>
+                       <ul style="margin-left: 20px; font-size: 0.9rem; margin-top:10px;">
+                           <li><em>I am <strong>bored</strong>.</em> (Saya merasa bosan).</li>
+                           <li><em>She is <strong>interested</strong>.</em> (Dia merasa tertarik).</li>
+                       </ul>
+                   </div>
+
+                   <div class="compare-box">
+                       <h4>Akhiran -ING (Penyebab)</h4>
+                       <p>Menjelaskan <strong>sumber/karakteristik</strong> penyebab perasaan itu (Bisa benda atau orang).</p>
+                       <ul style="margin-left: 20px; font-size: 0.9rem; margin-top:10px;">
+                           <li><em>The movie is <strong>boring</strong>.</em> (Filmnya membosankan).</li>
+                           <li><em>The book is <strong>interesting</strong>.</em> (Bukunya menarik).</li>
+                       </ul>
+                   </div>
+               </div>
+            </div>
+        </section>
+
+        <section class="quiz-wrapper" style="animation-delay: 1s;">
+            <h2>Adjective Knowledge Check</h2>
+            <form id="quizForm">
+
+                <div class="question-item">
+                    <p class="question-text">1. Manakah susunan yang benar? (Opinion - Size - Color)</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q1" value="wrong"> A red big beautiful car.</label>
+                        <label class="option-label"><input type="radio" name="q1" value="correct"> A beautiful big red car.</label>
+                        <label class="option-label"><input type="radio" name="q1" value="wrong"> A big red beautiful car.</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">2. Bentuk Comparative dari "Good" adalah...</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q2" value="wrong"> Gooder</label>
+                        <label class="option-label"><input type="radio" name="q2" value="wrong"> More good</label>
+                        <label class="option-label"><input type="radio" name="q2" value="correct"> Better</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">3. "This math problem is very ______." (Penyebab)</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q3" value="wrong"> confused</label>
+                        <label class="option-label"><input type="radio" name="q3" value="correct"> confusing</label>
+                        <label class="option-label"><input type="radio" name="q3" value="wrong"> confuse</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">4. Mount Everest is the ______ mountain in the world.</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q4" value="wrong"> high</label>
+                        <label class="option-label"><input type="radio" name="q4" value="correct"> highest</label>
+                        <label class="option-label"><input type="radio" name="q4" value="wrong"> most high</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">5. "I am ______ in learning English." (Perasaan)</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q5" value="correct"> interested</label>
+                        <label class="option-label"><input type="radio" name="q5" value="wrong"> interesting</label>
+                        <label class="option-label"><input type="radio" name="q5" value="wrong"> interest</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">6. Bentuk Superlative dari "Expensive" adalah...</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q6" value="wrong"> Expensivest</label>
+                        <label class="option-label"><input type="radio" name="q6" value="correct"> The most expensive</label>
+                        <label class="option-label"><input type="radio" name="q6" value="wrong"> More expensive</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">7. "She has a ______ bag." (Material: Leather, Color: Black)</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q7" value="correct"> black leather</label>
+                        <label class="option-label"><input type="radio" name="q7" value="wrong"> leather black</label>
+                        <label class="option-label"><input type="radio" name="q7" value="wrong"> black and leather</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">8. Bentuk Comparative dari "Bad" adalah...</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q8" value="wrong"> Badder</label>
+                        <label class="option-label"><input type="radio" name="q8" value="correct"> Worse</label>
+                        <label class="option-label"><input type="radio" name="q8" value="wrong"> Worst</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">9. "Your car is ______ than mine." (Big)</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q9" value="correct"> bigger</label>
+                        <label class="option-label"><input type="radio" name="q9" value="wrong"> more big</label>
+                        <label class="option-label"><input type="radio" name="q9" value="wrong"> biggest</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">10. Manakah yang merupakan Adjective of Origin?</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q10" value="wrong"> Wooden</label>
+                        <label class="option-label"><input type="radio" name="q10" value="wrong"> Round</label>
+                        <label class="option-label"><input type="radio" name="q10" value="correct"> Indonesian</label>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-gold" onclick="calculateResult()">Submit Answers</button>
+                <div id="score-display"></div>
+            </form>
+        </section>
+
+    </div>
+
+    <footer>
+        <p>&copy; 2026 English Check - Adjective Edition.</p>
+    </footer>
+
+    <script>
+        function calculateResult() {
+            let score = 0;
+            const totalQuestions = 10;
+            
+            // Loop through all 10 questions
+            for (let i = 1; i <= totalQuestions; i++) {
+                const options = document.getElementsByName('q' + i);
+                let answered = false;
+
+                // Reset styles
+                options.forEach(opt => {
+                    opt.parentElement.classList.remove('correct', 'wrong');
+                });
+
+                options.forEach(opt => {
+                    if (opt.checked) {
+                        answered = true;
+                        if (opt.value === 'correct') {
+                            score++;
+                            opt.parentElement.classList.add('correct');
+                        } else {
+                            opt.parentElement.classList.add('wrong');
+                        }
+                    }
+                });
+            }
+
+            // Display Score
+            const resultDiv = document.getElementById('score-display');
+            resultDiv.style.display = 'block';
+            
+            let message = "";
+            if(score === 10) message = "Perfect Score! You are brilliant!";
+            else if(score > 7) message = "Great Job! You know your details.";
+            else message = "Good effort! Review the OSASCOMP rule again.";
+
+            resultDiv.innerHTML = `Your Score: ${score} / ${totalQuestions}<br><span style="font-size: 1rem; font-weight:normal">${message}</span>`;
+            
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+
+</body>
+</html>

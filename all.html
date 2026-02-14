@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOCABULARY ARENA | HUB</title>
+    <style>
+        :root {
+            --bg-dark: #061a12;
+            --bg-card: #0a261b;
+            --primary-green: #2ecc71;
+            --accent-gold: #d4af37;
+            --text-light: #f1f8f5;
+            --text-muted: #88a69a;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #particle-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .hub-container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            background: rgba(10, 38, 27, 0.85);
+            padding: 3rem;
+            border-radius: 24px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            max-width: 900px;
+            width: 90%;
+        }
+
+        h1 {
+            font-size: 3rem;
+            letter-spacing: 5px;
+            color: var(--accent-gold);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+        }
+
+        .subtitle {
+            color: var(--primary-green);
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .game-card {
+            background: var(--bg-dark);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid #1a4031;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary-green);
+            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.2);
+            background: #0d3324;
+        }
+
+        .game-card h2 {
+            margin: 0;
+            color: var(--primary-green);
+            font-size: 1.5rem;
+        }
+
+        .game-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--accent-gold);
+            border: 1px solid var(--accent-gold);
+        }
+
+        .audio-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 20;
+        }
+
+        .mute-btn {
+            background: none;
+            border: 1px solid var(--text-muted);
+            color: var(--text-muted);
+            padding: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .mute-btn:hover {
+            color: var(--primary-green);
+            border-color: var(--primary-green);
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="particle-canvas"></canvas>
+
+<div class="hub-container">
+    <h1>Mastery Arena</h1>
+    <p class="subtitle">CHOOSE YOUR LEVEL & CONQUER THE VOCABULARY</p>
+
+    <div class="game-grid">
+        <a href="beginner game.html" class="game-card" onmouseover="playHover()">
+            <div class="badge">Lvl 1</div>
+            <h2>Beginner</h2>
+            <p>Fundamental words for daily conversation. 250 common terms.</p>
+        </a>
+
+        <a href="intermediate game.html" class="game-card" onmouseover="playHover()">
+            <div class="badge">Lvl 2</div>
+            <h2>Intermediate</h2>
+            <p>Expand your reach with academic and professional vocabulary.</p>
+        </a>
+
+        <a href="gre master game.html" class="game-card" onmouseover="playHover()">
+            <div class="badge">Lvl 3</div>
+            <h2>GRE Master</h2>
+            <p>High-level linguistic challenges for advanced scholars.</p>
+        </a>
+    </div>
+</div>
+
+<div class="audio-controls">
+    <button class="mute-btn" onclick="toggleMusic()">🎵 Music</button>
+</div>
+
+<audio id="bg-music" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3"></audio>
+<audio id="hover-sfx" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
+
+<script>
+    // Particle System
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let particles = [];
+    const colors = ['#2ecc71', '#27ae60', '#d4af37'];
+
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 2 + 0.5;
+            this.speedX = Math.random() * 1 - 0.5;
+            this.speedY = Math.random() * 1 - 0.5;
+            this.color = colors[Math.floor(Math.random() * colors.length)];
+        }
+        update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            if (this.x > canvas.width) this.x = 0;
+            if (this.x < 0) this.x = canvas.width;
+            if (this.y > canvas.height) this.y = 0;
+            if (this.y < 0) this.y = canvas.height;
+        }
+        draw() {
+            ctx.fillStyle = this.color;
+            ctx.globalAlpha = 0.5;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    function init() {
+        for (let i = 0; i < 100; i++) {
+            particles.push(new Particle());
+        }
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+            p.update();
+            p.draw();
+        });
+        requestAnimationFrame(animate);
+    }
+
+    init();
+    animate();
+
+    // Audio Logic
+    const bgMusic = document.getElementById('bg-music');
+    const hoverSfx = document.getElementById('hover-sfx');
+    bgMusic.volume = 0.2;
+    hoverSfx.volume = 0.1;
+
+    function toggleMusic() {
+        if (bgMusic.paused) bgMusic.play();
+        else bgMusic.pause();
+    }
+
+    function playHover() {
+        hoverSfx.currentTime = 0;
+        hoverSfx.play().catch(()=>{});
+    }
+
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
+</script>
+
+</body>
+</html>

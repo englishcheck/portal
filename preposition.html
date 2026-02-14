@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Class: The Preposition | English Elegant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        /* --- VARIABLE & RESET --- */
+        :root {
+            --emerald-dark: #0a2f23;
+            --emerald-primary: #14523d;
+            --emerald-light: #e3f0ea;
+            --gold-accent: #c5a059;
+            --gold-hover: #b08d45;
+            --cream-bg: #fdfcf8;
+            --text-main: #2a2a2a;
+            --white: #ffffff;
+            --danger: #d9534f;
+            --success: #28a745;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: var(--cream-bg);
+            color: var(--text-main);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* --- TYPOGRAPHY --- */
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+            color: var(--emerald-dark);
+        }
+
+        .highlight-gold { color: var(--gold-accent); font-weight: bold; }
+        .highlight-green { color: var(--emerald-primary); font-weight: bold; }
+
+        /* --- HEADER --- */
+        header {
+            background: linear-gradient(135deg, var(--emerald-dark) 0%, var(--emerald-primary) 100%);
+            color: var(--white);
+            padding: 4rem 2rem;
+            text-align: center;
+            position: relative;
+            clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
+        }
+
+        header h1 { color: var(--white); font-size: 3.5rem; margin-bottom: 0.5rem; }
+        header p { font-size: 1.2rem; font-weight: 300; opacity: 0.9; }
+
+        /* --- LAYOUT --- */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        section {
+            margin-bottom: 3rem;
+            opacity: 0; /* Untuk animasi fade-in */
+            transform: translateY(20px);
+            animation: fadeUp 0.8s forwards;
+        }
+
+        /* --- CARDS --- */
+        .card {
+            background: var(--white);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(10, 47, 35, 0.08);
+            border-top: 4px solid var(--gold-accent);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover { transform: translateY(-5px); }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1rem;
+        }
+        
+        .section-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+            color: var(--gold-accent);
+        }
+
+        /* --- TABLE STYLING --- */
+        .elegant-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+        
+        .elegant-table th {
+            background-color: var(--emerald-primary);
+            color: var(--white);
+            padding: 1rem;
+            text-align: left;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .elegant-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .elegant-table tr:hover { background-color: var(--emerald-light); }
+
+        /* --- COMPARISON BOX --- */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 1rem;
+        }
+
+        .compare-box {
+            background: #fcfcfc;
+            border: 1px solid #eee;
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .compare-box h4 {
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--gold-accent);
+            display: inline-block;
+        }
+
+        /* --- TIP BOX --- */
+        .tip-box {
+            background-color: var(--emerald-light);
+            border-left: 5px solid var(--emerald-primary);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            border-radius: 4px;
+        }
+        
+        .tip-title {
+            font-weight: bold;
+            color: var(--emerald-primary);
+            display: block;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        /* --- QUIZ STYLES --- */
+        .quiz-wrapper {
+            background: var(--emerald-dark);
+            color: var(--white);
+            padding: 3rem;
+            border-radius: 15px;
+            position: relative;
+        }
+
+        .quiz-wrapper h2 { color: var(--gold-accent); text-align: center; margin-bottom: 2rem; }
+
+        .question-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .question-text { font-size: 1.15rem; font-weight: bold; margin-bottom: 1rem; }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .option-label {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-main);
+            padding: 0.8rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .option-label:hover { background: var(--gold-accent); color: var(--emerald-dark); }
+        .option-label input { margin-right: 10px; accent-color: var(--emerald-dark); }
+
+        /* Feedback Colors */
+        .correct { background-color: var(--success) !important; color: white !important; }
+        .wrong { background-color: var(--danger) !important; color: white !important; }
+
+        /* Button */
+        .btn-gold {
+            background: var(--gold-accent);
+            color: var(--emerald-dark);
+            border: none;
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            display: block;
+            margin: 2rem auto 0;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(197, 160, 89, 0.4);
+        }
+        
+        .btn-gold:hover { background: var(--gold-hover); transform: scale(1.05); }
+
+        /* Score Display */
+        #score-display {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-top: 1.5rem;
+            font-weight: bold;
+            color: var(--white);
+            display: none;
+        }
+
+        /* --- ANIMATION --- */
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        footer {
+            text-align: center;
+            padding: 3rem;
+            color: var(--emerald-primary);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media(max-width: 600px) {
+            header h1 { font-size: 2.5rem; }
+            .card { padding: 1.5rem; }
+            .comparison-grid { grid-template-columns: 1fr; }
+            .elegant-table { display: block; overflow-x: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <h1>The Preposition</h1>
+            <p>COLLABORATING FOR CHANGE, EMPOWERING FOR IMPACT COLLABORATING FOR CHANGE, EMPOWERING FOR IMPACT</p>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <section style="animation-delay: 0.2s;">
+            <div class="card">
+                <div class="section-header">
+                    <span class="section-icon">✦</span>
+                    <h2>Apa itu Preposition?</h2>
+                </div>
+                <p><strong>Preposition</strong> (Kata Depan) adalah "Jembatan Kata". Ia menghubungkan Noun (kata benda) atau Pronoun dengan bagian lain dalam kalimat. Tanpa mereka, kalimat akan kehilangan arah waktu dan lokasi.</p>
+                <br>
+                <p>Fungsi utamanya menjelaskan:</p>
+                <ul style="margin-left: 20px; list-style-type: square; margin-top: 10px;">
+                    <li>⏰ <strong>Time</strong> (Waktu): Kapan sesuatu terjadi?</li>
+                    <li>📍 <strong>Place</strong> (Tempat): Di mana posisinya?</li>
+                    <li>➡ <strong>Direction</strong> (Arah): Ke mana tujuannya?</li>
+                </ul>
+            </div>
+        </section>
+
+        <section style="animation-delay: 0.4s;">
+            <div class="card">
+                <div class="section-header">
+                    <span class="section-icon">⏳</span>
+                    <h2>Preposition of Time</h2>
+                </div>
+                <p>Cara termudah menghafal penggunaan <strong>IN, ON, AT</strong> untuk waktu adalah dengan membayangkan sebuah segitiga terbalik 🔻.</p>
+
+                <table class="elegant-table">
+                    <thead>
+                        <tr>
+                            <th>Preposisi</th>
+                            <th>Konsep (Scope)</th>
+                            <th>Penggunaan & Contoh</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>IN</strong><br>(Paling Luas)</td>
+                            <td>Periode waktu yang panjang & umum.</td>
+                            <td>
+                                • <strong>Tahun:</strong> In 2026<br>
+                                • <strong>Bulan:</strong> In July<br>
+                                • <strong>Abad:</strong> In the 21st century<br>
+                                • <strong>Musim:</strong> In summer
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>ON</strong><br>(Lebih Sempit)</td>
+                            <td>Hari dan Tanggal spesifik.</td>
+                            <td>
+                                • <strong>Hari:</strong> On Monday<br>
+                                • <strong>Tanggal:</strong> On July 2nd<br>
+                                • <strong>Hari Spesial:</strong> On my birthday
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>AT</strong><br>(Sangat Spesifik)</td>
+                            <td>Jam dan waktu yang presisi.</td>
+                            <td>
+                                • <strong>Jam:</strong> At 7 PM<br>
+                                • <strong>Momen:</strong> At midnight, At sunrise<br>
+                                • <strong>Saat ini:</strong> At the moment
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="tip-box">
+                    <span class="tip-title">HATI-HATI: PENGECUALIAN</span>
+                    <p>Kita bilang "<strong>In</strong> the morning", "<strong>In</strong> the afternoon", tapi "<strong>At</strong> night" (bukan in the night).</p>
+                </div>
+            </div>
+        </section>
+
+        <section style="animation-delay: 0.6s;">
+            <div class="card">
+                <div class="section-header">
+                    <span class="section-icon">📍</span>
+                    <h2>Preposition of Place</h2>
+                </div>
+                <p>Logika segitiga terbalik yang sama juga berlaku untuk tempat/lokasi.</p>
+
+                <div class="comparison-grid">
+                    <div class="compare-box">
+                       <h4>IN (Di Dalam / Area Luas)</h4>
+                       <p>Digunakan untuk area tertutup atau batas geografis yang besar.</p>
+                       <ul style="margin-left: 20px; font-size: 0.9rem; margin-top:10px;">
+                           <li><strong>Negara/Kota:</strong> In Indonesia, In Surabaya.</li>
+                           <li><strong>Ruangan:</strong> In the kitchen.</li>
+                           <li><strong>Benda Tertutup:</strong> In the box, In the car.</li>
+                       </ul>
+                   </div>
+
+                   <div class="compare-box">
+                       <h4>ON (Di Atas Permukaan)</h4>
+                       <p>Digunakan untuk benda yang menempel di atas permukaan atau jalan (tanpa nomor).</p>
+                       <ul style="margin-left: 20px; font-size: 0.9rem; margin-top:10px;">
+                           <li><strong>Permukaan:</strong> On the table, On the wall.</li>
+                           <li><strong>Jalan:</strong> On Sudirman Street.</li>
+                           <li><strong>Lantai:</strong> On the 2nd floor.</li>
+                           <li><strong>Transportasi Umum:</strong> On the bus, On the train.</li>
+                       </ul>
+                   </div>
+               </div>
+               
+               <div class="tip-box" style="margin-top: 1rem;">
+                   <p><strong>AT (Titik Spesifik):</strong> Digunakan untuk alamat lengkap atau tempat tujuan tertentu.<br>
+                   Contoh: <em>At 123 Sudirman St.</em> (Alamat lengkap), <em>At the bus stop, At the door.</em></p>
+               </div>
+            </div>
+        </section>
+
+        <section style="animation-delay: 0.8s;">
+            <div class="card">
+                <div class="section-header">
+                    <span class="section-icon">↔</span>
+                    <h2>Movement & Position</h2>
+                </div>
+                <p>Preposisi juga menunjukkan arah pergerakan dan posisi relatif benda.</p>
+
+                <table class="elegant-table">
+                    <thead>
+                        <tr>
+                            <th>Preposisi</th>
+                            <th>Arti & Penggunaan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>To</strong> vs <strong>Into</strong></td>
+                            <td>
+                                <strong>To:</strong> Ke arah tujuan (<em>Go to the office</em>).<br>
+                                <strong>Into:</strong> Bergerak masuk ke dalam (<em>Jump into the water</em>).
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Between</strong> vs <strong>Among</strong></td>
+                            <td>
+                                <strong>Between:</strong> Di antara 2 benda (<em>Between A and B</em>).<br>
+                                <strong>Among:</strong> Di antara banyak benda (<em>Among the crowd</em>).
+                            </td>
+                        </tr>
+                         <tr>
+                            <td><strong>Under</strong> vs <strong>Over</strong></td>
+                            <td>
+                                <strong>Under:</strong> Di bawah (<em>Under the table</em>).<br>
+                                <strong>Over:</strong> Di atas melayang/menutupi (<em>Fly over the city</em>).
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="quiz-wrapper" style="animation-delay: 1s;">
+            <h2>Preposition Knowledge Check</h2>
+            <form id="quizForm">
+
+                <div class="question-item">
+                    <p class="question-text">1. I was born ______ 1995. (Tahun)</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q1" value="wrong"> on</label>
+                        <label class="option-label"><input type="radio" name="q1" value="correct"> in</label>
+                        <label class="option-label"><input type="radio" name="q1" value="wrong"> at</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">2. Let's meet ______ 7:00 PM. (Jam)</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q2" value="wrong"> in</label>
+                        <label class="option-label"><input type="radio" name="q2" value="wrong"> on</label>
+                        <label class="option-label"><input type="radio" name="q2" value="correct"> at</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">3. The meeting is ______ Monday. (Hari)</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q3" value="correct"> on</label>
+                        <label class="option-label"><input type="radio" name="q3" value="wrong"> in</label>
+                        <label class="option-label"><input type="radio" name="q3" value="wrong"> at</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">4. My phone is ______ the table. (Permukaan)</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q4" value="wrong"> in</label>
+                        <label class="option-label"><input type="radio" name="q4" value="correct"> on</label>
+                        <label class="option-label"><input type="radio" name="q4" value="wrong"> at</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">5. She lives ______ Surabaya. (Kota)</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q5" value="correct"> in</label>
+                        <label class="option-label"><input type="radio" name="q5" value="wrong"> on</label>
+                        <label class="option-label"><input type="radio" name="q5" value="wrong"> at</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">6. He is waiting ______ the bus stop. (Titik Spesifik)</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q6" value="wrong"> in</label>
+                        <label class="option-label"><input type="radio" name="q6" value="wrong"> on</label>
+                        <label class="option-label"><input type="radio" name="q6" value="correct"> at</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">7. The cat walked ______ the room. (Gerakan Masuk)</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q7" value="correct"> into</label>
+                        <label class="option-label"><input type="radio" name="q7" value="wrong"> in</label>
+                        <label class="option-label"><input type="radio" name="q7" value="wrong"> on</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">8. She is sitting ______ Sarah and Jane. (Dua orang)</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q8" value="wrong"> among</label>
+                        <label class="option-label"><input type="radio" name="q8" value="correct"> between</label>
+                        <label class="option-label"><input type="radio" name="q8" value="wrong"> through</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">9. I am currently ______ the bus. (Transportasi Umum)</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q9" value="correct"> on</label>
+                        <label class="option-label"><input type="radio" name="q9" value="wrong"> in</label>
+                        <label class="option-label"><input type="radio" name="q9" value="wrong"> at</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">10. We usually sleep ______ night. (Pengecualian)</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q10" value="wrong"> in</label>
+                        <label class="option-label"><input type="radio" name="q10" value="wrong"> on</label>
+                        <label class="option-label"><input type="radio" name="q10" value="correct"> at</label>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-gold" onclick="calculateResult()">Submit Answers</button>
+                <div id="score-display"></div>
+            </form>
+        </section>
+
+    </div>
+
+    <footer>
+        <p>&copy; 2026 English Check - Preposition Edition.</p>
+    </footer>
+
+    <script>
+        function calculateResult() {
+            let score = 0;
+            const totalQuestions = 10;
+            
+            // Loop through all 10 questions
+            for (let i = 1; i <= totalQuestions; i++) {
+                const options = document.getElementsByName('q' + i);
+                let answered = false;
+
+                // Reset styles
+                options.forEach(opt => {
+                    opt.parentElement.classList.remove('correct', 'wrong');
+                });
+
+                options.forEach(opt => {
+                    if (opt.checked) {
+                        answered = true;
+                        if (opt.value === 'correct') {
+                            score++;
+                            opt.parentElement.classList.add('correct');
+                        } else {
+                            opt.parentElement.classList.add('wrong');
+                        }
+                    }
+                });
+            }
+
+            // Display Score
+            const resultDiv = document.getElementById('score-display');
+            resultDiv.style.display = 'block';
+            
+            let message = "";
+            if(score === 10) message = "Perfect Score! You mastered Prepositions!";
+            else if(score > 7) message = "Great Job! Keep specific rules in mind.";
+            else message = "Good effort! Remember the Pyramid Rule.";
+
+            resultDiv.innerHTML = `Your Score: ${score} / ${totalQuestions}<br><span style="font-size: 1rem; font-weight:normal">${message}</span>`;
+            
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>English Conditionals Master Hub</title>
+    <style>
+        :root {
+            --bg-deep: #020b06;
+            --bg-card: #0f291e;
+            --accent: #4ade80;        /* Bright Green */
+            --accent-dim: #22c55e;
+            --accent-exam: #fbbf24;   /* Gold for Exam */
+            --text-main: #f0fdf4;
+            --text-muted: #86efac;
+            --glow-green: rgba(74, 222, 128, 0.3);
+            --glow-gold: rgba(251, 191, 36, 0.3);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background Particles */
+        .bg-animation {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(20, 83, 45, 0.4) 0%, transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(20, 83, 45, 0.4) 0%, transparent 25%);
+            animation: pulseBg 10s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulseBg {
+            0% { opacity: 0.5; transform: scale(1); }
+            100% { opacity: 0.8; transform: scale(1.05); }
+        }
+
+        /* Main Layout */
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            padding: 40px 20px;
+            text-align: center;
+            animation: slideUp 0.8s ease-out;
+            box-sizing: border-box; /* Penting agar padding tidak melebarkan layar */
+        }
+
+        header {
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 200;
+            margin: 0;
+            background: linear-gradient(to right, #ffffff, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+            text-shadow: 0 0 30px var(--glow-green);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-top: 10px;
+            letter-spacing: 1px;
+            font-weight: 300;
+        }
+
+        /* Section Titles */
+        .section-label {
+            text-align: left;
+            font-size: 1.5rem;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--accent-dim);
+            padding-bottom: 10px;
+            margin: 40px 0 30px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-label span {
+            background: var(--accent-dim);
+            width: 8px;
+            height: 25px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        /* Grid for Practice Cards */
+        .practice-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        /* Card Styles */
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(74, 222, 128, 0.2);
+            border-radius: 16px;
+            padding: 30px;
+            text-decoration: none;
+            color: var(--text-main);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 4px;
+            background: var(--accent);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+            transform-origin: left;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            background: rgba(20, 46, 32, 0.8);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 20px var(--glow-green);
+            border-color: var(--accent);
+        }
+
+        .card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            background: rgba(74, 222, 128, 0.1);
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.5s;
+        }
+
+        .card:hover .card-icon {
+            background: var(--accent);
+            color: var(--bg-deep);
+            transform: rotate(360deg);
+        }
+
+        .card h3 { margin: 10px 0; font-size: 1.4rem; }
+        .card p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; }
+
+        /* Exam Card Specifics */
+        .exam-section {
+            margin-top: 20px;
+        }
+
+        .card.exam-card {
+            border-color: rgba(251, 191, 36, 0.3);
+            flex-direction: row;
+            text-align: left;
+            justify-content: space-between;
+            padding: 40px;
+            background: linear-gradient(145deg, rgba(251, 191, 36, 0.05), transparent);
+        }
+
+        .card.exam-card::before { background: var(--accent-exam); }
+
+        .card.exam-card:hover {
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 30px var(--glow-gold);
+            border-color: var(--accent-exam);
+        }
+
+        .exam-content { flex: 1; }
+        .exam-content h3 { color: var(--accent-exam); font-size: 1.8rem; margin-bottom: 5px; }
+        .exam-action {
+            background: transparent;
+            border: 2px solid var(--accent-exam);
+            color: var(--accent-exam);
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+
+        .card.exam-card:hover .exam-action {
+            background: var(--accent-exam);
+            color: #000;
+        }
+
+        /* Sound Toggle */
+        .sound-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.6);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .sound-btn:hover { background: var(--accent); color: var(--bg-deep); transform: scale(1.1); }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* =========================================
+           KHUSUS TAMPILAN HP (MOBILE OPTIMIZED)
+           ========================================= */
+        @media (max-width: 600px) {
+            body {
+                height: 100vh;      /* Kunci Tinggi Layar */
+                overflow: hidden;   /* Hilangkan Scroll */
+                justify-content: space-between; /* Distribusi vertikal */
+            }
+
+            .container {
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                padding: 15px; /* Kurangi padding */
+                padding-top: 20px;
+            }
+
+            header {
+                margin-bottom: 10px; /* Header lebih tipis */
+                flex-shrink: 0;
+            }
+
+            h1 { font-size: 1.8rem; }
+            .subtitle { font-size: 0.8rem; margin-top: 5px; }
+
+            /* Sembunyikan Label Section agar muat */
+            .section-label { display: none; }
+
+            /* Grid 2x2 untuk Practice (0, 1, 2, 3) */
+            .practice-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr; /* 2 Kolom */
+                grid-template-rows: 1fr 1fr;    /* 2 Baris */
+                gap: 12px;
+                flex-grow: 1; /* Mengisi ruang yang tersedia di tengah */
+                margin-bottom: 15px;
+                height: auto;
+            }
+
+            /* Kartu versi Mini */
+            .card {
+                padding: 10px;
+                justify-content: center;
+                border-radius: 12px;
+            }
+
+            .card-icon {
+                width: 45px; height: 45px; /* Ikon kecil */
+                font-size: 1.3rem;
+                margin-bottom: 5px;
+            }
+
+            .card h3 { 
+                font-size: 1rem; 
+                margin: 0; 
+            }
+            
+            /* Sembunyikan Deskripsi di HP */
+            .card p { display: none; }
+
+            /* Exam Section (Paling Bawah) */
+            .exam-section {
+                margin-top: 0;
+                flex-shrink: 0; /* Jangan menyusut */
+                margin-bottom: 40px; /* Beri ruang untuk tombol sound */
+            }
+
+            .card.exam-card {
+                padding: 15px 20px;
+                height: 60px;
+                border-radius: 50px; /* Bentuk kapsul */
+            }
+
+            .exam-content h3 { 
+                font-size: 1.1rem; 
+                margin: 0; 
+                text-align: center;
+            }
+            
+            /* Sembunyikan elemen exam yang tidak perlu */
+            .exam-content p { display: none; }
+            .exam-action { display: none; } /* Klik seluruh bar saja */
+
+            /* Sesuaikan tombol sound agar tidak menutupi konten */
+            .sound-btn {
+                bottom: 15px;
+                right: 15px;
+                width: 40px; height: 40px; font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-animation"></div>
+
+    <div class="container">
+        <header>
+            <h1>If Conditional Mastery</h1>
+            <p class="subtitle">Select a module to begin</p>
+        </header>
+
+        <div class="section-label"><span></span>Practice</div>
+        
+        <div class="practice-grid">
+            <a href="if 0.html" class="card" onmouseenter="playHover()" onclick="playClick(event, this.href)">
+                <div class="card-icon">0</div>
+                <h3>Zero</h3>
+                <p>Facts, habits, and general truths.</p>
+            </a>
+
+            <a href="if 1.html" class="card" onmouseenter="playHover()" onclick="playClick(event, this.href)">
+                <div class="card-icon">1</div>
+                <h3>First</h3>
+                <p>Real possibilities in the future.</p>
+            </a>
+
+            <a href="if 2.html" class="card" onmouseenter="playHover()" onclick="playClick(event, this.href)">
+                <div class="card-icon">2</div>
+                <h3>Second</h3>
+                <p>Hypothetical situations in the present.</p>
+            </a>
+
+            <a href="if 3.html" class="card" onmouseenter="playHover()" onclick="playClick(event, this.href)">
+                <div class="card-icon">3</div>
+                <h3>Third</h3>
+                <p>Regrets and past imaginary outcomes.</p>
+            </a>
+        </div>
+
+        <div class="section-label" style="border-color: var(--accent-exam);">
+            <span style="background: var(--accent-exam);"></span>Assessment
+        </div>
+
+        <div class="exam-section">
+            <a href="if exam.html" class="card exam-card" onmouseenter="playHover()" onclick="playClick(event, this.href)">
+                <div class="exam-content">
+                    <h3>Comprehensive Exam</h3>
+                    <p>Test your knowledge across all conditionals in a timed environment.</p>
+                </div>
+                <div class="exam-action">Start Exam</div>
+            </a>
+        </div>
+
+    </div>
+
+    <button class="sound-btn" id="sound-toggle" onclick="toggleSound()">
+        🔊
+    </button>
+
+    <script>
+        // --- AUDIO SYSTEM ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = new AudioContext();
+        let isSoundOn = true;
+
+        function toggleSound() {
+            isSoundOn = !isSoundOn;
+            const btn = document.getElementById('sound-toggle');
+            btn.textContent = isSoundOn ? '🔊' : '🔇';
+            
+            if (isSoundOn && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playHover() {
+            // Hanya mainkan hover jika di Laptop (yang ada kursor mouse)
+            if (!isSoundOn || !window.matchMedia("(hover: hover)").matches) return;
+            
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(600, now);
+            osc.frequency.exponentialRampToValueAtTime(800, now + 0.05);
+            
+            gain.gain.setValueAtTime(0.02, now); 
+            gain.gain.linearRampToValueAtTime(0, now + 0.1);
+
+            osc.start(now);
+            osc.stop(now + 0.1);
+        }
+
+        function playClick(e, url) {
+            e.preventDefault(); 
+            
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            if (isSoundOn) {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.linearRampToValueAtTime(50, now + 0.3); 
+
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+
+                osc.start(now);
+                osc.stop(now + 0.3);
+            }
+
+            setTimeout(() => {
+                window.location.href = url;
+            }, 300);
+        }
+    </script>
+</body>
+</html>

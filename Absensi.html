@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Check | Attendance</title>
+    <style>
+        :root {
+            --dark-green: #061a13;
+            --emerald: #0f3d2e;
+            --accent: #d4af37; /* Gold accent */
+            --text-light: #e0e7e1;
+        }
+
+        body {
+            background-color: var(--dark-green);
+            color: var(--text-light);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: rgba(15, 61, 46, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            padding: 2rem;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        h2 { text-align: center; color: var(--accent); letter-spacing: 2px; }
+
+        .form-group { margin-bottom: 1.5rem; }
+
+        label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            background: #0a261c;
+            border: 1px solid #1a4d3c;
+            border-radius: 5px;
+            color: white;
+            box-sizing: border-box;
+        }
+
+        input:focus { outline: 2px solid var(--accent); }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent);
+            border: none;
+            border-radius: 5px;
+            color: var(--dark-green);
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.3s;
+        }
+
+        button:hover { background: #b8962e; transform: translateY(-2px); }
+
+        #preview { width: 100%; margin-top: 10px; border-radius: 5px; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>ENGLISH CHECK</h2>
+    <p style="text-align: center; font-size: 0.8rem; opacity: 0.7;">Student Attendance Portal</p>
+    
+    <form id="attendanceForm">
+        <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="name" placeholder="Enter your name" required>
+        </div>
+
+        <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="date" required>
+        </div>
+
+        <div class="form-group">
+            <label>Feedback</label>
+            <textarea id="feedback" rows="3" placeholder="How was your lesson?"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Upload Photo</label>
+            <input type="file" id="photo" accept="image/*" required>
+            <img id="preview" alt="Image preview">
+        </div>
+
+        <button type="submit" id="submitBtn">SUBMIT ATTENDANCE</button>
+    </form>
+</div>
+
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzaxVefuncdyOqI_rPtF6ZAaFqpEW0U-DnfWDsVvmmvjyYd1XeE6ZaMU-i3i0wN4jlV/exec';
+    const form = document.getElementById('attendanceForm');
+
+    // Preview image and convert to Base64
+    let photoBase64 = "";
+    document.getElementById('photo').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            photoBase64 = reader.result;
+            const preview = document.getElementById('preview');
+            preview.src = reader.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    });
+
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        btn.innerText = "Sending...";
+        btn.disabled = true;
+
+        const data = {
+            name: document.getElementById('name').value,
+            date: document.getElementById('date').value,
+            feedback: document.getElementById('feedback').value,
+            photo: photoBase64
+        };
+
+        fetch(scriptURL, {
+            method: 'POST',
+            mode: 'no-cors', // Needed for Apps Script
+            cache: 'no-cache',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(() => {
+            alert('Attendance recorded successfully!');
+            form.reset();
+            btn.innerText = "SUBMIT ATTENDANCE";
+            btn.disabled = false;
+            document.getElementById('preview').style.display = 'none';
+        })
+        .catch(error => {
+            console.error('Error!', error.message);
+            btn.disabled = false;
+        });
+    });
+</script>
+
+</body>
+</html>

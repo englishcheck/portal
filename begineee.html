@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THATS SIMPLE</title>
+    <style>
+        /* CSS VARIABLES */
+        :root { --bg: #0f172a; --card: #1e293b; --sidebar: #111827; --primary: #38bdf8; --text: #f8fafc; --muted: #94a3b8; --danger: #f87171; --success: #4ade80; --warning: #fbbf24; --p1: #3b82f6; --p2: #ef4444; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; height: 100vh; overflow: hidden; transition: background-color 0.3s; }
+        
+        /* INTRO SCREEN */
+        #intro-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 200; transition: opacity 0.5s ease-out; }
+        #particle-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        .intro-content { z-index: 10; text-align: center; position: relative; width: 100%; max-width: 800px; padding: 20px; }
+        
+        .intro-title { font-size: 3.5rem; color: var(--primary); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 0 20px rgba(56, 189, 248, 0.3); font-weight: 800; }
+        .intro-subtitle { font-size: 1.2rem; color: var(--muted); margin-bottom: 30px; }
+        
+        #name-screen { display: flex; flex-direction: column; align-items: center; gap: 20px; animation: fadeIn 0.5s ease-in; }
+        /* REMOVED USER INPUT STYLES HERE */
+
+        #mode-selection { display: none; flex-direction: column; align-items: center; width: 100%; }
+        .mode-container { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; position: relative; z-index: 20; margin-top: 20px; }
+        .mode-card { background: rgba(30, 41, 59, 0.9); border: 2px solid #334155; padding: 30px; border-radius: 20px; width: 200px; text-align: center; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .mode-card:hover { transform: translateY(-10px); border-color: var(--primary); box-shadow: 0 20px 40px rgba(56, 189, 248, 0.2); background: rgba(30, 41, 59, 1); }
+        .mode-icon { font-size: 3rem; margin-bottom: 20px; }
+        .mode-name { font-size: 1.4rem; font-weight: bold; color: white; margin-bottom: 10px; }
+        .mode-desc { font-size: 0.85rem; color: var(--muted); }
+
+        /* MAIN APP */
+        #main-app { display: none; width: 100%; height: 100vh; flex-direction: row; }
+        
+        .sidebar { width: 250px; background: var(--sidebar); border-right: 1px solid #334155; display: flex; flex-direction: column; padding: 20px 10px; gap: 5px; overflow-y: auto; flex-shrink: 0; }
+        .sidebar-header { font-size: 1.2rem; font-weight: bold; color: var(--primary); margin-bottom: 5px; padding-left: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .user-welcome { font-size: 0.85rem; color: var(--success); padding-left: 10px; margin-bottom: 15px; font-weight: 500; }
+        .nav-category { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; margin: 15px 0 5px 10px; font-weight: bold; }
+        .tab-btn { background: transparent; color: var(--text); border: none; padding: 12px 15px; cursor: pointer; border-radius: 8px; font-size: 0.95rem; text-align: left; transition: 0.2s; display: flex; align-items: center; gap: 10px; }
+        .tab-btn:hover { background: rgba(255,255,255,0.05); }
+        .tab-btn.active { background: var(--primary); color: #0f172a; font-weight: bold; box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); }
+        
+        .back-btn { background: rgba(248, 113, 113, 0.2); color: var(--danger); border: 1px solid var(--danger); margin-bottom: 20px; font-weight: bold; justify-content: center; }
+        .back-btn:hover { background: var(--danger); color: white; }
+
+        .main-content { flex: 1; padding: 30px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; background: var(--bg); }
+        .content-container { background: var(--card); padding: 2.5rem; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); width: 100%; max-width: 900px; border: 1px solid #334155; position: relative; transition: background-color 0.3s; }
+        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* CONTROLS */
+        .game-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: rgba(0,0,0,0.2); padding: 10px 15px; border-radius: 10px; flex-wrap: wrap; gap: 10px; }
+        .left-controls { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
+        .timer-display { font-size: 1.5rem; font-weight: bold; color: var(--primary); width: 50px; text-align: center; }
+        .toggle-container { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--muted); }
+        .time-input-container { display: flex; align-items: center; gap: 5px; font-size: 0.9rem; color: var(--muted); border-left: 1px solid #475569; padding-left: 15px; }
+        input#time-setting { width: 50px; padding: 5px; border-radius: 5px; border: 1px solid #475569; background: var(--bg); color: var(--text); text-align: center; }
+        
+        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #475569; transition: .4s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        .music-wrapper { display: flex; align-items: center; border-left: 1px solid #475569; padding-left: 15px; margin-left: 5px; }
+        .music-btn { background: none; border: 1px solid #475569; color: var(--muted); cursor: pointer; font-size: 1.2rem; padding: 5px 10px; border-radius: 5px; transition: 0.3s; margin-right: 10px; }
+        .music-btn.playing { color: var(--success); border-color: var(--success); box-shadow: 0 0 10px rgba(74, 222, 128, 0.2); }
+        .music-btn:hover { background: rgba(255,255,255,0.1); }
+        input[type=range] { width: 70px; height: 5px; background: #475569; border-radius: 5px; outline: none; -webkit-appearance: none; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 15px; height: 15px; border-radius: 50%; background: var(--primary); cursor: pointer; transition: 0.2s; }
+        .theme-select { margin-left: 15px; padding: 5px; border-radius: 5px; background: var(--bg); color: var(--text); border: 1px solid #475569; }
+
+        /* TAB UI */
+        h1 { color: var(--primary); text-align: center; margin: 10px 0 20px 0; font-size: 2rem; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+        .definition-box { background: var(--bg); padding: 25px; border-radius: 12px; margin: 15px 0; text-align: center; font-size: 1.25rem; font-weight: 500; min-height: 60px; display: flex; align-items: center; justify-content: center; border-bottom: 3px solid var(--primary); border: 1px solid #334155; }
+        .hint-display { text-align: center; font-family: 'Courier New', monospace; font-size: 1.8rem; letter-spacing: 5px; color: var(--success); min-height: 40px; margin: 10px 0; text-transform: uppercase; }
+        input { width: 93%; padding: 14px; border-radius: 8px; border: 2px solid #475569; background: var(--bg); color: var(--text); font-size: 1.1rem; text-align: center; transition: 0.3s; }
+        input:focus { border-color: var(--primary); outline: none; }
+        .btns { margin-top: 20px; display: flex; gap: 10px; justify-content: center; }
+        button.action-btn { background: var(--primary); color: var(--bg); border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; z-index: 20; position: relative; }
+        button.action-btn:active { transform: scale(0.95); }
+        button.hint-btn { background: #64748b; color: white; }
+        button.skip-btn { background: #be185d; color: white; }
+        button.skip-btn:hover { background: #db2777; }
+        #feedback, .scramble-feedback { text-align: center; margin-top: 15px; font-weight: bold; height: 24px; font-size: 1.1rem; }
+        .stats { display: flex; justify-content: space-between; margin-top: 25px; font-size: 0.85rem; color: var(--muted); border-top: 1px solid #334155; padding-top: 15px; }
+        .streak-stat { color: var(--warning); font-weight: bold; }
+
+        /* BATTLE MODE STYLES */
+        .battle-arena { display: flex; justify-content: space-between; flex: 1; align-items: center; gap: 10px; width: 100%; margin-top: 20px; }
+        .player-zone { flex: 1; height: 280px; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; border: 3px solid; background: rgba(0,0,0,0.2); transition: 0.2s; }
+        .p1-zone { border-color: #3b82f6; }
+        .p2-zone { border-color: #ef4444; }
+        .p-score { font-size: 4rem; font-weight: 800; margin: 0; }
+        .p-label { font-size: 1.2rem; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
+        .p1-zone .p-label { color: #3b82f6; }
+        .p2-zone .p-label { color: #ef4444; }
+        .keys-hint { margin-top: 15px; font-size: 0.8rem; color: var(--muted); text-align: center; line-height: 1.8; }
+        .key-box { display: inline-block; padding: 2px 8px; border: 1px solid var(--muted); border-radius: 5px; margin: 0 5px; font-family: monospace; font-weight: bold; color: var(--text); background: rgba(255,255,255,0.1); }
+        
+        .battle-center { width: 100%; text-align: center; margin-top: 20px; border-top: 1px solid #334155; padding-top: 20px; }
+        .battle-settings { width: 100%; text-align: center; margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; border: 1px solid #334155; }
+        .b-word { font-size: 2.2rem; color: var(--text); font-weight: bold; display: block; margin-bottom: 5px; }
+        .b-connector { color: var(--muted); font-style: italic; font-size: 0.9rem; margin-bottom: 5px; }
+        .b-def { font-size: 1.3rem; color: var(--primary); font-weight: 500; min-height: 30px; }
+        .battle-feedback { font-size: 1.5rem; font-weight: 800; margin-top: 10px; height: 30px; }
+
+        /* DUEL CHOICE STYLES */
+        .duel-options { display: flex; gap: 20px; width: 100%; margin-top: 30px; }
+        .duel-opt { flex: 1; padding: 30px; border: 2px solid #475569; border-radius: 12px; font-size: 1.5rem; font-weight: bold; cursor: pointer; transition: 0.2s; background: rgba(0,0,0,0.3); text-align: center; }
+        .duel-opt.left-opt { border-color: #3b82f6; }
+        .duel-opt.right-opt { border-color: #ef4444; }
+        .duel-opt.correct { background: var(--success); color: var(--bg); border-color: var(--success); }
+
+        /* TRIPLE THREAT STYLES (NEW) */
+        .triple-options { display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 20px; }
+        .triple-opt { width: 100%; padding: 15px; border: 1px solid #475569; border-radius: 8px; font-size: 1.2rem; cursor: pointer; background: rgba(0,0,0,0.3); transition: 0.2s; display: flex; justify-content: space-between; align-items: center; }
+        .triple-opt.correct { background: var(--success); color: var(--bg); border-color: var(--success); }
+        .triple-key { font-family: monospace; font-weight: bold; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px; font-size: 0.9rem; }
+
+        /* SNIPER MODE STYLES */
+        .sniper-container { width: 100%; text-align: center; padding: 20px; }
+        .sniper-target { font-size: 3rem; color: var(--warning); font-weight: bold; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
+        .sniper-scope { width: 100%; height: 100px; background: #000; border: 4px solid var(--danger); border-radius: 10px; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 30px; overflow: hidden; box-shadow: 0 0 20px var(--danger); }
+        .sniper-scope::before { content: ""; position: absolute; top: 0; left: 50%; width: 2px; height: 100%; background: rgba(255,0,0,0.5); }
+        .sniper-scope::after { content: ""; position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: rgba(255,0,0,0.5); }
+        .sniper-text { font-size: 1.5rem; color: #fff; z-index: 5; font-weight: bold; padding: 0 20px; }
+
+        /* FLASHCARD */
+        .flashcard-container { display: flex; flex-direction: column; align-items: center; margin-top: 20px; }
+        .flashcard { width: 100%; height: 300px; background: var(--bg); border: 2px solid var(--primary); border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; position: relative; transition: transform 0.3s; box-shadow: 0 10px 20px rgba(0,0,0,0.3); padding: 20px; box-sizing: border-box; }
+        .flashcard:hover { transform: scale(1.01); box-shadow: 0 10px 30px rgba(56, 189, 248, 0.1); }
+        .fc-word { font-size: 3rem; color: var(--text); font-weight: bold; margin-bottom: 20px; }
+        .fc-meaning { font-size: 1.5rem; color: var(--primary); margin-bottom: 20px; }
+        .fc-sentence { font-size: 1.1rem; color: var(--muted); font-style: italic; }
+        .fc-hint { position: absolute; bottom: 15px; font-size: 0.8rem; color: var(--muted); opacity: 0.7; }
+        .fc-speak-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; position: absolute; top: 15px; right: 15px; z-index: 10; color: var(--primary); }
+
+        /* MATCH */
+        .match-area-wrapper { display: flex; gap: 20px; width: 100%; margin-top: 20px; }
+        .match-column { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+        .match-card { background: var(--bg); border: 1px solid #475569; padding: 15px; border-radius: 8px; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; min-height: 70px; font-size: 0.95rem; color: var(--text); transition: 0.2s; }
+        .match-col-title { text-align: center; color: var(--muted); font-size: 0.9rem; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        #match-col-left .match-card { border-left: 4px solid var(--primary); }
+        #match-col-right .match-card { border-left: 4px solid var(--success); }
+        .match-card:hover { background: rgba(255,255,255,0.05); }
+        .match-card.selected { background: var(--primary); color: var(--bg); border-color: var(--primary); transform: scale(1.03); font-weight: bold; }
+        .match-card.matched { opacity: 0; pointer-events: none; transition: opacity 0.5s; }
+        .match-controls { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
+
+        /* GAMES */
+        .scramble-box, .listening-box, .tf-container { text-align: center; padding: 20px; }
+        .scramble-letters { font-size: 3rem; font-weight: bold; color: var(--primary); letter-spacing: 15px; margin-bottom: 10px; font-family: 'Courier New', monospace; text-transform: uppercase; }
+        .scramble-hint, .listening-hint, .tf-connector { font-size: 1.2rem; color: var(--muted); margin-bottom: 20px; font-style: italic; }
+        .context-sentence { font-size: 1.4rem; color: var(--text); margin-bottom: 20px; line-height: 1.6; padding: 0 10px; }
+        .context-blank { display: inline-block; min-width: 100px; border-bottom: 3px solid var(--primary); color: var(--primary); font-weight: bold; }
+        .context-meaning { font-size: 1.1rem; color: var(--muted); margin-bottom: 30px; font-style: italic; border-top: 1px solid #334155; padding-top: 15px; display: inline-block; }
+        .big-speak-btn { font-size: 5rem; background: none; border: 4px solid var(--primary); color: var(--primary); border-radius: 50%; width: 150px; height: 150px; margin-bottom: 30px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; margin-left: auto; margin-right: auto; }
+        .big-speak-btn:hover { background: rgba(56, 189, 248, 0.1); transform: scale(1.05); box-shadow: 0 0 30px rgba(56, 189, 248, 0.3); }
+        .choice-word { font-size: 3rem; color: var(--primary); font-weight: bold; text-align: center; margin-bottom: 30px; margin-top: 10px; }
+        .choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; }
+        .choice-btn { background: var(--bg); border: 2px solid #475569; color: var(--text); padding: 20px; border-radius: 12px; font-size: 1rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; text-align: center; min-height: 80px; }
+        .choice-btn:hover { border-color: var(--primary); background: rgba(255,255,255,0.05); transform: translateY(-3px); }
+        .choice-btn.correct { background: var(--success); color: var(--bg); border-color: var(--success); pointer-events: none; }
+        .choice-btn.wrong { background: var(--danger); color: white; border-color: var(--danger); opacity: 0.6; pointer-events: none; }
+        .tf-word { font-size: 2.5rem; color: var(--primary); font-weight: bold; margin-bottom: 10px; }
+        .tf-def { font-size: 1.5rem; color: var(--text); margin-bottom: 30px; min-height: 60px; background: rgba(0,0,0,0.2); padding: 20px; border-radius: 10px; border: 1px solid #475569; display: flex; align-items: center; justify-content: center; }
+        .tf-btns { display: flex; gap: 20px; justify-content: center; }
+        .btn-true { background: var(--success); color: #0f172a; border: 2px solid var(--success); width: 140px; font-size: 1.2rem; font-weight: bold; }
+        .btn-false { background: var(--danger); color: white; border: 2px solid var(--danger); width: 140px; font-size: 1.2rem; font-weight: bold; }
+
+        .table-wrapper { max-height: 500px; overflow-y: auto; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #334155; vertical-align: top; }
+        th { position: sticky; top: 0; background: var(--card); color: var(--primary); z-index: 10; }
+        .search-bar { width: 95%; padding: 12px; margin-bottom: 5px; border-radius: 8px; border: 1px solid #475569; background: var(--bg); color: var(--text); }
+        .speak-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; margin-left: 8px; transition: 0.2s; }
+        .speak-btn:hover { transform: scale(1.2); }
+
+        @media (max-width: 768px) {
+            #main-app { flex-direction: column; }
+            .sidebar { width: 100%; height: 100px; flex-direction: row; overflow-x: auto; border-right: none; border-bottom: 1px solid #334155; padding: 10px; align-items: center; }
+            .sidebar-header, .nav-category, .user-welcome { display: none; }
+            .tab-btn { flex-direction: column; font-size: 0.7rem; text-align: center; padding: 8px; gap: 5px; min-width: 80px; justify-content: center; }
+            .main-content { padding: 15px; }
+            .content-container { padding: 1.5rem; }
+            .match-area-wrapper { flex-direction: row; font-size: 0.8rem; }
+            .choice-grid { grid-template-columns: 1fr; }
+            .battle-arena { flex-direction: column; }
+            .player-zone { width: 100%; height: 150px; }
+        }
+    </style>
+</head>
+<body>
+
+<audio id="bg-music" loop><source src="backsound.mp3" type="audio/mpeg"></audio>
+<audio id="sfx-correct"><source src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" type="audio/mpeg"></audio>
+<audio id="sfx-wrong"><source src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3" type="audio/mpeg"></audio>
+
+<div id="intro-screen">
+    <canvas id="particle-canvas"></canvas>
+    <div class="intro-content">
+        <div class="intro-title">BEGINNER</div>
+        <div class="intro-subtitle">Vocabulary & Mental Training Suite</div>
+        
+        <div id="name-screen">
+            <button class="action-btn" onclick="goToModes()">Start Learning</button>
+        </div>
+
+        <div id="mode-selection">
+            <div class="mode-container">
+                <div class="mode-card" onclick="startGame('practice')">
+                    <div class="mode-icon">🧠</div>
+                    <div class="mode-name">Practice</div>
+                    <div class="mode-desc">Unlock all tools & flashcards.</div>
+                </div>
+                <div class="mode-card" onclick="startGame('exam')">
+                    <div class="mode-icon">⚔️</div>
+                    <div class="mode-name">Exam Mode</div>
+                    <div class="mode-desc">Hardcore test. No hints.</div>
+                </div>
+                <div class="mode-card" onclick="startGame('multiplayer')">
+                    <div class="mode-icon">👥</div>
+                    <div class="mode-name">Multiplayer for PC</div>
+                    <div class="mode-desc">4 Games: Battle, Duel, Sniper, Triple.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="main-app">
+    <nav class="sidebar">
+        <div class="sidebar-header">BEGINNER</div>
+        <div class="user-welcome" id="display-user-name">Welcome, Student</div>
+        
+        <button class="tab-btn back-btn" onclick="goToMenu()"><span>⬅</span> <span>Main Menu</span></button>
+
+        <div class="nav-category">Study</div>
+        <button class="tab-btn active" id="tab-flash-btn" onclick="openTab(event, 'flashcard-tab')"><span class="tab-icon">🎴</span> <span>Flashcards</span></button>
+        <button class="tab-btn" id="tab-list-btn" onclick="openTab(event, 'list-tab')"><span class="tab-icon">📚</span> <span>Word List</span></button>
+        
+        <div class="nav-category" id="nav-multiplayer-group">Multiplayer</div>
+        <button class="tab-btn" id="tab-battle-btn" onclick="openTab(event, 'battle-tab')"><span class="tab-icon">⚔️</span> <span>1 vs 1 Battle</span></button>
+        <button class="tab-btn" id="tab-duel-btn" onclick="openTab(event, 'duel-tab')"><span class="tab-icon">🤜🤛</span> <span>Duel Choice</span></button>
+        <button class="tab-btn" id="tab-sniper-btn" onclick="openTab(event, 'sniper-tab')"><span class="tab-icon">🎯</span> <span>Sniper Reflex</span></button>
+        <button class="tab-btn" id="tab-triple-btn" onclick="openTab(event, 'triple-tab')"><span class="tab-icon">⚡</span> <span>Triple Threat</span></button>
+
+        <div class="nav-category">Mini Games</div>
+        <button class="tab-btn" id="tab-match-btn" onclick="openTab(event, 'match-tab')"><span class="tab-icon">⚡</span> <span>Speed Match</span></button>
+        <button class="tab-btn" id="tab-choice-btn" onclick="openTab(event, 'choice-tab')"><span class="tab-icon">👆</span> <span>Rapid Choice</span></button>
+        <button class="tab-btn" id="tab-scramble-btn" onclick="openTab(event, 'scramble-tab')"><span class="tab-icon">🔠</span> <span>Scramble</span></button>
+        <button class="tab-btn" id="tab-tf-btn" onclick="openTab(event, 'tf-tab')"><span class="tab-icon">✅</span> <span>True / False</span></button>
+        
+        <div class="nav-category">Hardcore</div>
+        <button class="tab-btn" id="tab-game-btn" onclick="openTab(event, 'game-tab')"><span class="tab-icon">🏆</span> <span>Vocab Test</span></button>
+        <button class="tab-btn" id="tab-context-btn" onclick="openTab(event, 'context-tab')"><span class="tab-icon">📖</span> <span>Context</span></button>
+        <button class="tab-btn" id="tab-listening-btn" onclick="openTab(event, 'listening-tab')"><span class="tab-icon">🎧</span> <span>Listening</span></button>
+    </nav>
+
+    <main class="main-content">
+        <div class="content-container">
+            <div class="game-controls">
+                <div class="left-controls">
+                    <div class="toggle-container"><span>Timer</span><label class="switch"><input type="checkbox" id="timer-toggle" checked onchange="toggleTimerMode()"><span class="slider"></span></label></div>
+                    <div class="time-input-container"><span>Sec:</span><input type="number" id="time-setting" value="30" min="5" max="300" onchange="updateTimeSetting()"></div>
+                    <div class="music-wrapper"><button class="music-btn" id="music-toggle" onclick="toggleMusic()">🎵</button><input type="range" id="vol-control" min="0" max="1" step="0.1" value="0.3" oninput="adjustVolume()"></div>
+                    <select class="theme-select" onchange="changeTheme(this.value)"><option value="classic">Classic</option><option value="cyberpunk">Cyberpunk</option><option value="matrix">Matrix</option><option value="royal">Royal</option></select>
+                </div>
+                <div class="timer-display" id="timer-text">30</div>
+            </div>
+
+            <div id="game-tab" class="tab-content"><h1>Vocab Test</h1><div class="definition-box" id="display-defn">Loading...</div><div id="hint-area" class="hint-display"></div><input type="text" id="answer-input" placeholder="Type answer..." autocomplete="off"><div class="btns"><button class="action-btn" onclick="check()">Submit</button><button class="action-btn hint-btn" id="btn-hint" onclick="showHangmanHint()">Hint</button><button class="action-btn skip-btn" id="btn-skip" onclick="skipWord()">Skip</button></div><div id="feedback"></div><div class="stats"><span>Progress: <span id="current-idx">1</span>/250+</span><span class="streak-stat">🔥 Streak: <span id="streak">0</span></span><span>Score: <span id="score">0</span></span></div></div>
+            <div id="flashcard-tab" class="tab-content active"><h1>Flashcards</h1><div class="flashcard-container"><div class="flashcard" onclick="flipFlashcard()"><button class="fc-speak-btn" onclick="event.stopPropagation(); speakFC()">🔊</button><div id="fc-front"><div class="fc-word" id="fc-word-text">Word</div></div><div id="fc-back" style="display:none;"><div class="fc-meaning" id="fc-meaning-text">Meaning</div><div class="fc-sentence" id="fc-sentence-text">Sentence</div></div><div class="fc-hint">(Click card to flip)</div></div><div class="fc-controls"><button class="action-btn" onclick="prevFlashcard()">← Previous</button><span style="align-self:center; font-weight:bold; color:var(--muted)">Card <span id="fc-count">1</span></span><button class="action-btn" onclick="nextFlashcard()">Next →</button></div></div></div>
+            <div id="match-tab" class="tab-content"><h1>Speed Match</h1><p style="text-align:center; color:var(--muted);">Click English then Indonesian.</p><div class="match-area-wrapper"><div class="match-column" id="match-col-left"><div class="match-col-title">English</div></div><div class="match-column" id="match-col-right"><div class="match-col-title">Indonesian</div></div></div><div class="match-controls"><button class="action-btn" style="background:#64748b;" onclick="shuffleMatchBoard()">Shuffle</button><button class="action-btn" onclick="initMatchGame()">New Set</button></div></div>
+            <div id="scramble-tab" class="tab-content"><h1>Scramble</h1><div class="scramble-box"><div class="scramble-letters" id="scramble-display">LOADING</div><div class="scramble-hint" id="scramble-defn">Definition...</div><input type="text" id="scramble-input" placeholder="Unscramble..." autocomplete="off"><div class="btns"><button class="action-btn" onclick="checkScramble()">Check</button><button class="action-btn skip-btn" onclick="nextScramble()">Skip</button></div><div id="scramble-feedback"></div></div></div>
+            <div id="context-tab" class="tab-content"><h1>Context Quiz</h1><div class="scramble-box"><div class="context-sentence" id="context-sentence">Loading...</div><div class="context-meaning" id="context-hint">Meaning...</div><input type="text" id="context-input" placeholder="Missing word..." autocomplete="off"><div class="btns"><button class="action-btn" onclick="checkContext()">Check</button><button class="action-btn skip-btn" onclick="nextContext()">Skip</button></div><div id="context-feedback"></div></div></div>
+            <div id="listening-tab" class="tab-content"><h1>Listening Lab</h1><div class="listening-box"><button class="big-speak-btn" onclick="playListeningSound()">🔊</button><div class="listening-hint" id="listen-hint-text"></div><input type="text" id="listen-input" placeholder="Type what you hear..." autocomplete="off"><div class="btns"><button class="action-btn" onclick="checkListening()">Check</button><button class="action-btn hint-btn" id="btn-listen-hint" onclick="showListeningHint()">Hint</button><button class="action-btn skip-btn" onclick="nextListening()">Skip</button></div><div id="listen-feedback"></div></div></div>
+            <div id="choice-tab" class="tab-content"><h1>Rapid Choice</h1><div style="text-align:center;"><div class="choice-word" id="choice-display">WORD</div><div class="choice-grid" id="choice-grid"></div><div id="choice-feedback"></div></div></div>
+            <div id="tf-tab" class="tab-content"><h1>True or False?</h1><div class="tf-container"><div class="tf-word" id="tf-word">Word</div><div class="tf-connector">means</div><div class="tf-def" id="tf-def">Definition</div><div class="tf-btns"><button class="action-btn btn-true" onclick="checkTF(true)">TRUE</button><button class="action-btn btn-false" onclick="checkTF(false)">FALSE</button></div><div id="tf-feedback"></div></div></div>
+            
+            <div id="battle-tab" class="tab-content">
+                <h1>1 VS 1 Battle (True/False)</h1>
+                <div class="battle-settings">
+                    <span style="color:var(--primary); font-weight:bold; margin-right:10px;">Winning Score:</span>
+                    <input type="number" id="battle-target-score" value="10" min="1" max="100" style="width:70px; display:inline-block; padding:8px;">
+                    <button class="action-btn" style="margin-left:10px; background:var(--warning); color:#000;" onclick="resetBattleGame()">Set Rules / Reset</button>
+                </div>
+                <div class="battle-arena">
+                    <div class="player-zone p1-zone">
+                        <div class="p-label">Player 1</div><div class="p-score" id="p1-score">0</div><div class="keys-hint"><span class="key-box">A</span> True <span class="key-box">S</span> False</div>
+                    </div>
+                    <div class="player-zone p2-zone">
+                        <div class="p-label">Player 2</div><div class="p-score" id="p2-score">0</div><div class="keys-hint"><span class="key-box">K</span> True <span class="key-box">L</span> False</div>
+                    </div>
+                </div>
+                <div class="battle-center"><div class="b-word" id="b-word">READY?</div><div class="b-connector">means</div><div class="b-def" id="b-def">Click Start</div><div class="battle-feedback" id="battle-msg"></div><button class="action-btn" style="margin-top:20px;" onclick="startBattleRound()">START ROUND</button></div>
+            </div>
+
+            <div id="duel-tab" class="tab-content">
+                <h1>Duel Choice</h1>
+                <div class="battle-settings">
+                    <span style="color:var(--primary); font-weight:bold; margin-right:10px;">Winning Score:</span>
+                    <input type="number" id="duel-target-score" value="10" min="1" max="100" style="width:70px; display:inline-block; padding:8px;">
+                    <button class="action-btn" style="margin-left:10px; background:var(--warning); color:#000;" onclick="resetDuelGame()">Set Rules / Start</button>
+                </div>
+                <div class="battle-center">
+                    <div class="b-def" id="duel-def" style="min-height:50px; font-size:1.6rem; margin-bottom:20px;">Press Start</div>
+                    <div class="duel-options">
+                        <div class="duel-opt left-opt" id="duel-opt-1">Word A</div>
+                        <div class="duel-opt right-opt" id="duel-opt-2">Word B</div>
+                    </div>
+                    <div class="battle-feedback" id="duel-msg"></div>
+                </div>
+                <div class="battle-arena" style="margin-top:30px;">
+                    <div class="player-zone p1-zone" style="height:120px;">
+                        <div class="p-label">P1 (Score: <span id="d1-score">0</span>)</div>
+                        <div class="keys-hint"><span class="key-box">A</span> Left <span class="key-box">D</span> Right</div>
+                    </div>
+                    <div class="player-zone p2-zone" style="height:120px;">
+                        <div class="p-label">P2 (Score: <span id="d2-score">0</span>)</div>
+                        <div class="keys-hint"><span class="key-box">J</span> Left <span class="key-box">L</span> Right</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="sniper-tab" class="tab-content">
+                <h1>Sniper Reflex</h1>
+                <p style="text-align:center; color:var(--muted); margin-bottom:20px;">Wait for the correct meaning, then SHOOT!</p>
+                <div class="battle-settings">
+                    <span style="color:var(--primary); font-weight:bold; margin-right:10px;">Winning Score:</span>
+                    <input type="number" id="sniper-target-score" value="10" min="1" max="100" style="width:70px; display:inline-block; padding:8px;">
+                    <button class="action-btn" style="margin-left:10px; background:var(--warning); color:#000;" onclick="resetSniperGame()">Set Rules / Start</button>
+                </div>
+                
+                <div class="sniper-container">
+                    <div class="sniper-target" id="sniper-target">TARGET</div>
+                    <div class="sniper-scope">
+                        <div class="sniper-text" id="sniper-text">...</div>
+                    </div>
+                    <div class="battle-feedback" id="sniper-msg"></div>
+                </div>
+
+                <div class="battle-arena">
+                    <div class="player-zone p1-zone" style="height:120px;">
+                        <div class="p-label">P1 (Score: <span id="s1-score">0</span>)</div>
+                        <div class="keys-hint"><span class="key-box">S</span> SHOOT</div>
+                    </div>
+                    <div class="player-zone p2-zone" style="height:120px;">
+                        <div class="p-label">P2 (Score: <span id="s2-score">0</span>)</div>
+                        <div class="keys-hint"><span class="key-box">K</span> SHOOT</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="triple-tab" class="tab-content">
+                <h1>Triple Threat</h1>
+                <div class="battle-settings">
+                    <span style="color:var(--primary); font-weight:bold; margin-right:10px;">Winning Score:</span>
+                    <input type="number" id="triple-target-score" value="10" min="1" max="100" style="width:70px; display:inline-block; padding:8px;">
+                    <button class="action-btn" style="margin-left:10px; background:var(--warning); color:#000;" onclick="resetTripleGame()">Set Rules / Start</button>
+                </div>
+                <div class="battle-center">
+                    <div class="b-word" id="triple-word" style="font-size:2.5rem; margin-bottom:20px;">READY?</div>
+                    <div class="triple-options">
+                        <div class="triple-opt" id="triple-opt-1"><span class="triple-key">A / J</span> <span id="t-text-1">Option 1</span></div>
+                        <div class="triple-opt" id="triple-opt-2"><span class="triple-key">S / K</span> <span id="t-text-2">Option 2</span></div>
+                        <div class="triple-opt" id="triple-opt-3"><span class="triple-key">D / L</span> <span id="t-text-3">Option 3</span></div>
+                    </div>
+                    <div class="battle-feedback" id="triple-msg"></div>
+                </div>
+                <div class="battle-arena" style="margin-top:20px;">
+                    <div class="player-zone p1-zone" style="height:100px;">
+                        <div class="p-label">P1 (Score: <span id="t1-score">0</span>)</div>
+                    </div>
+                    <div class="player-zone p2-zone" style="height:100px;">
+                        <div class="p-label">P2 (Score: <span id="t2-score">0</span>)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="list-tab" class="tab-content"><h1>Vocabulary List</h1><input type="text" class="search-bar" id="search" onkeyup="filterTable()" placeholder="Cari kata..."><div class="table-wrapper"><table><thead><tr><th style="width:25%;">English</th><th style="width:35%;">Meaning</th><th style="width:40%;">Example</th></tr></thead><tbody id="table-body"></tbody></table></div></div>
+        </div>
+    </main>
+</div>
+
+<script src="begineee.js"></script>
+
+<script>
+    // --- PARTICLE SCRIPT ---
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    let particlesArray = [];
+    const colors = ['#38bdf8', '#818cf8', '#2dd4bf'];
+    class Particle {
+        constructor() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 3 + 1; this.speedX = Math.random() * 1 - 0.5; this.speedY = Math.random() * 1 - 0.5; this.color = colors[Math.floor(Math.random() * colors.length)]; }
+        update() { this.x += this.speedX; this.y += this.speedY; if (this.x > canvas.width || this.x < 0) this.speedX = -this.speedX; if (this.y > canvas.height || this.y < 0) this.speedY = -this.speedY; }
+        draw() { ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
+    }
+    function initParticles() { for (let i = 0; i < 50; i++) particlesArray.push(new Particle()); }
+    function animateParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < particlesArray.length; i++) {
+            particlesArray[i].update(); particlesArray[i].draw();
+            for (let j = i; j < particlesArray.length; j++) {
+                const dx = particlesArray[i].x - particlesArray[j].x; const dy = particlesArray[i].y - particlesArray[j].y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < 150) { ctx.beginPath(); ctx.strokeStyle = 'rgba(56, 189, 248, 0.1)'; ctx.lineWidth = 1; ctx.moveTo(particlesArray[i].x, particlesArray[i].y); ctx.lineTo(particlesArray[j].x, particlesArray[j].y); ctx.stroke(); }
+            }
+        }
+        requestAnimationFrame(animateParticles);
+    }
+    initParticles(); animateParticles();
+    window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+
+    // --- SOUND EFFECTS ---
+    const sfxCorrect = document.getElementById('sfx-correct');
+    const sfxWrong = document.getElementById('sfx-wrong');
+    function playCorrect() { sfxCorrect.currentTime = 0; sfxCorrect.play(); }
+    function playWrong() { sfxWrong.currentTime = 0; sfxWrong.play(); }
+
+    // --- INTRO NAVIGATION ---
+    function goToModes() {
+        // --- INPUT CHECK REMOVED ---
+        // Just transition straight to mode selection
+        document.getElementById('display-user-name').innerText = `Welcome, Student`;
+        document.getElementById('name-screen').style.display = 'none';
+        document.getElementById('mode-selection').style.display = 'flex';
+    }
+    function goToMenu() {
+        clearInterval(timerInterval);
+        document.getElementById('timer-text').innerText = "∞";
+        document.getElementById('main-app').style.display = 'none';
+        const intro = document.getElementById('intro-screen');
+        intro.style.display = 'flex';
+        setTimeout(() => { intro.style.opacity = '1'; }, 10);
+        document.getElementById('name-screen').style.display = 'flex'; // Reset so start button shows
+        document.getElementById('mode-selection').style.display = 'none';
+    }
+
+    // --- GAME DATA (250 Words) ---
+    
+
+    // --- LOGIC ---
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    let gameData = shuffle([...fullVocab]);
+    let current = 0; let score = 0; let streak = 0; let defaultTime = 30; let timeLeft = defaultTime;
+    let timerInterval; let isTimerEnabled = true; let currentMode = 'practice';
+    let userName = "Student";
+    
+    // --- GAME LOGIC ---
+    let currentChoice = {}, currentTF = {}, currentListen = {}, currentScramble = {}, currentContext = {}, currentBattle = {}, currentDuel = {}, currentSniper = {}, currentTriple = {};
+    let fcIndex = 0, isFlipped = false, firstCard = null, secondCard = null, lockBoard = false, matchesFound = 0;
+    let p1Score = 0, p2Score = 0, battleActive = false, duelActive = false, sniperActive = false, tripleActive = false;
+    let battleTargetScore = 10;
+    let duelTargetScore = 10;
+    let sniperTargetScore = 10;
+    let tripleTargetScore = 10;
+    let battleOver = false;
+    let d1Score = 0, d2Score = 0;
+    let s1Score = 0, s2Score = 0;
+    let t1Score = 0, t2Score = 0;
+    let sniperInterval;
+
+    function initAllModes() {
+        try {
+            if(gameData.length > 0) {
+                initChoiceGame(); initTFGame(); initListenGame(); initScrambleGame(); initContextGame(); updateFlashcard(); initMatchGame();
+            }
+        } catch(e) { console.error("Init Error", e); }
+    }
+
+    function startGame(mode) {
+        currentMode = mode;
+        const intro = document.getElementById('intro-screen');
+        const main = document.getElementById('main-app');
+        
+        setTimeout(() => {
+            intro.style.opacity = '0';
+            setTimeout(() => { intro.style.display = 'none'; main.style.display = 'flex'; }, 500);
+        }, 100);
+
+        const bgMusic = document.getElementById('bg-music');
+        try {
+            bgMusic.play().then(() => { document.getElementById('music-toggle').classList.add('playing'); })
+            .catch(e => console.log("Music blocked by browser."));
+        } catch(e) {}
+
+        // Reset visibility of all tabs first
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.style.display = 'flex');
+
+        if (currentMode === 'exam') {
+            ['tab-flash-btn', 'tab-list-btn', 'tab-match-btn', 'tab-choice-btn', 'tab-scramble-btn', 'tab-tf-btn', 'tab-battle-btn', 'tab-duel-btn', 'tab-sniper-btn', 'tab-triple-btn', 'tab-context-btn', 'tab-listening-btn'].forEach(id => {
+                const el = document.getElementById(id); if(el) el.style.display = 'none';
+            });
+            // Hide Multiplay Group Header
+            const mpGroup = document.getElementById('nav-multiplayer-group'); if(mpGroup) mpGroup.style.display = 'none';
+
+            const hintBtn = document.getElementById('btn-hint'); if(hintBtn) hintBtn.style.display = 'none';
+            const listenHint = document.getElementById('btn-listen-hint'); if(listenHint) listenHint.style.display = 'none';
+            
+            document.getElementById('timer-toggle').checked = true;
+            document.getElementById('timer-toggle').disabled = true;
+            document.getElementById('time-setting').disabled = true;
+            isTimerEnabled = true;
+            openTab(null, 'game-tab');
+        } 
+        else if (currentMode === 'multiplayer') {
+             // Hide everything except Battle Tabs
+             ['tab-flash-btn', 'tab-list-btn', 'tab-match-btn', 'tab-choice-btn', 'tab-scramble-btn', 'tab-tf-btn', 'tab-context-btn', 'tab-listening-btn', 'tab-game-btn'].forEach(id => {
+                 const el = document.getElementById(id); if(el) el.style.display = 'none';
+            });
+            const mpGroup = document.getElementById('nav-multiplayer-group'); if(mpGroup) mpGroup.style.display = 'block';
+            openTab(null, 'battle-tab');
+        }
+        else {
+            // Practice mode: Show everything EXCEPT Battle
+             const battleBtn = document.getElementById('tab-battle-btn'); if(battleBtn) battleBtn.style.display = 'none';
+             const duelBtn = document.getElementById('tab-duel-btn'); if(duelBtn) duelBtn.style.display = 'none';
+             const sniperBtn = document.getElementById('tab-sniper-btn'); if(sniperBtn) sniperBtn.style.display = 'none';
+             const tripleBtn = document.getElementById('tab-triple-btn'); if(tripleBtn) tripleBtn.style.display = 'none';
+             const mpGroup = document.getElementById('nav-multiplayer-group'); if(mpGroup) mpGroup.style.display = 'none';
+             
+            openTab(null, 'flashcard-tab');
+        }
+        initAllModes(); initGame();
+    }
+
+    // --- TAB SYSTEM ---
+    function openTab(evt, tabName) {
+        // Stop any active games
+        battleActive = false;
+        duelActive = false;
+        sniperActive = false;
+        tripleActive = false;
+        clearInterval(sniperInterval);
+
+        const contents = document.getElementsByClassName("tab-content");
+        for (let i = 0; i < contents.length; i++) contents[i].style.display = "none";
+        const buttons = document.getElementsByClassName("tab-btn");
+        for (let i = 0; i < buttons.length; i++) buttons[i].className = buttons[i].className.replace(" active", "");
+        
+        const target = document.getElementById(tabName);
+        if(target) target.style.display = "block";
+        
+        if (evt) evt.currentTarget.className += " active";
+        else {
+            for (let i = 0; i < buttons.length; i++) {
+                if (buttons[i].getAttribute('onclick') && buttons[i].getAttribute('onclick').includes(tabName)) {
+                    buttons[i].className += " active";
+                }
+            }
+        }
+        
+        if (tabName !== 'game-tab') clearInterval(timerInterval); 
+        else if (isTimerEnabled && current < gameData.length) startTimer();
+    }
+
+    // --- SETTINGS ---
+    const bgMusic = document.getElementById('bg-music'); bgMusic.volume = 0.3;
+    function toggleMusic() { if (bgMusic.paused) { bgMusic.play(); document.getElementById('music-toggle').classList.add('playing'); } else { bgMusic.pause(); document.getElementById('music-toggle').classList.remove('playing'); } }
+    function adjustVolume() { bgMusic.volume = document.getElementById('vol-control').value; sfxCorrect.volume = bgMusic.volume; sfxWrong.volume = bgMusic.volume; }
+    function speak(text) { if ('speechSynthesis' in window) { const u = new SpeechSynthesisUtterance(text); u.lang = 'en-US'; u.rate = 1; window.speechSynthesis.speak(u); } }
+    function changeTheme(theme) { const root = document.documentElement; if (theme === 'classic') { root.style.setProperty('--bg', '#0f172a'); root.style.setProperty('--card', '#1e293b'); root.style.setProperty('--sidebar', '#111827'); root.style.setProperty('--primary', '#38bdf8'); root.style.setProperty('--text', '#f8fafc'); root.style.setProperty('--muted', '#94a3b8'); } else if (theme === 'cyberpunk') { root.style.setProperty('--bg', '#120024'); root.style.setProperty('--card', '#2a0a3b'); root.style.setProperty('--sidebar', '#1a0526'); root.style.setProperty('--primary', '#ff0099'); root.style.setProperty('--text', '#ffffff'); root.style.setProperty('--muted', '#d4a3e8'); } else if (theme === 'matrix') { root.style.setProperty('--bg', '#000000'); root.style.setProperty('--card', '#0d1a0d'); root.style.setProperty('--sidebar', '#001100'); root.style.setProperty('--primary', '#00ff41'); root.style.setProperty('--text', '#e0ffe0'); root.style.setProperty('--muted', '#4d804d'); } else if (theme === 'royal') { root.style.setProperty('--bg', '#1a0b2e'); root.style.setProperty('--card', '#2d1b4e'); root.style.setProperty('--sidebar', '#130821'); root.style.setProperty('--primary', '#ffd700'); root.style.setProperty('--text', '#fcfcfc'); root.style.setProperty('--muted', '#a090b0'); } }
+    function updateTimeSetting() { const val = parseInt(document.getElementById('time-setting').value); if (val > 0) defaultTime = val; }
+    function startTimer() { if (!isTimerEnabled) { document.getElementById('timer-text').innerText = "∞"; return; } timeLeft = defaultTime; document.getElementById('timer-text').innerText = timeLeft; document.getElementById('timer-text').style.color = "var(--primary)"; clearInterval(timerInterval); timerInterval = setInterval(() => { timeLeft--; document.getElementById('timer-text').innerText = timeLeft; if (timeLeft <= 10) document.getElementById('timer-text').style.color = "var(--danger)"; if (timeLeft <= 0) { clearInterval(timerInterval); handleTimeout(); } }, 1000); }
+    function toggleTimerMode() { if (currentMode === 'exam') return; isTimerEnabled = document.getElementById('timer-toggle').checked; const timeInput = document.getElementById('time-setting'); if (!isTimerEnabled) { clearInterval(timerInterval); document.getElementById('timer-text').innerText = "∞"; document.getElementById('timer-text').style.color = "var(--primary)"; timeInput.disabled = true; timeInput.style.opacity = "0.5"; } else { timeInput.disabled = false; timeInput.style.opacity = "1"; startTimer(); } }
+
+    function initGame() { if (current < gameData.length) { document.getElementById('display-defn').innerText = gameData[current].idn; document.getElementById('answer-input').value = ''; document.getElementById('feedback').innerText = ''; document.getElementById('hint-area').innerText = ''; document.getElementById('current-idx').innerText = current + 1; if (isTimerEnabled) startTimer(); } else { clearInterval(timerInterval); document.getElementById('game-tab').innerHTML = `<h1>Victory!</h1><p>Well done ${userName}!</p><p>Final Score: ${score}/${gameData.length}</p><button class="action-btn" onclick="location.reload()">Restart</button>`; } }
+    function check() { const user = document.getElementById('answer-input').value.toLowerCase().trim(); const correct = gameData[current].eng.toLowerCase(); const fb = document.getElementById('feedback'); if (user === correct) { playCorrect(); clearInterval(timerInterval); fb.style.color = "var(--success)"; fb.innerText = "Correct! Well done."; speak(gameData[current].eng); score++; document.getElementById('score').innerText = score; streak++; document.getElementById('streak').innerText = streak; current++; setTimeout(initGame, 1000); } else { playWrong(); fb.style.color = "var(--danger)"; fb.innerText = "Incorrect. Try again!"; streak = 0; document.getElementById('streak').innerText = streak; } }
+    function handleTimeout() { playWrong(); const correct = gameData[current].eng; document.getElementById('feedback').style.color = "var(--danger)"; document.getElementById('feedback').innerText = `Time's up! It was: ${correct}`; speak(correct); streak = 0; document.getElementById('streak').innerText = streak; current++; setTimeout(initGame, 2000); }
+    function skipWord() { const correct = gameData[current].eng; clearInterval(timerInterval); const fb = document.getElementById('feedback'); fb.style.color = "var(--warning)"; fb.innerText = `Skipped! It was: ${correct}`; speak(correct); streak = 0; document.getElementById('streak').innerText = streak; current++; setTimeout(initGame, 1500); }
+    function showHangmanHint() { const word = gameData[current].eng; const masked = word.split('').map((char, index) => { if (index === 0) return char; if (char === ' ') return ' '; return '_'; }).join(' '); document.getElementById('hint-area').innerText = masked; }
+
+    function updateFlashcard() { const item = gameData[fcIndex]; const front = document.getElementById('fc-front'); const back = document.getElementById('fc-back'); isFlipped = false; front.style.display = 'block'; back.style.display = 'none'; document.getElementById('fc-word-text').innerText = item.eng; document.getElementById('fc-meaning-text').innerText = item.idn; document.getElementById('fc-sentence-text').innerText = `"${item.ex}"`; document.getElementById('fc-count').innerText = `${fcIndex + 1}/${gameData.length}`; }
+    function flipFlashcard() { const front = document.getElementById('fc-front'); const back = document.getElementById('fc-back'); if (isFlipped) { front.style.display = 'block'; back.style.display = 'none'; } else { front.style.display = 'none'; back.style.display = 'block'; } isFlipped = !isFlipped; }
+    function nextFlashcard() { if (fcIndex < gameData.length - 1) fcIndex++; else fcIndex = 0; updateFlashcard(); }
+    function prevFlashcard() { if (fcIndex > 0) fcIndex--; else fcIndex = gameData.length - 1; updateFlashcard(); }
+    function speakFC() { speak(gameData[fcIndex].eng); }
+
+    function initMatchGame() { const leftCol = document.getElementById('match-col-left'); const rightCol = document.getElementById('match-col-right'); leftCol.innerHTML = '<div class="match-col-title">English</div>'; rightCol.innerHTML = '<div class="match-col-title">Indonesian</div>'; matchesFound = 0; currentMatchPairs = shuffle([...fullVocab]).slice(0, 6); let leftCards = []; let rightCards = []; currentMatchPairs.forEach(item => { leftCards.push({ type: 'word', text: item.eng, pairId: item.eng }); rightCards.push({ type: 'meaning', text: item.idn, pairId: item.eng }); }); leftCards = shuffle(leftCards); rightCards = shuffle(rightCards); leftCards.forEach(data => createMatchCard(data, leftCol)); rightCards.forEach(data => createMatchCard(data, rightCol)); }
+    function shuffleMatchBoard() { const leftCol = document.getElementById('match-col-left'); const rightCol = document.getElementById('match-col-right'); shuffleContainer(leftCol); shuffleContainer(rightCol); }
+    function shuffleContainer(container) { const cards = Array.from(container.getElementsByClassName('match-card')); cards.forEach(card => container.removeChild(card)); shuffle(cards); cards.forEach(card => container.appendChild(card)); }
+    function createMatchCard(data, container) { const card = document.createElement('div'); card.classList.add('match-card'); card.innerText = data.text; card.dataset.pairId = data.pairId; card.onclick = () => handleMatchClick(card); container.appendChild(card); }
+    function handleMatchClick(card) { if (lockBoard) return; if (card === firstCard) return; if (card.classList.contains('matched')) return; card.classList.add('selected'); if (!firstCard) { firstCard = card; return; } secondCard = card; checkMatch(); }
+    function checkMatch() { let isMatch = firstCard.dataset.pairId === secondCard.dataset.pairId; if (isMatch) { playCorrect(); disableCards(); } else { playWrong(); unflipCards(); } }
+    function disableCards() { firstCard.classList.add('matched'); secondCard.classList.add('matched'); firstCard.classList.remove('selected'); secondCard.classList.remove('selected'); firstCard.style.backgroundColor = "var(--success)"; secondCard.style.backgroundColor = "var(--success)"; firstCard.style.color = "var(--bg)"; secondCard.style.color = "var(--bg)"; matchesFound++; resetBoard(); }
+    function unflipCards() { lockBoard = true; firstCard.style.borderColor = "var(--danger)"; secondCard.style.borderColor = "var(--danger)"; setTimeout(() => { firstCard.classList.remove('selected'); secondCard.classList.remove('selected'); firstCard.style.borderColor = "#475569"; secondCard.style.borderColor = "#475569"; resetBoard(); }, 1000); }
+    function resetBoard() { [firstCard, secondCard, lockBoard] = [null, null, false]; }
+
+    function initScrambleGame() { const idx = Math.floor(Math.random() * gameData.length); currentScramble = gameData[idx]; const scrambled = currentScramble.eng.split('').sort(() => 0.5 - Math.random()).join(' '); document.getElementById('scramble-display').innerText = scrambled.toUpperCase(); document.getElementById('scramble-defn').innerText = currentScramble.idn; document.getElementById('scramble-input').value = ''; document.getElementById('scramble-feedback').innerText = ''; }
+    function checkScramble() { const input = document.getElementById('scramble-input').value.toLowerCase().trim(); const fb = document.getElementById('scramble-feedback'); if (input === currentScramble.eng.toLowerCase()) { playCorrect(); fb.style.color = "var(--success)"; fb.innerText = "Correct! " + currentScramble.eng; speak(currentScramble.eng); setTimeout(initScrambleGame, 1500); } else { playWrong(); fb.style.color = "var(--danger)"; fb.innerText = "Try Again!"; } }
+    function nextScramble() { speak(currentScramble.eng); document.getElementById('scramble-feedback').innerText = "Skipped: " + currentScramble.eng; setTimeout(initScrambleGame, 1500); }
+
+    function initContextGame() { const idx = Math.floor(Math.random() * gameData.length); currentContext = gameData[idx]; const regex = new RegExp(currentContext.eng, "gi"); const maskedSentence = currentContext.ex.replace(regex, "______"); document.getElementById('context-sentence').innerHTML = maskedSentence; document.getElementById('context-hint').innerText = "Hint: " + currentContext.idn; document.getElementById('context-input').value = ''; document.getElementById('context-feedback').innerText = ''; }
+    function checkContext() { const input = document.getElementById('context-input').value.toLowerCase().trim(); const fb = document.getElementById('context-feedback'); if (input === currentContext.eng.toLowerCase()) { playCorrect(); fb.style.color = "var(--success)"; fb.innerText = "Correct! " + currentContext.eng; speak(currentContext.eng); setTimeout(initContextGame, 1500); } else { playWrong(); fb.style.color = "var(--danger)"; fb.innerText = "Try Again!"; } }
+    function nextContext() { speak(currentContext.eng); document.getElementById('context-feedback').innerText = "Answer: " + currentContext.eng; setTimeout(initContextGame, 2000); }
+
+    function initListenGame() { const idx = Math.floor(Math.random() * gameData.length); currentListen = gameData[idx]; document.getElementById('listen-input').value = ''; document.getElementById('listen-hint-text').innerText = ''; document.getElementById('listen-feedback').innerText = ''; }
+    function playListeningSound() { speak(currentListen.eng); }
+    function showListeningHint() { document.getElementById('listen-hint-text').innerText = "Hint: " + currentListen.idn; }
+    function checkListening() { const input = document.getElementById('listen-input').value.toLowerCase().trim(); const fb = document.getElementById('listen-feedback'); if (input === currentListen.eng.toLowerCase()) { playCorrect(); fb.style.color = "var(--success)"; fb.innerText = "Correct! " + currentListen.eng; speak(currentListen.eng); setTimeout(initListenGame, 1500); } else { playWrong(); fb.style.color = "var(--danger)"; fb.innerText = "Try Again!"; } }
+    function nextListening() { speak(currentListen.eng); document.getElementById('listen-feedback').innerText = "Answer: " + currentListen.eng; setTimeout(initListenGame, 2000); }
+
+    function initChoiceGame() { const idx = Math.floor(Math.random() * gameData.length); currentChoice = gameData[idx]; document.getElementById('choice-display').innerText = currentChoice.eng; document.getElementById('choice-feedback').innerText = ''; let options = [currentChoice]; let distractors = gameData.filter(w => w.eng !== currentChoice.eng); distractors = shuffle(distractors).slice(0, 3); options = options.concat(distractors); options = shuffle(options); const grid = document.getElementById('choice-grid'); grid.innerHTML = ''; options.forEach(opt => { const btn = document.createElement('div'); btn.className = 'choice-btn'; btn.innerText = opt.idn; btn.onclick = () => checkChoice(btn, opt); grid.appendChild(btn); }); }
+    function checkChoice(btn, selected) { const fb = document.getElementById('choice-feedback'); if (selected.eng === currentChoice.eng) { playCorrect(); btn.classList.add('correct'); fb.style.color = "var(--success)"; fb.innerText = "Correct!"; speak(currentChoice.eng); setTimeout(initChoiceGame, 1000); } else { playWrong(); btn.classList.add('wrong'); fb.style.color = "var(--danger)"; fb.innerText = "Incorrect!"; } }
+
+    function initTFGame() { const idx = Math.floor(Math.random() * gameData.length); const correctItem = gameData[idx]; const isCorrect = Math.random() < 0.5; currentTF = { answer: isCorrect, correctEng: correctItem.eng }; let displayDef = ""; if (isCorrect) { displayDef = correctItem.idn; } else { let wrongItem = gameData[Math.floor(Math.random() * gameData.length)]; while (wrongItem.eng === correctItem.eng) { wrongItem = gameData[Math.floor(Math.random() * gameData.length)]; } displayDef = wrongItem.idn; } document.getElementById('tf-word').innerText = correctItem.eng; document.getElementById('tf-def').innerText = displayDef; document.getElementById('tf-feedback').innerText = ""; }
+    function checkTF(userChoice) { const fb = document.getElementById('tf-feedback'); if (userChoice === currentTF.answer) { playCorrect(); fb.style.color = "var(--success)"; fb.innerText = "Correct!"; speak(currentTF.correctEng); setTimeout(initTFGame, 1000); } else { playWrong(); fb.style.color = "var(--danger)"; fb.innerText = "Wrong!"; } }
+
+    // --- BATTLE LOGIC (1 vs 1 Local) ---
+    function resetBattleGame() {
+        p1Score = 0; p2Score = 0;
+        battleActive = false;
+        battleOver = false;
+        document.getElementById('p1-score').innerText = '0';
+        document.getElementById('p2-score').innerText = '0';
+        const inputVal = document.getElementById('battle-target-score').value;
+        battleTargetScore = parseInt(inputVal) || 10;
+        document.getElementById('battle-msg').innerText = "Target: " + battleTargetScore;
+        document.getElementById('battle-msg').style.color = "var(--primary)";
+        startBattleRound();
+    }
+    function startBattleRound() {
+        if(battleOver) return;
+        battleActive = true;
+        const idx = Math.floor(Math.random() * gameData.length);
+        const correctItem = gameData[idx];
+        const isCorrect = Math.random() < 0.5;
+        currentBattle = { answer: isCorrect, correctEng: correctItem.eng };
+        let displayDef = "";
+        if (isCorrect) {
+            displayDef = correctItem.idn;
+        } else {
+            let wrongItem = gameData[Math.floor(Math.random() * gameData.length)];
+            while (wrongItem.eng === correctItem.eng) wrongItem = gameData[Math.floor(Math.random() * gameData.length)];
+            displayDef = wrongItem.idn;
+        }
+        document.getElementById('b-word').innerText = correctItem.eng;
+        document.getElementById('b-def').innerText = displayDef;
+        document.getElementById('battle-msg').innerText = "GO!";
+        document.getElementById('battle-msg').style.color = "var(--text)";
+    }
+    function resolveBattle(player, choice) {
+        if (!battleActive || battleOver) return;
+        battleActive = false;
+        const isCorrect = (choice === currentBattle.answer);
+        const msg = document.getElementById('battle-msg');
+        if (isCorrect) {
+            playCorrect(); msg.innerText = `Player ${player} Wins!`; msg.style.color = "var(--success)";
+            if (player === 1) { p1Score++; document.getElementById('p1-score').innerText = p1Score; }
+            else { p2Score++; document.getElementById('p2-score').innerText = p2Score; }
+            speak("Correct");
+        } else {
+            playWrong(); const winner = player === 1 ? 2 : 1; msg.innerText = `Player ${player} Wrong! P${winner} gets point!`; msg.style.color = "var(--danger)";
+            if (winner === 1) { p1Score++; document.getElementById('p1-score').innerText = p1Score; }
+            else { p2Score++; document.getElementById('p2-score').innerText = p2Score; }
+            speak("Wrong");
+        }
+        if (p1Score >= battleTargetScore || p2Score >= battleTargetScore) {
+            battleOver = true; msg.innerText = p1Score >= battleTargetScore ? "PLAYER 1 WINS!" : "PLAYER 2 WINS!";
+            msg.style.color = "var(--primary)"; speak("Game Over");
+        } else { setTimeout(startBattleRound, 2000); }
+    }
+
+    // --- DUEL CHOICE LOGIC (Game 2) ---
+    function resetDuelGame() {
+        d1Score = 0; d2Score = 0;
+        document.getElementById('d1-score').innerText = "0";
+        document.getElementById('d2-score').innerText = "0";
+        
+        const inputVal = document.getElementById('duel-target-score').value;
+        duelTargetScore = parseInt(inputVal) || 10;
+        
+        document.getElementById('duel-msg').innerText = "Target: " + duelTargetScore;
+        document.getElementById('duel-msg').style.color = "var(--primary)";
+        
+        startDuelGame();
+    }
+
+    function startDuelGame() {
+        duelActive = true;
+        nextDuelRound();
+    }
+    
+    function nextDuelRound() {
+        if(!duelActive) return;
+        document.getElementById('duel-opt-1').classList.remove('correct');
+        document.getElementById('duel-opt-2').classList.remove('correct');
+        document.getElementById('duel-msg').innerText = "Pick Correct!";
+        
+        const idx = Math.floor(Math.random() * gameData.length);
+        const correctItem = gameData[idx];
+        let distractor = gameData[Math.floor(Math.random() * gameData.length)];
+        while(distractor.eng === correctItem.eng) { distractor = gameData[Math.floor(Math.random() * gameData.length)]; }
+        
+        const correctPos = Math.random() < 0.5 ? 1 : 2;
+        currentDuel = { correctPos: correctPos };
+        
+        document.getElementById('duel-def').innerText = correctItem.idn;
+        if(correctPos === 1) {
+            document.getElementById('duel-opt-1').innerText = correctItem.eng;
+            document.getElementById('duel-opt-2').innerText = distractor.eng;
+        } else {
+            document.getElementById('duel-opt-1').innerText = distractor.eng;
+            document.getElementById('duel-opt-2').innerText = correctItem.eng;
+        }
+    }
+    
+    function resolveDuel(player, choicePos) {
+        if(!duelActive) return;
+        
+        // Correct Choice
+        if(choicePos === currentDuel.correctPos) {
+            playCorrect();
+            document.getElementById('duel-msg').innerText = `Player ${player} Point!`;
+            document.getElementById('duel-msg').style.color = "var(--success)";
+            if(currentDuel.correctPos === 1) document.getElementById('duel-opt-1').classList.add('correct');
+            else document.getElementById('duel-opt-2').classList.add('correct');
+            
+            if(player === 1) { d1Score++; document.getElementById('d1-score').innerText = d1Score; }
+            else { d2Score++; document.getElementById('d2-score').innerText = d2Score; }
+        } else {
+            // Wrong Choice -> Point to Opponent
+            playWrong();
+            const opponent = player === 1 ? 2 : 1;
+            document.getElementById('duel-msg').innerText = `P${player} Wrong! P${opponent} Gets Point!`;
+            document.getElementById('duel-msg').style.color = "var(--danger)";
+            
+            if(opponent === 1) { d1Score++; document.getElementById('d1-score').innerText = d1Score; }
+            else { d2Score++; document.getElementById('d2-score').innerText = d2Score; }
+        }
+        
+        duelActive = false; 
+        
+        // Check Win
+        if (d1Score >= duelTargetScore || d2Score >= duelTargetScore) {
+            const winner = d1Score >= duelTargetScore ? 1 : 2;
+            document.getElementById('duel-msg').innerText = `PLAYER ${winner} WINS MATCH!`;
+            speak("Game Over");
+        } else {
+            setTimeout(() => { duelActive = true; nextDuelRound(); }, 1500);
+        }
+    }
+
+    // --- SNIPER LOGIC (Game 3) ---
+    function resetSniperGame() {
+        s1Score = 0; s2Score = 0;
+        document.getElementById('s1-score').innerText = "0";
+        document.getElementById('s2-score').innerText = "0";
+        const inputVal = document.getElementById('sniper-target-score').value;
+        sniperTargetScore = parseInt(inputVal) || 10;
+        document.getElementById('sniper-msg').innerText = "Target: " + sniperTargetScore;
+        document.getElementById('sniper-msg').style.color = "var(--primary)";
+        sniperActive = true;
+        nextSniperRound();
+    }
+
+    function nextSniperRound() {
+        if(!sniperActive) return;
+        clearInterval(sniperInterval);
+        document.getElementById('sniper-msg').innerText = "Wait...";
+        const idx = Math.floor(Math.random() * gameData.length);
+        const target = gameData[idx];
+        currentSniper = { target: target, currentDef: null };
+        document.getElementById('sniper-target').innerText = target.eng;
+        
+        let cycleCount = 0;
+        sniperInterval = setInterval(() => {
+            cycleCount++;
+            if(Math.random() < 0.2 || cycleCount > 8) {
+                currentSniper.currentDef = target;
+                document.getElementById('sniper-text').innerText = target.idn;
+                document.getElementById('sniper-text').style.color = "var(--success)";
+            } else {
+                let decoy = gameData[Math.floor(Math.random() * gameData.length)];
+                currentSniper.currentDef = decoy;
+                document.getElementById('sniper-text').innerText = decoy.idn;
+                document.getElementById('sniper-text').style.color = "var(--text)";
+            }
+        }, 800); 
+    }
+    
+    function resolveSniper(player) {
+        if(!sniperActive) return;
+        const isCorrect = (currentSniper.currentDef.eng === currentSniper.target.eng);
+        if (isCorrect) {
+            playCorrect();
+            document.getElementById('sniper-msg').innerText = `Player ${player} Sniped It!`;
+            document.getElementById('sniper-msg').style.color = "var(--success)";
+            if(player === 1) { s1Score++; document.getElementById('s1-score').innerText = s1Score; }
+            else { s2Score++; document.getElementById('s2-score').innerText = s2Score; }
+        } else {
+            playWrong();
+            const winner = player === 1 ? 2 : 1;
+            document.getElementById('sniper-msg').innerText = `P${player} Missed! P${winner} Point!`;
+            document.getElementById('sniper-msg').style.color = "var(--danger)";
+            if(winner === 1) { s1Score++; document.getElementById('s1-score').innerText = s1Score; }
+            else { s2Score++; document.getElementById('s2-score').innerText = s2Score; }
+        }
+        clearInterval(sniperInterval);
+        if(s1Score >= sniperTargetScore || s2Score >= sniperTargetScore) {
+            const winner = s1Score >= sniperTargetScore ? 1 : 2;
+            document.getElementById('sniper-msg').innerText = `PLAYER ${winner} WINS!`;
+            document.getElementById('sniper-msg').style.color = "var(--primary)";
+            speak("Game Over");
+            sniperActive = false;
+        } else {
+            sniperActive = false;
+            setTimeout(() => { sniperActive = true; nextSniperRound(); }, 2000);
+        }
+    }
+
+    // --- TRIPLE THREAT LOGIC (Game 4) ---
+    function resetTripleGame() {
+        t1Score = 0; t2Score = 0;
+        document.getElementById('t1-score').innerText = "0";
+        document.getElementById('t2-score').innerText = "0";
+        const inputVal = document.getElementById('triple-target-score').value;
+        tripleTargetScore = parseInt(inputVal) || 10;
+        document.getElementById('triple-msg').innerText = "Target: " + tripleTargetScore;
+        tripleActive = true;
+        nextTripleRound();
+    }
+
+    function nextTripleRound() {
+        if(!tripleActive) return;
+        // Clean UI
+        for(let i=1; i<=3; i++) document.getElementById(`triple-opt-${i}`).classList.remove('correct');
+        document.getElementById('triple-msg').innerText = "Select Definition!";
+        
+        // Setup Round
+        const idx = Math.floor(Math.random() * gameData.length);
+        const correctItem = gameData[idx];
+        document.getElementById('triple-word').innerText = correctItem.eng;
+        
+        // Distractors
+        let opts = [correctItem];
+        while(opts.length < 3) {
+            let d = gameData[Math.floor(Math.random() * gameData.length)];
+            if(!opts.find(x => x.eng === d.eng)) opts.push(d);
+        }
+        opts = shuffle(opts);
+        
+        // Render
+        currentTriple = { correctIndex: opts.indexOf(correctItem) + 1 }; // 1, 2, or 3
+        document.getElementById('t-text-1').innerText = opts[0].idn;
+        document.getElementById('t-text-2').innerText = opts[1].idn;
+        document.getElementById('t-text-3').innerText = opts[2].idn;
+    }
+
+    function resolveTriple(player, choiceIdx) {
+        if(!tripleActive) return;
+        
+        if (choiceIdx === currentTriple.correctIndex) {
+            playCorrect();
+            document.getElementById(`triple-opt-${choiceIdx}`).classList.add('correct');
+            document.getElementById('triple-msg').innerText = `Player ${player} Correct!`;
+            document.getElementById('triple-msg').style.color = "var(--success)";
+            
+            if(player === 1) { t1Score++; document.getElementById('t1-score').innerText = t1Score; }
+            else { t2Score++; document.getElementById('t2-score').innerText = t2Score; }
+            
+            tripleActive = false;
+            // Check Win
+            if (t1Score >= tripleTargetScore || t2Score >= tripleTargetScore) {
+                const winner = t1Score >= tripleTargetScore ? 1 : 2;
+                document.getElementById('triple-msg').innerText = `PLAYER ${winner} WINS MATCH!`;
+                speak("Game Over");
+            } else {
+                setTimeout(() => { tripleActive = true; nextTripleRound(); }, 1500);
+            }
+        } else {
+            playWrong();
+            // Wrong answer gives point to opponent
+            const opponent = player === 1 ? 2 : 1;
+            document.getElementById('triple-msg').innerText = `P${player} Wrong! Point P${opponent}`;
+            document.getElementById('triple-msg').style.color = "var(--danger)";
+            
+            if(opponent === 1) { t1Score++; document.getElementById('t1-score').innerText = t1Score; }
+            else { t2Score++; document.getElementById('t2-score').innerText = t2Score; }
+            
+            tripleActive = false;
+            if (t1Score >= tripleTargetScore || t2Score >= tripleTargetScore) {
+                const winner = t1Score >= tripleTargetScore ? 1 : 2;
+                document.getElementById('triple-msg').innerText = `PLAYER ${winner} WINS MATCH!`;
+                speak("Game Over");
+            } else {
+                setTimeout(() => { tripleActive = true; nextTripleRound(); }, 1500);
+            }
+        }
+    }
+
+    // SHARED KEY LISTENER
+    document.addEventListener('keydown', (e) => {
+        const key = e.key.toLowerCase();
+
+        // BATTLE MODE (True/False)
+        if (battleActive && !battleOver) {
+            if (key === 'a') resolveBattle(1, true);
+            if (key === 's') resolveBattle(1, false);
+            if (key === 'k') resolveBattle(2, true);
+            if (key === 'l') resolveBattle(2, false);
+        }
+
+        // DUEL MODE (Left/Right)
+        if (duelActive) {
+            if (key === 'a') resolveDuel(1, 1);
+            if (key === 'd') resolveDuel(1, 2);
+            if (key === 'j') resolveDuel(2, 1);
+            if (key === 'l') resolveDuel(2, 2);
+        }
+
+        // SNIPER MODE (Shoot)
+        if (sniperActive) {
+            if (key === 's') resolveSniper(1);
+            if (key === 'k') resolveSniper(2);
+        }
+
+        // TRIPLE MODE (1/2/3)
+        if (tripleActive) {
+            // P1: A, S, D
+            if (key === 'a') resolveTriple(1, 1);
+            if (key === 's') resolveTriple(1, 2);
+            if (key === 'd') resolveTriple(1, 3);
+            
+            // P2: J, K, L
+            if (key === 'j') resolveTriple(2, 1);
+            if (key === 'k') resolveTriple(2, 2);
+            if (key === 'l') resolveTriple(2, 3);
+        }
+    });
+
+
+    function buildTable() { const sorted = [...fullVocab].sort((a,b) => a.eng.localeCompare(b.eng)); const tbody = document.getElementById('table-body'); tbody.innerHTML = sorted.map(v => `<tr><td style="font-weight:bold; color:var(--primary)">${v.eng} <button class="speak-btn" onclick="speak('${v.eng}')">🔊</button></td><td>${v.idn}</td><td class="example-text">"${v.ex}"</td></tr>`).join(''); }
+    function filterTable() { let input = document.getElementById("search").value.toLowerCase(); let rows = document.getElementById("table-body").getElementsByTagName("tr"); for (let i = 0; i < rows.length; i++) { let text = rows[i].textContent.toLowerCase(); rows[i].style.display = text.includes(input) ? "" : "none"; } }
+
+    document.getElementById('answer-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') check(); });
+    document.getElementById('scramble-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') checkScramble(); });
+    document.getElementById('context-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') checkContext(); });
+    document.getElementById('listen-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') checkListening(); });
+
+    buildTable();
+</script>
+
+</body>
+</html>

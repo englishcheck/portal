@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>English Check - Vocabulary</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- TEMA SERAGAM DENGAN DASHBOARD --- */
+        :root {
+            --bg-dark: #0f3d3e;       
+            --bg-darker: #0a2b2c;     
+            --accent-lime: #d4e157;   
+            --body-bg: #f4fcf7;       
+            --text-dark: #1b4d3e;
+            --white: #ffffff;
+            --grey-text: #666666;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--body-bg);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* HEADER */
+        .header-section {
+            background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
+            padding: 30px 20px 40px 20px;
+            color: white;
+            border-bottom-left-radius: 35px;
+            border-bottom-right-radius: 35px;
+            box-shadow: 0 10px 30px rgba(15, 61, 62, 0.3);
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .back-btn {
+            position: absolute; top: 30px; left: 20px;
+            color: white; font-size: 1.2rem; cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+        .back-btn:active { transform: scale(0.9); }
+
+        .header-title h1 { font-size: 1.8rem; font-weight: 800; color: var(--white); margin: 0; }
+        .header-title p { font-size: 0.85rem; color: var(--accent-lime); opacity: 0.9; margin-top: 5px; }
+
+        /* CONTENT CONTAINER */
+        .content-container {
+            padding: 30px 20px;
+            margin-top: -20px;
+            z-index: 20;
+        }
+
+        /* GRID MENU */
+        .grid-menu {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        /* CARD STYLE (Tanpa Lock) */
+        .grid-item {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 25px;
+            text-decoration: none;
+            color: var(--text-dark);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center; /* Horizontal Layout */
+            gap: 20px;
+            border: 1px solid rgba(0,0,0,0.03);
+            cursor: pointer;
+        }
+
+        .grid-item:active { transform: scale(0.98); }
+
+        .grid-icon {
+            width: 60px; height: 60px; border-radius: 18px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 2rem; background: rgba(212, 225, 87, 0.15);
+            color: var(--bg-dark); transition: 0.2s;
+            flex-shrink: 0;
+        }
+
+        .grid-content {
+            flex: 1;
+        }
+
+        .grid-title {
+            font-size: 1.1rem; font-weight: 700; color: var(--bg-dark);
+            margin-bottom: 5px; display: block;
+        }
+
+        .grid-desc {
+            font-size: 0.75rem; color: var(--grey-text); line-height: 1.4;
+        }
+
+        /* WARNA ICON KHUSUS */
+        .icon-green { background: #e8f5e9; color: #2e7d32; }
+        .icon-blue { background: #e1f5fe; color: #0277bd; }
+        .icon-purple { background: #f3e5f5; color: #7b1fa2; }
+
+        /* Animasi */
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .grid-item { opacity: 0; animation: fadeInUp 0.4s forwards; }
+        .grid-item:nth-child(1) { animation-delay: 0.1s; }
+        .grid-item:nth-child(2) { animation-delay: 0.2s; }
+        .grid-item:nth-child(3) { animation-delay: 0.3s; }
+
+    </style>
+</head>
+<body>
+
+    <div class="header-section">
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <div class="header-title">
+            <h1>Vocab Check</h1>
+            <p>Expand Your Vocabulary</p>
+        </div>
+    </div>
+
+    <div class="content-container">
+        <div class="grid-menu">
+            
+            <div class="grid-item" onclick="handleNav('begineee.html')">
+                <div class="grid-icon icon-green">🔰</div>
+                <div class="grid-content">
+                    <span class="grid-title">Beginner</span>
+                    <span class="grid-desc">Fondasi dasar kata-kata sehari-hari.</span>
+                </div>
+                <i class="fas fa-chevron-right" style="color: #ddd;"></i>
+            </div>
+
+            <div class="grid-item" onclick="handleNav('intermediate.html')">
+                <div class="grid-icon icon-blue">⚡</div>
+                <div class="grid-content">
+                    <span class="grid-title">Intermediate</span>
+                    <span class="grid-desc">Tingkatkan kefasihan ke level profesional.</span>
+                </div>
+                <i class="fas fa-chevron-right" style="color: #ddd;"></i>
+            </div>
+
+            <div class="grid-item" onclick="handleNav('game vocab.html')">
+                <div class="grid-icon icon-purple">💎</div>
+                <div class="grid-content">
+                    <span class="grid-title">GRE Elite</span>
+                    <span class="grid-desc">Kosakata tingkat tinggi untuk akademik.</span>
+                </div>
+                <i class="fas fa-chevron-right" style="color: #ddd;"></i>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound() {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(400, audioCtx.currentTime); 
+            oscillator.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.1); 
+
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime); 
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); 
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.1);
+        }
+
+        function handleNav(url) {
+            playSound();
+            setTimeout(() => {
+                window.location.href = url;
+            }, 200);
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MULTIPLAYER (GRE)</title>
+    <style>
+        /* CSS VARIABLES */
+        :root { --bg: #0f172a; --card: #1e293b; --sidebar: #111827; --primary: #38bdf8; --text: #f8fafc; --muted: #94a3b8; --danger: #f87171; --success: #4ade80; --warning: #fbbf24; --p1: #3b82f6; --p2: #ef4444; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; height: 100vh; overflow: hidden; transition: background-color 0.3s; }
+        
+        /* INTRO SCREEN */
+        #intro-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 200; transition: opacity 0.5s ease-out; }
+        #particle-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        .intro-content { z-index: 10; text-align: center; position: relative; width: 100%; max-width: 800px; padding: 20px; }
+        
+        .intro-title { font-size: 3.5rem; color: var(--primary); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 0 20px rgba(56, 189, 248, 0.3); font-weight: 800; }
+        .intro-subtitle { font-size: 1.2rem; color: var(--muted); margin-bottom: 30px; }
+        
+        #name-screen { display: flex; flex-direction: column; align-items: center; gap: 20px; animation: fadeIn 0.5s ease-in; }
+
+        /* MAIN APP */
+        #main-app { display: none; width: 100%; height: 100vh; flex-direction: row; }
+        
+        .sidebar { width: 250px; background: var(--sidebar); border-right: 1px solid #334155; display: flex; flex-direction: column; padding: 20px 10px; gap: 5px; overflow-y: auto; flex-shrink: 0; }
+        .sidebar-header { font-size: 1.2rem; font-weight: bold; color: var(--primary); margin-bottom: 5px; padding-left: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .user-welcome { font-size: 0.85rem; color: var(--success); padding-left: 10px; margin-bottom: 15px; font-weight: 500; }
+        .nav-category { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; margin: 15px 0 5px 10px; font-weight: bold; }
+        .tab-btn { background: transparent; color: var(--text); border: none; padding: 12px 15px; cursor: pointer; border-radius: 8px; font-size: 0.95rem; text-align: left; transition: 0.2s; display: flex; align-items: center; gap: 10px; }
+        .tab-btn:hover { background: rgba(255,255,255,0.05); }
+        .tab-btn.active { background: var(--primary); color: #0f172a; font-weight: bold; box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); }
+        
+        .back-btn { background: rgba(248, 113, 113, 0.2); color: var(--danger); border: 1px solid var(--danger); margin-bottom: 20px; font-weight: bold; justify-content: center; }
+        .back-btn:hover { background: var(--danger); color: white; }
+
+        .main-content { flex: 1; padding: 30px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; background: var(--bg); }
+        .content-container { background: var(--card); padding: 2.5rem; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); width: 100%; max-width: 900px; border: 1px solid #334155; position: relative; transition: background-color 0.3s; }
+        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* CONTROLS */
+        .game-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: rgba(0,0,0,0.2); padding: 10px 15px; border-radius: 10px; flex-wrap: wrap; gap: 10px; }
+        .left-controls { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
+        
+        .music-wrapper { display: flex; align-items: center; border-left: 1px solid #475569; padding-left: 15px; margin-left: 5px; }
+        .music-btn { background: none; border: 1px solid #475569; color: var(--muted); cursor: pointer; font-size: 1.2rem; padding: 5px 10px; border-radius: 5px; transition: 0.3s; margin-right: 10px; }
+        .music-btn.playing { color: var(--success); border-color: var(--success); box-shadow: 0 0 10px rgba(74, 222, 128, 0.2); }
+        .music-btn:hover { background: rgba(255,255,255,0.1); }
+        input[type=range] { width: 70px; height: 5px; background: #475569; border-radius: 5px; outline: none; -webkit-appearance: none; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 15px; height: 15px; border-radius: 50%; background: var(--primary); cursor: pointer; transition: 0.2s; }
+        .theme-select { margin-left: 15px; padding: 5px; border-radius: 5px; background: var(--bg); color: var(--text); border: 1px solid #475569; }
+
+        /* TAB UI */
+        h1 { color: var(--primary); text-align: center; margin: 10px 0 20px 0; font-size: 2rem; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+        input { width: 93%; padding: 14px; border-radius: 8px; border: 2px solid #475569; background: var(--bg); color: var(--text); font-size: 1.1rem; text-align: center; transition: 0.3s; }
+        input:focus { border-color: var(--primary); outline: none; }
+        .btns { margin-top: 20px; display: flex; gap: 10px; justify-content: center; }
+        button.action-btn { background: var(--primary); color: var(--bg); border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; z-index: 20; position: relative; }
+        button.action-btn:active { transform: scale(0.95); }
+        
+        /* BATTLE MODE STYLES */
+        .battle-arena { display: flex; justify-content: space-between; flex: 1; align-items: center; gap: 10px; width: 100%; margin-top: 20px; }
+        .player-zone { flex: 1; height: 280px; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; border: 3px solid; background: rgba(0,0,0,0.2); transition: 0.2s; }
+        .p1-zone { border-color: #3b82f6; }
+        .p2-zone { border-color: #ef4444; }
+        .p-score { font-size: 4rem; font-weight: 800; margin: 0; }
+        .p-label { font-size: 1.2rem; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
+        .p1-zone .p-label { color: #3b82f6; }
+        .p2-zone .p-label { color: #ef4444; }
+        .keys-hint { margin-top: 15px; font-size: 0.8rem; color: var(--muted); text-align: center; line-height: 1.8; }
+        .key-box { display: inline-block; padding: 2px 8px; border: 1px solid var(--muted); border-radius: 5px; margin: 0 5px; font-family: monospace; font-weight: bold; color: var(--text); background: rgba(255,255,255,0.1); }
+        
+        .battle-center { width: 100%; text-align: center; margin-top: 20px; border-top: 1px solid #334155; padding-top: 20px; }
+        .battle-settings { width: 100%; text-align: center; margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; border: 1px solid #334155; }
+        .b-word { font-size: 2.2rem; color: var(--text); font-weight: bold; display: block; margin-bottom: 5px; }
+        .b-connector { color: var(--muted); font-style: italic; font-size: 0.9rem; margin-bottom: 5px; }
+        .b-def { font-size: 1.3rem; color: var(--primary); font-weight: 500; min-height: 30px; }
+        .battle-feedback { font-size: 1.5rem; font-weight: 800; margin-top: 10px; height: 30px; }
+
+        /* DUEL CHOICE STYLES */
+        .duel-options { display: flex; gap: 20px; width: 100%; margin-top: 30px; }
+        .duel-opt { flex: 1; padding: 30px; border: 2px solid #475569; border-radius: 12px; font-size: 1.5rem; font-weight: bold; cursor: pointer; transition: 0.2s; background: rgba(0,0,0,0.3); text-align: center; }
+        .duel-opt.left-opt { border-color: #3b82f6; }
+        .duel-opt.right-opt { border-color: #ef4444; }
+        .duel-opt.correct { background: var(--success); color: var(--bg); border-color: var(--success); }
+
+        /* TRIPLE THREAT STYLES */
+        .triple-options { display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 20px; }
+        .triple-opt { width: 100%; padding: 15px; border: 1px solid #475569; border-radius: 8px; font-size: 1.2rem; cursor: pointer; background: rgba(0,0,0,0.3); transition: 0.2s; display: flex; justify-content: space-between; align-items: center; }
+        .triple-opt.correct { background: var(--success); color: var(--bg); border-color: var(--success); }
+        .triple-key { font-family: monospace; font-weight: bold; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px; font-size: 0.9rem; }
+
+        /* SNIPER MODE STYLES */
+        .sniper-container { width: 100%; text-align: center; padding: 20px; }
+        .sniper-target { font-size: 3rem; color: var(--warning); font-weight: bold; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
+        .sniper-scope { width: 100%; height: 100px; background: #000; border: 4px solid var(--danger); border-radius: 10px; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 30px; overflow: hidden; box-shadow: 0 0 20px var(--danger); }
+        .sniper-scope::before { content: ""; position: absolute; top: 0; left: 50%; width: 2px; height: 100%; background: rgba(255,0,0,0.5); }
+        .sniper-scope::after { content: ""; position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: rgba(255,0,0,0.5); }
+        .sniper-text { font-size: 1.5rem; color: #fff; z-index: 5; font-weight: bold; padding: 0 20px; }
+
+        .table-wrapper { max-height: 500px; overflow-y: auto; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #334155; vertical-align: top; }
+        th { position: sticky; top: 0; background: var(--card); color: var(--primary); z-index: 10; }
+        .search-bar { width: 95%; padding: 12px; margin-bottom: 5px; border-radius: 8px; border: 1px solid #475569; background: var(--bg); color: var(--text); }
+        .speak-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; margin-left: 8px; transition: 0.2s; }
+        .speak-btn:hover { transform: scale(1.2); }
+
+        @media (max-width: 768px) {
+            #main-app { flex-direction: column; }
+            .sidebar { width: 100%; height: 100px; flex-direction: row; overflow-x: auto; border-right: none; border-bottom: 1px solid #334155; padding: 10px; align-items: center; }
+            .sidebar-header, .nav-category, .user-welcome { display: none; }
+            .tab-btn { flex-direction: column; font-size: 0.7rem; text-align: center; padding: 8px; gap: 5px; min-width: 80px; justify-content: center; }
+            .main-content { padding: 15px; }
+            .content-container { padding: 1.5rem; }
+            .battle-arena { flex-direction: column; }
+            .player-zone { width: 100%; height: 150px; }
+        }
+    </style>
+</head>
+<body>
+
+<audio id="bg-music" loop><source src="backsound.mp3" type="audio/mpeg"></audio>
+<audio id="sfx-correct"><source src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" type="audio/mpeg"></audio>
+<audio id="sfx-wrong"><source src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3" type="audio/mpeg"></audio>
+
+<div id="intro-screen">
+    <canvas id="particle-canvas"></canvas>
+    <div class="intro-content">
+        <div class="intro-title">GRE MASTER</div>
+        <div class="intro-subtitle">Vocabulary Battle Arena (GRE)</div>
+        
+        <div id="name-screen">
+            <button class="action-btn" onclick="startGame()">ENTER ARENA</button>
+        </div>
+    </div>
+</div>
+
+<div id="main-app">
+    <nav class="sidebar">
+        <div class="sidebar-header">MENU</div>
+        <div class="user-welcome" id="display-user-name">Welcome, Player</div>
+        
+        <button class="tab-btn back-btn" onclick="goToMenu()"><span>⬅</span> <span>Quit Game</span></button>
+
+        <div class="nav-category">Multiplayer Games</div>
+        <button class="tab-btn active" id="tab-battle-btn" onclick="openTab(event, 'battle-tab')"><span class="tab-icon">⚔️</span> <span>1 vs 1 Battle</span></button>
+        <button class="tab-btn" id="tab-duel-btn" onclick="openTab(event, 'duel-tab')"><span class="tab-icon">🤜🤛</span> <span>Duel Choice</span></button>
+        <button class="tab-btn" id="tab-sniper-btn" onclick="openTab(event, 'sniper-tab')"><span class="tab-icon">🎯</span> <span>Sniper Reflex</span></button>
+        <button class="tab-btn" id="tab-triple-btn" onclick="openTab(event, 'triple-tab')"><span class="tab-icon">⚡</span> <span>Triple Threat</span></button>
+
+        <div class="nav-category">Reference</div>
+        <button class="tab-btn" id="tab-list-btn" onclick="openTab(event, 'list-tab')"><span class="tab-icon">📚</span> <span>Word List</span></button>
+    </nav>
+
+    <main class="main-content">
+        <div class="content-container">
+            <div class="game-controls">
+                <div class="left-controls">
+                    <div class="music-wrapper"><button class="music-btn" id="music-toggle" onclick="toggleMusic()">🎵</button><input type="range" id="vol-control" min="0" max="1" step="0.1" value="0.3" oninput="adjustVolume()"></div>
+                    <select class="theme-select" onchange="changeTheme(this.value)"><option value="classic">Classic</option><option value="cyberpunk">Cyberpunk</option><option value="matrix">Matrix</option><option value="royal">Royal</option></select>
+                </div>
+            </div>
+
+            <div id="battle-tab" class="tab-content active">
+                <h1>1 VS 1 Battle (True/False)</h1>
+                <div class="battle-settings">
+                    <span style="color:var(--primary); font-weight:bold; margin-right:10px;">Winning Score:</span>
+                    <input type="number" id="battle-target-score" value="10" min="1" max="100" style="width:70px; display:inline-block; padding:8px;">
+                    <button class="action-btn" style="margin-left:10px; background:var(--warning); color:#000;" onclick="resetBattleGame()">Set Rules / Reset</button>
+                </div>
+                <div class="battle-arena">
+                    <div class="player-zone p1-zone">
+                        <div class="p-label">Player 1</div><div class="p-score" id="p1-score">0</div><div class="keys-hint"><span class="key-box">A</span> True <span class="key-box">S</span> False</div>
+                    </div>
+                    <div class="player-zone p2-zone">
+                        <div class="p-label">Player 2</div><div class="p-score" id="p2-score">0</div><div class="keys-hint"><span class="key-box">K</span> True <span class="key-box">L</span> False</div>
+                    </div>
+                </div>
+                <div class="battle-center"><div class="b-word" id="b-word">READY?</div><div class="b-connector">means</div><div class="b-def" id="b-def">Click Start</div><div class="battle-feedback" id="battle-msg"></div><button class="action-btn" style="margin-top:20px;" onclick="startBattleRound()">START ROUND</button></div>
+            </div>
+
+            <div id="duel-tab" class="tab-content">
+                <h1>Duel Choice</h1>
+                <div class="battle-settings">
+                    <span style="color:var(--primary); font-weight:bold; margin-right:10px;">Winning Score:</span>
+                    <input type="number" id="duel-target-score" value="10" min="1" max="100" style="width:70px; display:inline-block; padding:8px;">
+                    <button class="action-btn" style="margin-left:10px; background:var(--warning); color:#000;" onclick="resetDuelGame()">Set Rules / Start</button>
+                </div>
+                <div class="battle-center">
+                    <div class="b-def" id="duel-def" style="min-height:50px; font-size:1.6rem; margin-bottom:20px;">Press Start</div>
+                    <div class="duel-options">
+                        <div class="duel-opt left-opt" id="duel-opt-1">Word A</div>
+                        <div class="duel-opt right-opt" id="duel-opt-2">Word B</div>
+                    </div>
+                    <div class="battle-feedback" id="duel-msg"></div>
+                </div>
+                <div class="battle-arena" style="margin-top:30px;">
+                    <div class="player-zone p1-zone" style="height:120px;">
+                        <div class="p-label">P1 (Score: <span id="d1-score">0</span>)</div>
+                        <div class="keys-hint"><span class="key-box">A</span> Left <span class="key-box">D</span> Right</div>
+                    </div>
+                    <div class="player-zone p2-zone" style="height:120px;">
+                        <div class="p-label">P2 (Score: <span id="d2-score">0</span>)</div>
+                        <div class="keys-hint"><span class="key-box">J</span> Left <span class="key-box">L</span> Right</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="sniper-tab" class="tab-content">
+                <h1>Sniper Reflex</h1>
+                <p style="text-align:center; color:var(--muted); margin-bottom:20px;">Wait for the correct meaning, then SHOOT!</p>
+                <div class="battle-settings">
+                    <span style="color:var(--primary); font-weight:bold; margin-right:10px;">Winning Score:</span>
+                    <input type="number" id="sniper-target-score" value="10" min="1" max="100" style="width:70px; display:inline-block; padding:8px;">
+                    <button class="action-btn" style="margin-left:10px; background:var(--warning); color:#000;" onclick="resetSniperGame()">Set Rules / Start</button>
+                </div>
+                
+                <div class="sniper-container">
+                    <div class="sniper-target" id="sniper-target">TARGET</div>
+                    <div class="sniper-scope">
+                        <div class="sniper-text" id="sniper-text">...</div>
+                    </div>
+                    <div class="battle-feedback" id="sniper-msg"></div>
+                </div>
+
+                <div class="battle-arena">
+                    <div class="player-zone p1-zone" style="height:120px;">
+                        <div class="p-label">P1 (Score: <span id="s1-score">0</span>)</div>
+                        <div class="keys-hint"><span class="key-box">S</span> SHOOT</div>
+                    </div>
+                    <div class="player-zone p2-zone" style="height:120px;">
+                        <div class="p-label">P2 (Score: <span id="s2-score">0</span>)</div>
+                        <div class="keys-hint"><span class="key-box">K</span> SHOOT</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="triple-tab" class="tab-content">
+                <h1>Triple Threat</h1>
+                <div class="battle-settings">
+                    <span style="color:var(--primary); font-weight:bold; margin-right:10px;">Winning Score:</span>
+                    <input type="number" id="triple-target-score" value="10" min="1" max="100" style="width:70px; display:inline-block; padding:8px;">
+                    <button class="action-btn" style="margin-left:10px; background:var(--warning); color:#000;" onclick="resetTripleGame()">Set Rules / Start</button>
+                </div>
+                <div class="battle-center">
+                    <div class="b-word" id="triple-word" style="font-size:2.5rem; margin-bottom:20px;">READY?</div>
+                    <div class="triple-options">
+                        <div class="triple-opt" id="triple-opt-1"><span class="triple-key">A / J</span> <span id="t-text-1">Option 1</span></div>
+                        <div class="triple-opt" id="triple-opt-2"><span class="triple-key">S / K</span> <span id="t-text-2">Option 2</span></div>
+                        <div class="triple-opt" id="triple-opt-3"><span class="triple-key">D / L</span> <span id="t-text-3">Option 3</span></div>
+                    </div>
+                    <div class="battle-feedback" id="triple-msg"></div>
+                </div>
+                <div class="battle-arena" style="margin-top:20px;">
+                    <div class="player-zone p1-zone" style="height:100px;">
+                        <div class="p-label">P1 (Score: <span id="t1-score">0</span>)</div>
+                    </div>
+                    <div class="player-zone p2-zone" style="height:100px;">
+                        <div class="p-label">P2 (Score: <span id="t2-score">0</span>)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="list-tab" class="tab-content"><h1>Vocabulary List</h1><input type="text" class="search-bar" id="search" onkeyup="filterTable()" placeholder="Cari kata..."><div class="table-wrapper"><table><thead><tr><th style="width:25%;">English</th><th style="width:35%;">Meaning</th><th style="width:40%;">Example</th></tr></thead><tbody id="table-body"></tbody></table></div></div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // --- PARTICLE SCRIPT ---
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    let particlesArray = [];
+    const colors = ['#38bdf8', '#818cf8', '#2dd4bf'];
+    class Particle {
+        constructor() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 3 + 1; this.speedX = Math.random() * 1 - 0.5; this.speedY = Math.random() * 1 - 0.5; this.color = colors[Math.floor(Math.random() * colors.length)]; }
+        update() { this.x += this.speedX; this.y += this.speedY; if (this.x > canvas.width || this.x < 0) this.speedX = -this.speedX; if (this.y > canvas.height || this.y < 0) this.speedY = -this.speedY; }
+        draw() { ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
+    }
+    function initParticles() { for (let i = 0; i < 50; i++) particlesArray.push(new Particle()); }
+    function animateParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < particlesArray.length; i++) {
+            particlesArray[i].update(); particlesArray[i].draw();
+            for (let j = i; j < particlesArray.length; j++) {
+                const dx = particlesArray[i].x - particlesArray[j].x; const dy = particlesArray[i].y - particlesArray[j].y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < 150) { ctx.beginPath(); ctx.strokeStyle = 'rgba(56, 189, 248, 0.1)'; ctx.lineWidth = 1; ctx.moveTo(particlesArray[i].x, particlesArray[i].y); ctx.lineTo(particlesArray[j].x, particlesArray[j].y); ctx.stroke(); }
+            }
+        }
+        requestAnimationFrame(animateParticles);
+    }
+    initParticles(); animateParticles();
+    window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+
+    // --- SOUND EFFECTS ---
+    const sfxCorrect = document.getElementById('sfx-correct');
+    const sfxWrong = document.getElementById('sfx-wrong');
+    function playCorrect() { sfxCorrect.currentTime = 0; sfxCorrect.play(); }
+    function playWrong() { sfxWrong.currentTime = 0; sfxWrong.play(); }
+
+    function goToMenu() {
+        document.getElementById('main-app').style.display = 'none';
+        const intro = document.getElementById('intro-screen');
+        intro.style.display = 'flex';
+        setTimeout(() => { intro.style.opacity = '1'; }, 10);
+        document.getElementById('name-screen').style.display = 'flex';
+    }
+
+    // --- GAME DATA (250 Words - GRE) ---
+    const fullVocab =[
+        { idn: "Singkat / Sementara", eng: "ephemeral", ex: "The beauty of the sunset was ephemeral, fading within minutes." },
+        { idn: "Bertele-tele / Cerewet", eng: "loquacious", ex: "The loquacious professor talked for three hours without a break." },
+        { idn: "Sangat teliti / Cermat", eng: "meticulous", ex: "She is meticulous about keeping her lab records accurate." },
+        { idn: "Meredakan / Menenangkan", eng: "mollify", ex: "He tried to mollify the angry customer by offering a refund." },
+        { idn: "Berani / Lancang", eng: "audacious", ex: "The student made an audacious request to change the exam date." },
+        { idn: "Keras kepala / Teguh", eng: "tenacious", ex: "His tenacious spirit helped him recover from the injury quickly." },
+        { idn: "Sombong / Angkuh", eng: "haughty", ex: "Her haughty attitude made it difficult for her to make friends." },
+        { idn: "Cepat berubah / Tidak menentu", eng: "capricious", ex: "The weather in April is capricious, sunny one moment and raining the next." },
+        { idn: "Penyangkalan diri", eng: "abnegation", ex: "Monks practice abnegation, giving up worldly pleasures." },
+        { idn: "Kebencian yang mendalam", eng: "animosity", ex: "There is no animosity between the two rival teams off the field." },
+        { idn: "Sangat pedas / Tajam (kritik)", eng: "acerbic", ex: "His acerbic comments about the movie upset the director." },
+        { idn: "Malu-malu / Penakut", eng: "timorous", ex: "The timorous child hid behind his mother's leg." },
+        { idn: "Bersifat merusak", eng: "pernicious", ex: "Smoking has a pernicious effect on long-term health." },
+        { idn: "Hemat / Sederhana", eng: "frugal", ex: "He is frugal with his money, rarely eating at expensive restaurants." },
+        { idn: "Kuno / Usang", eng: "archaic", ex: "The factory used archaic machinery that often broke down." },
+        { idn: "Mudah berubah / Tidak stabil", eng: "volatile", ex: "The stock market is volatile, with prices swinging wildly." },
+        { idn: "Sangat gembira", eng: "euphoric", ex: "The team was euphoric after winning the championship." },
+        { idn: "Membingungkan", eng: "enigmatic", ex: "The Mona Lisa has an enigmatic smile that puzzles viewers." },
+        { idn: "Suka berkelahi", eng: "pugnacious", ex: "The pugnacious dog barked at every stranger who passed by." },
+        { idn: "Bersifat memuji secara berlebihan", eng: "adulatory", ex: "The adulatory review praised every aspect of the performance." },
+        { idn: "Tidak mementingkan diri sendiri", eng: "altruistic", ex: "Her altruistic nature led her to volunteer at the shelter." },
+        { idn: "Kekuatan atau semangat", eng: "alacrity", ex: "He accepted the job offer with alacrity and enthusiasm." },
+        { idn: "Meringankan / Mengurangi", eng: "alleviate", ex: "Take this medicine to alleviate your headache." },
+        { idn: "Sangat buruk / Keji", eng: "egregious", ex: "The referee made an egregious error that cost them the game." },
+        { idn: "Menghapuskan / Memusnahkan", eng: "expunge", ex: "The lawyer tried to expunge the crime from his client's record." },
+        { idn: "Berlebihan / Mubazir", eng: "superfluous", ex: "Please delete the superfluous details to keep the report concise." },
+        { idn: "Kurang ajar / Tidak sopan", eng: "insolent", ex: "The insolent student talked back to the teacher." },
+        { idn: "Tebal muka / Tidak tahu malu", eng: "impudent", ex: "It was impudent of him to ask for a raise on his first day." },
+        { idn: "Sulit dipahami", eng: "abstruse", ex: "The philosopher's theories were too abstruse for the general public." },
+        { idn: "Sangat lapar / Rakus", eng: "ravenous", ex: "After the hike, we were ravenous and ate everything." },
+        { idn: "Penuh rahasia", eng: "clandestine", ex: "They held a clandestine meeting to discuss the merger." },
+        { idn: "Sopan / Ramah", eng: "affable", ex: "The manager is an affable person who is easy to talk to." },
+        { idn: "Kebingungan / Dilema", eng: "quandary", ex: "I am in a quandary about which university to choose." },
+        { idn: "Menghormati", eng: "venerate", ex: "People venerate the old professor for his wisdom." },
+        { idn: "Singkat dan padat", eng: "laconic", ex: "His laconic reply suggested he was not interested in talking." },
+        { idn: "Mendukung / Memperkuat", eng: "corroborate", ex: "The witness can corroborate the suspect's alibi." },
+        { idn: "Kurang energi / Lesu", eng: "lethargic", ex: "The hot weather made everyone feel lethargic and slow." },
+        { idn: "Sangat mahir", eng: "adept", ex: "She is adept at solving complex mathematical problems." },
+        { idn: "Menhasut / Memicu", eng: "instigate", ex: "Don't instigate a fight by shouting insults." },
+        { idn: "Sesuatu yang menyimpang", eng: "aberration", ex: "The sudden drop in temperature was an aberration for this season." },
+        { idn: "Mengutuk / Sangat membenci", eng: "abhor", ex: "I abhor violence in any form." },
+        { idn: "Setuju tanpa protes", eng: "acquiesce", ex: "She decided to acquiesce to her boss's demands to avoid conflict." },
+        { idn: "Ketajaman pikiran", eng: "acumen", ex: "His business acumen helped him build a successful company." },
+        { idn: "Teguran keras", eng: "admonition", ex: "He received a stern admonition for being late again." },
+        { idn: "Kekayaan / Kelimpahan", eng: "affluence", ex: "The neighborhood is known for its affluence and luxury homes." },
+        { idn: "Memperbesar / Meningkatkan", eng: "aggrandize", ex: "The king sought to aggrandize his empire through conquest." },
+        { idn: "Keraguan / Pertentangan perasaan", eng: "ambivalence", ex: "She felt some ambivalence about accepting the promotion." },
+        { idn: "Memperbaiki", eng: "ameliorate", ex: "Foreign aid helped ameliorate the effects of the drought." },
+        { idn: "Ramah / Damai", eng: "amiable", ex: "Our new neighbor is an amiable man who always waves hello." },
+        { idn: "Ketidakteraturan / Kejanggalan", eng: "anomaly", ex: "The data showed an anomaly that couldn't be explained." },
+        { idn: "Kebencian / Antipati", eng: "antipathy", ex: "There is a strong antipathy between the two political parties." },
+        { idn: "Puncak / Titik tertinggi", eng: "apex", ex: "At the apex of his career, he was the most famous actor in the world." },
+        { idn: "Menenangkan (pihak lawan)", eng: "appease", ex: "The government tried to appease the protesters by lowering taxes." },
+        { idn: "Sewenang-wenang", eng: "arbitrary", ex: "The decision to close the park seemed arbitrary and unfair." },
+        { idn: "Semangat / Gairah", eng: "ardor", ex: "He spoke with great ardor about his love for literature." },
+        { idn: "Sangat sulit / Melelahkan", eng: "arduous", ex: "Climbing the mountain was an arduous task." },
+        { idn: "Mengetahui / Memastikan", eng: "ascertain", ex: "The police tried to ascertain the cause of the accident." },
+        { idn: "Sangat hemat / Bertapa", eng: "ascetic", ex: "The monk lived an ascetic life with few possessions." },
+        { idn: "Ketekunan", eng: "assiduity", ex: "She studied with great assiduity to pass the exam." },
+        { idn: "Meredakan (rasa sakit/takut)", eng: "assuage", ex: "The doctor tried to assuage the patient's fears." },
+        { idn: "Keberanian yang lancang", eng: "audacity", ex: "I can't believe he had the audacity to lie to my face." },
+        { idn: "Pertanda baik", eng: "auspicious", ex: "The clear blue sky was an auspicious start to the wedding day." },
+        { idn: "Keras / Sederhana tanpa hiasan", eng: "austere", ex: "The room was austere, containing only a bed and a chair." },
+        { idn: "Keserakahan", eng: "avarice", ex: "His avarice led him to cheat his business partners." },
+        { idn: "Menyatakan dengan yakin", eng: "aver", ex: "The witness continued to aver that he saw the defendant leaving." },
+        { idn: "Membosankan / Biasa saja", eng: "banal", ex: "The movie's plot was banal and predictable." },
+        { idn: "Menipu / Memperdaya", eng: "beguile", ex: "The salesman used charm to beguile customers into buying useless items." },
+        { idn: "Bertentangan dengan", eng: "belie", ex: "Her calm smile belied the anger she felt inside." },
+        { idn: "Bersikap ramah / Baik hati", eng: "benevolent", ex: "The benevolent donor gave millions to charity." },
+        { idn: "Bias / Kecenderungan", eng: "bias", ex: "The referee showed a clear bias against our team." },
+        { idn: "Kasihan / Kebisingan", eng: "cacophony", ex: "The classroom was filled with a cacophony of shouting children." },
+        { idn: "Terus terang / Jujur", eng: "candid", ex: "Please give me your candid opinion about my presentation." },
+        { idn: "Mencela / Menegur keras", eng: "castigate", ex: "The media castigated the official for his corruption." },
+        { idn: "Katalis / Pemercepat", eng: "catalyst", ex: "The protest became a catalyst for political change." },
+        { idn: "Bersifat tajam / Menyakiti hati", eng: "caustic", ex: "He is known for his caustic wit and sarcastic remarks." },
+        { idn: "Berhati-hati / Waspada", eng: "circumspect", ex: "We must be circumspect when discussing confidential matters." },
+        { idn: "Paksaan", eng: "coercion", ex: "The confession was obtained under police coercion." },
+        { idn: "Masuk akal / Meyakinkan", eng: "cogent", ex: "She presented a cogent argument for why we should cut costs." },
+        { idn: "Sesuai dengan", eng: "commensurate", ex: "Your salary will be commensurate with your experience." },
+        { idn: "Keluhan / Ketidakpuasan", eng: "complacence", ex: "We cannot afford complacence; we must keep improving." },
+        { idn: "Ringkas / Padat", eng: "concise", ex: "Make your summary concise and to the point." },
+        { idn: "Mengampuni / Memaklumi", eng: "condone", ex: "The school does not condone bullying of any kind." },
+        { idn: "Pertemuan / Penggabungan", eng: "confluence", ex: "The city was built at the confluence of two rivers." },
+        { idn: "Menyimpulkan", eng: "conjecture", ex: "Without evidence, your theory is just pure conjecture." },
+        { idn: "Menghargai / Ahli", eng: "connoisseur", ex: "He is a connoisseur of fine wines." },
+        { idn: "Membuat suci / Mengabdikan", eng: "consecrate", ex: "The church was consecrated in 1890." },
+        { idn: "Isi / Pendapat", eng: "contention", ex: "It is my contention that the policy is flawed." },
+        { idn: "Menyesal", eng: "contrite", ex: "The boy looked contrite after breaking the vase." },
+        { idn: "Teka-teki", eng: "conundrum", ex: "Solving this math problem is a real conundrum." },
+        { idn: "Berliku-liku / Rumit", eng: "convoluted", ex: "The instructions were so convoluted that I gave up." },
+        { idn: "Melimpah", eng: "copious", ex: "She took copious notes during the lecture." },
+        { idn: "Menginginkan milik orang lain", eng: "covetous", ex: "He looked at his neighbor's new car with covetous eyes." },
+        { idn: "Mudah percaya", eng: "credulous", ex: "The credulous tourists bought the fake souvenirs." },
+        { idn: "Kesopanan / Kepatutan", eng: "decorum", ex: "You must behave with decorum in the courtroom." },
+        { idn: "Berbahaya / Merugikan", eng: "deleterious", ex: "Pollution has a deleterious impact on the environment." },
+        { idn: "Menggambarkan", eng: "delineate", ex: "The contract clearly delineates the responsibilities of each party." },
+        { idn: "Menolak / Memprotes", eng: "demur", ex: "She demurred when asked to work overtime on the weekend." },
+        { idn: "Meremehkan", eng: "denigrate", ex: "Don't denigrate people just because they are different from you." },
+        { idn: "Mengejek", eng: "deride", ex: "The critics derided the movie as a waste of time." },
+        { idn: "Kering / Tidak bersemangat", eng: "desiccated", ex: "The landscape was desiccated after months of drought." },
+        { idn: "Sangat miskin", eng: "destitute", ex: "The war left thousands of families destitute." },
+        { idn: "Sepintas lalu / Tidak niat", eng: "desultory", ex: "He made a desultory attempt to clean his room." },
+        { idn: "Sangat menghalangi", eng: "deterrent", ex: "High fines act as a deterrent to speeding." },
+        { idn: "Penyimpangan", eng: "digression", ex: "After a brief digression, the speaker returned to the main topic." },
+        { idn: "Ketajaman / Kecerdasan", eng: "discernment", ex: "She showed great discernment in choosing her investments." },
+        { idn: "Berbeda / Tidak sama", eng: "disparate", ex: "The group was made up of people with disparate backgrounds." },
+        { idn: "Menyebarkan (informasi)", eng: "disseminate", ex: "The internet helps disseminate information quickly." },
+        { idn: "Berselisih", eng: "dissonance", ex: "There is cognitive dissonance between his beliefs and his actions." },
+        { idn: "Mudah diatur", eng: "docile", ex: "The docile horse was easy for the child to ride." },
+        { idn: "Keras kepala dalam keyakinan", eng: "dogmatic", ex: "He is so dogmatic that he refuses to listen to other opinions." },
+        { idn: "Bermuka dua", eng: "duplicity", ex: "The spy was punished for his duplicity and betrayal." },
+        { idn: "Aktif dan bertenaga", eng: "ebullient", ex: "The ebullient host made everyone feel welcome." },
+        { idn: "Menyusun / Memperbaiki", eng: "edify", ex: "The book is intended to edify readers about history." },
+        { idn: "Keberhasilan / Kemanjuran", eng: "efficacy", ex: "The efficacy of the new drug has not yet been proven." },
+        { idn: "Kelemahan (karena usia)", eng: "effrontery", ex: "He had the effrontery to ask for a loan after losing my money." },
+        { idn: "Berlebihan (pujian/emosi)", eng: "effusive", ex: "She gave an effusive welcome to the visiting dignitaries." },
+        { idn: "Menghilangkan", eng: "elicit", ex: "The teacher tried to elicit an answer from the shy student." },
+        { idn: "Fasih berbicara", eng: "eloquent", ex: "The politician gave an eloquent speech that moved the crowd." },
+        { idn: "Melemahkan", eng: "enervate", ex: "The extreme heat enervated the runners." },
+        { idn: "Menimbulkan / Menyebabkan", eng: "engender", ex: "Hatred engenders violence." },
+        { idn: "Dendam / Kebencian", eng: "enmity", ex: "The peace treaty ended decades of enmity between the nations." },
+        { idn: "Singkat", eng: "ephemeral", ex: "Fashions are ephemeral, changing with every season." },
+        { idn: "Ketenangan jiwa", eng: "equanimity", ex: "He accepted the bad news with surprising equanimity." },
+        { idn: "Ambigu / Tidak jelas", eng: "equivocal", ex: "The politician gave an equivocal answer to avoid taking a side." },
+        { idn: "Sangat terpelajar", eng: "erudite", ex: "The erudite professor has read thousands of books." },
+        { idn: "Menghindari", eng: "eschew", ex: "He eschews unhealthy foods and exercises daily." },
+        { idn: "Hanya dipahami segelintir orang", eng: "esoteric", ex: "Quantum physics is an esoteric subject for many people." },
+        { idn: "Memuji / Menyanjung", eng: "eulogize", ex: "Friends eulogized the actor at his funeral." },
+        { idn: "Memperburuk (keadaan)", eng: "exacerbate", ex: "Scratching the itch will only exacerbate the rash." },
+        { idn: "Menuntut secara paksa", eng: "exacting", ex: "The exacting standards of the chef ensured high-quality food." },
+        { idn: "Membebaskan dari tuduhan", eng: "exculpate", ex: "DNA evidence helped exculpate the innocent man." },
+        { idn: "Sangat mendesak", eng: "exigent", ex: "The exigent situation required immediate action." },
+        { idn: "Membebaskan", eng: "exonerate", ex: "The report exonerated the pilot from any blame." },
+        { idn: "Menjelaskan secara rinci", eng: "expound", ex: "The professor expounded on the theory of relativity." },
+        { idn: "Masih ada (belum punah)", eng: "extant", ex: "The oldest extant manuscript dates back to the 10th century." },
+        { idn: "Sangat memuji", eng: "extol", ex: "She extolled the virtues of a vegetarian diet." },
+        { idn: "Luar biasa / Tidak relevan", eng: "extraneous", ex: "Please remove the extraneous information from your essay." },
+        { idn: "Sangat riang", eng: "exuberant", ex: "The exuberant puppy jumped up and down." },
+        { idn: "Memudahkan", eng: "facilitate", ex: "The new software will facilitate better communication." },
+        { idn: "Keliru / Sesat", eng: "fallacious", ex: "His argument was based on fallacious reasoning." },
+        { idn: "Sangat teliti / Rewel", eng: "fastidious", ex: "He is fastidious about his appearance and always looks sharp." },
+        { idn: "Konyol / Bodoh", eng: "fatuous", ex: "He made a fatuous comment that embarrassed everyone." },
+        { idn: "Kepatuhan / Loyalitas", eng: "fealty", ex: "The knights swore fealty to the king." },
+        { idn: "Sangat bersemangat", eng: "fervid", ex: "She is a fervid supporter of animal rights." },
+        { idn: "Kebiasaan buruk / Cacat", eng: "foible", ex: "We all have our little foibles and quirks." },
+        { idn: "Mencegah / Menghalangi", eng: "forestall", ex: "Negotiations were held to forestall a strike." },
+        { idn: "Kebetulan / Beruntung", eng: "fortuitous", ex: "The meeting was a fortuitous coincidence." },
+        { idn: "Mudah pecah / Galak", eng: "fractious", ex: "The fractious crowd began to push against the barriers." },
+        { idn: "Banyak bicara", eng: "garrulous", ex: "The garrulous taxi driver talked the entire ride." },
+        { idn: "Relevan / Sesuai", eng: "germane", ex: "Please keep your comments germane to the topic." },
+        { idn: "Lancar bicara (tapi tidak tulus)", eng: "glib", ex: "His glib apology did not sound sincere." },
+        { idn: "Sombong / Angkuh", eng: "haughty", ex: "She gave him a haughty look and walked away." },
+        { idn: "Pemuja kesenangan", eng: "hedonist", ex: "As a hedonist, he spent his money on parties and luxury." },
+        { idn: "Penyimpangan agama / Tradisi", eng: "heresy", ex: "Galileo's ideas were considered heresy at the time." },
+        { idn: "Sangat banyak / Seragam", eng: "homogeneous", ex: "The population of the village is remarkably homogeneous." },
+        { idn: "Berlebihan (dalam bahasa)", eng: "hyperbole", ex: "Saying 'I'm starving' when you're just hungry is hyperbole." },
+        { idn: "Munafik", eng: "hypocritical", ex: "It's hypocritical to criticize others for what you do yourself." },
+        { idn: "Sifat aneh seseorang", eng: "idiosyncrasy", ex: "One of his idiosyncrasies is talking to his plants." },
+        { idn: "Sangat memalukan", eng: "ignominious", ex: "The team suffered an ignominious defeat." },
+        { idn: "Murni / Sempurna", eng: "immaculate", ex: "Her house is always immaculate." },
+        { idn: "Berubah-ubah", eng: "immutable", ex: "The laws of physics are immutable." },
+        { idn: "Tidak memihak", eng: "impartial", ex: "A judge must remain impartial during the trial." },
+        { idn: "Sangat tenang", eng: "imperturbable", ex: "Even in the crisis, the captain remained imperturbable." },
+        { idn: "Sangat miskin", eng: "impecunious", ex: "The impecunious student could not afford textbooks." },
+        { idn: "Menghalangi", eng: "impede", ex: "Heavy traffic impeded our progress to the airport." },
+        { idn: "Mendesak / Segera", eng: "imperative", ex: "It is imperative that you see a doctor immediately." },
+        { idn: "Tenang / Tidak mudah marah", eng: "impassive", ex: "His face remained impassive as the verdict was read." },
+        { idn: "Tergesa-gesa", eng: "impetuous", ex: "He made an impetuous decision to buy the car." },
+        { idn: "Tidak henti-hentinya", eng: "implacable", ex: "The implacable enemy refused to surrender." },
+        { idn: "Tersirat", eng: "implicit", ex: "There was an implicit understanding that we would share the cost." },
+        { idn: "Kurang ajar", eng: "impudent", ex: "The impudent child stuck his tongue out." },
+        { idn: "Menyanggah / Menyerang", eng: "impugn", ex: "Do not impugn my integrity with false accusations." },
+        { idn: "Baru saja dimulai", eng: "inchoate", ex: "Her ideas for the project were still inchoate." },
+        { idn: "Tidak peka / Tajam", eng: "incisive", ex: "The journalist asked incisive questions." },
+        { idn: "Tidak serasi", eng: "incongruous", ex: "The modern furniture looked incongruous in the old castle." },
+        { idn: "Tidak dapat disangkal", eng: "indisputable", ex: "The evidence of his guilt is indisputable." },
+        { idn: "Malas", eng: "indolent", ex: "The indolent cat slept in the sun all day." },
+        { idn: "Tidak dapat digambarkan", eng: "ineffable", ex: "The beauty of the landscape was ineffable." },
+        { idn: "Keras hati", eng: "inexorable", ex: "The inexorable march of time affects us all." },
+        { idn: "Naif / Jujur", eng: "ingenuous", ex: "She gave an ingenuous smile." },
+        { idn: "Melekat", eng: "inherent", ex: "Risk is inherent in any investment." },
+        { idn: "Berbahaya secara halus", eng: "insidious", ex: "Gum disease is an insidious problem." },
+        { idn: "Membosankan / Tawar", eng: "insipid", ex: "The soup was insipid and needed salt." },
+        { idn: "Menghasut", eng: "instigate", ex: "He was accused of instigating the riot." },
+        { idn: "Teguh pendirian", eng: "intransigent", ex: "The union remained intransigent on the issue of wages." },
+        { idn: "Sangat pemberani", eng: "intrepid", ex: "The intrepid explorer ventured into the jungle." },
+        { idn: "Membanjiri", eng: "inundate", ex: "The office was inundated with complaints." },
+        { idn: "Cepat marah", eng: "irascible", ex: "The old man was irascible and grumpy." },
+        { idn: "Sangat teliti / Hati-hati", eng: "judicious", ex: "Make a judicious choice when selecting your courses." },
+        { idn: "Memuji", eng: "laud", ex: "The critics lauded the movie as a masterpiece." },
+        { idn: "Pemurah / Dermawan", eng: "magnanimous", ex: "He was magnanimous in victory, shaking his opponent's hand." },
+        { idn: "Keinginan jahat", eng: "malevolence", ex: "There was a look of malevolence in his eyes." },
+        { idn: "Dapat ditempa / Mudah dibentuk", eng: "malleable", ex: "Gold is a malleable metal." },
+        { idn: "Sepele / Biasa", eng: "mundane", ex: "She wanted to escape her mundane daily routine." },
+        { idn: "Sangat kecil", eng: "minuscule", ex: "The chances of winning are minuscule." },
+        { idn: "Meremehkan", eng: "negligible", ex: "The difference in price is negligible." },
+        { idn: "Terkenal jahat", eng: "notorious", ex: "The city is notorious for its traffic jams." },
+        { idn: "Pemula", eng: "novice", ex: "He is a novice at chess." },
+        { idn: "Sangat patuh", eng: "obsequious", ex: "The waiter was obsequious, constantly bowing." },
+        { idn: "Keras kepala", eng: "obstinate", ex: "The obstinate mule refused to move." },
+        { idn: "Menghilangkan / Mencegah", eng: "obviate", ex: "The new bridge obviated the need for a ferry." },
+        { idn: "Menutup / Menghalangi", eng: "occlude", ex: "A blood clot can occlude a major artery." },
+        { idn: "Sangat menjengkelkan", eng: "odious", ex: "The dictator was an odious tyrant." },
+        { idn: "Beban", eng: "onus", ex: "The onus is on you to prove your innocence." },
+        { idn: "Buram / Sulit dimengerti", eng: "opaque", ex: "The window was opaque with dirt." },
+        { idn: "Mencolok / Pamer", eng: "ostentatious", ex: "She wore an ostentatious diamond necklace." },
+        { idn: "Kesan yang jelas", eng: "palpable", ex: "The tension in the room was palpable." },
+        { idn: "Obat segala penyakit", eng: "panacea", ex: "There is no single panacea for the world's problems." },
+        { idn: "Paradoks / Bertentangan", eng: "paradox", ex: "It is a paradox that computers save time but we are busier than ever." },
+        { idn: "Kikir / Sangat hemat", eng: "parsimonious", ex: "The parsimonious owner refused to pay for repairs." },
+        { idn: "Sedikit", eng: "paucity", ex: "There is a paucity of information on the subject." },
+        { idn: "Suka pamer ilmu", eng: "pedantic", ex: "His pedantic lectures were boring." },
+        { idn: "Kecenderungan", eng: "penchant", ex: "She has a penchant for spicy food." },
+        { idn: "Sangat miskin", eng: "penurious", ex: "He died a penurious old man." },
+        { idn: "Singkat dan bermakna", eng: "pithy", ex: "His speech was full of pithy quotes." },
+        { idn: "Menenangkan", eng: "placate", ex: "She bought a toy to placate the crying child." },
+        { idn: "Biasa / Klise", eng: "platitude", ex: "He offered only empty platitudes." },
+        { idn: "Sangat banyak", eng: "plethora", ex: "There is a plethora of options to choose from." },
+        { idn: "Mempunyai beban berat (tugas)", eng: "ponderous", ex: "He walked with heavy, ponderous steps." },
+        { idn: "Pragmatis", eng: "pragmatic", ex: "We need a pragmatic solution to the crisis." },
+        { idn: "Labil / Tidak aman", eng: "precarious", ex: "The ladder was in a precarious position." },
+        { idn: "Mendahului", eng: "preclude", ex: "His injury precluded him from playing in the final." },
+        { idn: "Sangat berbakat sejak dini", eng: "precocious", ex: "The precocious child could read at age three." },
+        { idn: "Predileksi / Kesukaan", eng: "predilection", ex: "He has a predilection for classical music." },
+        { idn: "Keangkuhan", eng: "presumption", ex: "It is a presumption to think you know everything." },
+        { idn: "Kejujuran", eng: "probity", ex: "The judge was known for his probity and fairness." },
+        { idn: "Pemboros", eng: "prodigal", ex: "The prodigal son spent all his inheritance." },
+        { idn: "Mendalam", eng: "profound", ex: "The book had a profound impact on me." },
+        { idn: "Berkembang biak", eng: "proliferate", ex: "Rumors proliferated on the internet." },
+        { idn: "Kecenderungan alami", eng: "propensity", ex: "He has a propensity for getting into trouble." },
+        { idn: "Menenangkan hati", eng: "propitiate", ex: "They made offerings to propitiate the gods." },
+        { idn: "Sesuai / Pantas", eng: "propriety", ex: "She behaved with the utmost propriety." },
+        { idn: "Membosankan / Tidak puitis", eng: "prosaic", ex: "The view was rather prosaic." },
+        { idn: "Berhati-hati / Bijaksana", eng: "prudent", ex: "It is prudent to save money for emergencies." },
+        { idn: "Kanak-kanak / Kekanak-kanakan", eng: "puerile", ex: "Stop making puerile jokes." },
+        { idn: "Suka mengeluh", eng: "querulous", ex: "The querulous patient complained about everything." },
+        { idn: "Sangat pendiam", eng: "reticent", ex: "He was reticent about his private life." },
+        { idn: "Sangat hormat", eng: "reverent", ex: "A reverent silence filled the church." },
+        { idn: "Sangat teliti / Keras", eng: "rigorous", ex: "The training program was rigorous." },
+        { idn: "Kesehatan yang baik", eng: "salubrious", ex: "The mountain air is salubrious." },
+        { idn: "Sangat penting / Menonjol", eng: "salient", ex: "Please summarize the salient points." },
+        { idn: "Sanksi / Izin", eng: "sanction", ex: "The government sanctioned the new law." },
+        { idn: "Optimis", eng: "sanguine", ex: "He is sanguine about the company's future." },
+        { idn: "Sangat pelit", eng: "scanty", ex: "The evidence was scanty." },
+        { idn: "Teliti / Jujur", eng: "scrupulous", ex: "He is scrupulous in his business dealings." },
+        { idn: "Menghasut", eng: "sedition", ex: "He was arrested for sedition." },
+        { idn: "Tenang", eng: "serene", ex: "The lake looked serene in the moonlight." },
+        { idn: "Hamba / Budak", eng: "servile", ex: "He had a servile attitude toward his boss." },
+        { idn: "Kaku / Tegas", eng: "stolid", ex: "He remained stolid despite the bad news." },
+        { idn: "Luar biasa", eng: "sublime", ex: "The view from the top was sublime." },
+        { idn: "Halus / Sulit dideteksi", eng: "subtle", ex: "There was a subtle change in his voice." },
+        { idn: "Cemberut / Murung", eng: "sullen", ex: "The sullen teenager sat in the corner." },
+        { idn: "Diam-diam", eng: "surreptitious", ex: "He took a surreptitious glance at his watch." },
+        { idn: "Pendiam", eng: "taciturn", ex: "The taciturn cowboy said little." },
+        { idn: "Tersirat", eng: "tacit", ex: "We had a tacit agreement not to talk about it." },
+        { idn: "Gaya bahasa bombastis", eng: "turgid", ex: "The writer's style was turgid and boring." },
+        { idn: "Meluas / Di mana-mana", eng: "ubiquitous", ex: "Smartphones are ubiquitous nowadays." },
+        { idn: "Berasal dari luar", eng: "extrinsic", ex: "Extrinsic rewards like money can motivate employees." },
+        { idn: "Kebenaran", eng: "veracity", ex: "We questioned the veracity of his story." },
+        { idn: "Banyak kata-kata", eng: "verbose", ex: "His report was verbose and repetitive." },
+        { idn: "Sangat benci", eng: "vituperate", ex: "He vituperated the referee for the bad call." },
+        { idn: "Rakus", eng: "voracious", ex: "She is a voracious reader." },
+        { idn: "Melemah secara bertahap", eng: "wane", ex: "His interest in the hobby began to wane." },
+        { idn: "Berhati-hati", eng: "wary", ex: "Be wary of strangers offering gifts." },
+        { idn: "Puncak / Titik tertinggi", eng: "zenith", ex: "The sun was at its zenith." }
+    ];
+
+    // --- LOGIC ---
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    let gameData = shuffle([...fullVocab]);
+    let current = 0;
+    
+    // --- GAME LOGIC ---
+    let currentBattle = {}, currentDuel = {}, currentSniper = {}, currentTriple = {};
+    let p1Score = 0, p2Score = 0, battleActive = false, duelActive = false, sniperActive = false, tripleActive = false;
+    let battleTargetScore = 10;
+    let duelTargetScore = 10;
+    let sniperTargetScore = 10;
+    let tripleTargetScore = 10;
+    let battleOver = false;
+    let d1Score = 0, d2Score = 0;
+    let s1Score = 0, s2Score = 0;
+    let t1Score = 0, t2Score = 0;
+    let sniperInterval;
+
+    function startGame() {
+        const intro = document.getElementById('intro-screen');
+        const main = document.getElementById('main-app');
+        
+        setTimeout(() => {
+            intro.style.opacity = '0';
+            setTimeout(() => { intro.style.display = 'none'; main.style.display = 'flex'; }, 500);
+        }, 100);
+
+        const bgMusic = document.getElementById('bg-music');
+        try {
+            bgMusic.play().then(() => { document.getElementById('music-toggle').classList.add('playing'); })
+            .catch(e => console.log("Music blocked by browser."));
+        } catch(e) {}
+
+        // Default to Battle Mode
+        openTab(null, 'battle-tab');
+    }
+
+    // --- TAB SYSTEM ---
+    function openTab(evt, tabName) {
+        // Stop any active games
+        battleActive = false;
+        duelActive = false;
+        sniperActive = false;
+        tripleActive = false;
+        clearInterval(sniperInterval);
+
+        const contents = document.getElementsByClassName("tab-content");
+        for (let i = 0; i < contents.length; i++) contents[i].style.display = "none";
+        const buttons = document.getElementsByClassName("tab-btn");
+        for (let i = 0; i < buttons.length; i++) buttons[i].className = buttons[i].className.replace(" active", "");
+        
+        const target = document.getElementById(tabName);
+        if(target) target.style.display = "block";
+        
+        if (evt) evt.currentTarget.className += " active";
+        else {
+            for (let i = 0; i < buttons.length; i++) {
+                if (buttons[i].getAttribute('onclick') && buttons[i].getAttribute('onclick').includes(tabName)) {
+                    buttons[i].className += " active";
+                }
+            }
+        }
+    }
+
+    // --- SETTINGS ---
+    const bgMusic = document.getElementById('bg-music'); bgMusic.volume = 0.3;
+    function toggleMusic() { if (bgMusic.paused) { bgMusic.play(); document.getElementById('music-toggle').classList.add('playing'); } else { bgMusic.pause(); document.getElementById('music-toggle').classList.remove('playing'); } }
+    function adjustVolume() { bgMusic.volume = document.getElementById('vol-control').value; sfxCorrect.volume = bgMusic.volume; sfxWrong.volume = bgMusic.volume; }
+    function speak(text) { if ('speechSynthesis' in window) { const u = new SpeechSynthesisUtterance(text); u.lang = 'en-US'; u.rate = 1; window.speechSynthesis.speak(u); } }
+    function changeTheme(theme) { const root = document.documentElement; if (theme === 'classic') { root.style.setProperty('--bg', '#0f172a'); root.style.setProperty('--card', '#1e293b'); root.style.setProperty('--sidebar', '#111827'); root.style.setProperty('--primary', '#38bdf8'); root.style.setProperty('--text', '#f8fafc'); root.style.setProperty('--muted', '#94a3b8'); } else if (theme === 'cyberpunk') { root.style.setProperty('--bg', '#120024'); root.style.setProperty('--card', '#2a0a3b'); root.style.setProperty('--sidebar', '#1a0526'); root.style.setProperty('--primary', '#ff0099'); root.style.setProperty('--text', '#ffffff'); root.style.setProperty('--muted', '#d4a3e8'); } else if (theme === 'matrix') { root.style.setProperty('--bg', '#000000'); root.style.setProperty('--card', '#0d1a0d'); root.style.setProperty('--sidebar', '#001100'); root.style.setProperty('--primary', '#00ff41'); root.style.setProperty('--text', '#e0ffe0'); root.style.setProperty('--muted', '#4d804d'); } else if (theme === 'royal') { root.style.setProperty('--bg', '#1a0b2e'); root.style.setProperty('--card', '#2d1b4e'); root.style.setProperty('--sidebar', '#130821'); root.style.setProperty('--primary', '#ffd700'); root.style.setProperty('--text', '#fcfcfc'); root.style.setProperty('--muted', '#a090b0'); } }
+
+    // --- BATTLE LOGIC (1 vs 1 Local) ---
+    function resetBattleGame() {
+        p1Score = 0; p2Score = 0;
+        battleActive = false;
+        battleOver = false;
+        document.getElementById('p1-score').innerText = '0';
+        document.getElementById('p2-score').innerText = '0';
+        const inputVal = document.getElementById('battle-target-score').value;
+        battleTargetScore = parseInt(inputVal) || 10;
+        document.getElementById('battle-msg').innerText = "Target: " + battleTargetScore;
+        document.getElementById('battle-msg').style.color = "var(--primary)";
+        startBattleRound();
+    }
+    function startBattleRound() {
+        if(battleOver) return;
+        battleActive = true;
+        const idx = Math.floor(Math.random() * gameData.length);
+        const correctItem = gameData[idx];
+        const isCorrect = Math.random() < 0.5;
+        currentBattle = { answer: isCorrect, correctEng: correctItem.eng };
+        let displayDef = "";
+        if (isCorrect) {
+            displayDef = correctItem.idn;
+        } else {
+            let wrongItem = gameData[Math.floor(Math.random() * gameData.length)];
+            while (wrongItem.eng === correctItem.eng) wrongItem = gameData[Math.floor(Math.random() * gameData.length)];
+            displayDef = wrongItem.idn;
+        }
+        document.getElementById('b-word').innerText = correctItem.eng;
+        document.getElementById('b-def').innerText = displayDef;
+        document.getElementById('battle-msg').innerText = "GO!";
+        document.getElementById('battle-msg').style.color = "var(--text)";
+    }
+    function resolveBattle(player, choice) {
+        if (!battleActive || battleOver) return;
+        battleActive = false;
+        const isCorrect = (choice === currentBattle.answer);
+        const msg = document.getElementById('battle-msg');
+        if (isCorrect) {
+            playCorrect(); msg.innerText = `Player ${player} Wins!`; msg.style.color = "var(--success)";
+            if (player === 1) { p1Score++; document.getElementById('p1-score').innerText = p1Score; }
+            else { p2Score++; document.getElementById('p2-score').innerText = p2Score; }
+            speak("Correct");
+        } else {
+            playWrong(); const winner = player === 1 ? 2 : 1; msg.innerText = `Player ${player} Wrong! P${winner} gets point!`; msg.style.color = "var(--danger)";
+            if (winner === 1) { p1Score++; document.getElementById('p1-score').innerText = p1Score; }
+            else { p2Score++; document.getElementById('p2-score').innerText = p2Score; }
+            speak("Wrong");
+        }
+        if (p1Score >= battleTargetScore || p2Score >= battleTargetScore) {
+            battleOver = true; msg.innerText = p1Score >= battleTargetScore ? "PLAYER 1 WINS!" : "PLAYER 2 WINS!";
+            msg.style.color = "var(--primary)"; speak("Game Over");
+        } else { setTimeout(startBattleRound, 2000); }
+    }
+
+    // --- DUEL CHOICE LOGIC (Game 2) ---
+    function resetDuelGame() {
+        d1Score = 0; d2Score = 0;
+        document.getElementById('d1-score').innerText = "0";
+        document.getElementById('d2-score').innerText = "0";
+        
+        const inputVal = document.getElementById('duel-target-score').value;
+        duelTargetScore = parseInt(inputVal) || 10;
+        
+        document.getElementById('duel-msg').innerText = "Target: " + duelTargetScore;
+        document.getElementById('duel-msg').style.color = "var(--primary)";
+        
+        startDuelGame();
+    }
+
+    function startDuelGame() {
+        duelActive = true;
+        nextDuelRound();
+    }
+    
+    function nextDuelRound() {
+        if(!duelActive) return;
+        document.getElementById('duel-opt-1').classList.remove('correct');
+        document.getElementById('duel-opt-2').classList.remove('correct');
+        document.getElementById('duel-msg').innerText = "Pick Correct!";
+        
+        const idx = Math.floor(Math.random() * gameData.length);
+        const correctItem = gameData[idx];
+        let distractor = gameData[Math.floor(Math.random() * gameData.length)];
+        while(distractor.eng === correctItem.eng) { distractor = gameData[Math.floor(Math.random() * gameData.length)]; }
+        
+        const correctPos = Math.random() < 0.5 ? 1 : 2;
+        currentDuel = { correctPos: correctPos };
+        
+        document.getElementById('duel-def').innerText = correctItem.idn;
+        if(correctPos === 1) {
+            document.getElementById('duel-opt-1').innerText = correctItem.eng;
+            document.getElementById('duel-opt-2').innerText = distractor.eng;
+        } else {
+            document.getElementById('duel-opt-1').innerText = distractor.eng;
+            document.getElementById('duel-opt-2').innerText = correctItem.eng;
+        }
+    }
+    
+    function resolveDuel(player, choicePos) {
+        if(!duelActive) return;
+        
+        // Correct Choice
+        if(choicePos === currentDuel.correctPos) {
+            playCorrect();
+            document.getElementById('duel-msg').innerText = `Player ${player} Point!`;
+            document.getElementById('duel-msg').style.color = "var(--success)";
+            if(currentDuel.correctPos === 1) document.getElementById('duel-opt-1').classList.add('correct');
+            else document.getElementById('duel-opt-2').classList.add('correct');
+            
+            if(player === 1) { d1Score++; document.getElementById('d1-score').innerText = d1Score; }
+            else { d2Score++; document.getElementById('d2-score').innerText = d2Score; }
+        } else {
+            // Wrong Choice -> Point to Opponent
+            playWrong();
+            const opponent = player === 1 ? 2 : 1;
+            document.getElementById('duel-msg').innerText = `P${player} Wrong! P${opponent} Gets Point!`;
+            document.getElementById('duel-msg').style.color = "var(--danger)";
+            
+            if(opponent === 1) { d1Score++; document.getElementById('d1-score').innerText = d1Score; }
+            else { d2Score++; document.getElementById('d2-score').innerText = d2Score; }
+        }
+        
+        duelActive = false; 
+        
+        // Check Win
+        if (d1Score >= duelTargetScore || d2Score >= duelTargetScore) {
+            const winner = d1Score >= duelTargetScore ? 1 : 2;
+            document.getElementById('duel-msg').innerText = `PLAYER ${winner} WINS MATCH!`;
+            speak("Game Over");
+        } else {
+            setTimeout(() => { duelActive = true; nextDuelRound(); }, 1500);
+        }
+    }
+
+    // --- SNIPER LOGIC (Game 3) ---
+    function resetSniperGame() {
+        s1Score = 0; s2Score = 0;
+        document.getElementById('s1-score').innerText = "0";
+        document.getElementById('s2-score').innerText = "0";
+        const inputVal = document.getElementById('sniper-target-score').value;
+        sniperTargetScore = parseInt(inputVal) || 10;
+        document.getElementById('sniper-msg').innerText = "Target: " + sniperTargetScore;
+        document.getElementById('sniper-msg').style.color = "var(--primary)";
+        sniperActive = true;
+        nextSniperRound();
+    }
+
+    function nextSniperRound() {
+        if(!sniperActive) return;
+        clearInterval(sniperInterval);
+        document.getElementById('sniper-msg').innerText = "Wait...";
+        const idx = Math.floor(Math.random() * gameData.length);
+        const target = gameData[idx];
+        currentSniper = { target: target, currentDef: null };
+        document.getElementById('sniper-target').innerText = target.eng;
+        
+        let cycleCount = 0;
+        sniperInterval = setInterval(() => {
+            cycleCount++;
+            if(Math.random() < 0.2 || cycleCount > 8) {
+                currentSniper.currentDef = target;
+                document.getElementById('sniper-text').innerText = target.idn;
+                document.getElementById('sniper-text').style.color = "var(--success)";
+            } else {
+                let decoy = gameData[Math.floor(Math.random() * gameData.length)];
+                currentSniper.currentDef = decoy;
+                document.getElementById('sniper-text').innerText = decoy.idn;
+                document.getElementById('sniper-text').style.color = "var(--text)";
+            }
+        }, 800); 
+    }
+    
+    function resolveSniper(player) {
+        if(!sniperActive) return;
+        const isCorrect = (currentSniper.currentDef.eng === currentSniper.target.eng);
+        if (isCorrect) {
+            playCorrect();
+            document.getElementById('sniper-msg').innerText = `Player ${player} Sniped It!`;
+            document.getElementById('sniper-msg').style.color = "var(--success)";
+            if(player === 1) { s1Score++; document.getElementById('s1-score').innerText = s1Score; }
+            else { s2Score++; document.getElementById('s2-score').innerText = s2Score; }
+        } else {
+            playWrong();
+            const winner = player === 1 ? 2 : 1;
+            document.getElementById('sniper-msg').innerText = `P${player} Missed! P${winner} Point!`;
+            document.getElementById('sniper-msg').style.color = "var(--danger)";
+            if(winner === 1) { s1Score++; document.getElementById('s1-score').innerText = s1Score; }
+            else { s2Score++; document.getElementById('s2-score').innerText = s2Score; }
+        }
+        clearInterval(sniperInterval);
+        if(s1Score >= sniperTargetScore || s2Score >= sniperTargetScore) {
+            const winner = s1Score >= sniperTargetScore ? 1 : 2;
+            document.getElementById('sniper-msg').innerText = `PLAYER ${winner} WINS!`;
+            document.getElementById('sniper-msg').style.color = "var(--primary)";
+            speak("Game Over");
+            sniperActive = false;
+        } else {
+            sniperActive = false;
+            setTimeout(() => { sniperActive = true; nextSniperRound(); }, 2000);
+        }
+    }
+
+    // --- TRIPLE THREAT LOGIC (Game 4) ---
+    function resetTripleGame() {
+        t1Score = 0; t2Score = 0;
+        document.getElementById('t1-score').innerText = "0";
+        document.getElementById('t2-score').innerText = "0";
+        const inputVal = document.getElementById('triple-target-score').value;
+        tripleTargetScore = parseInt(inputVal) || 10;
+        document.getElementById('triple-msg').innerText = "Target: " + tripleTargetScore;
+        tripleActive = true;
+        nextTripleRound();
+    }
+
+    function nextTripleRound() {
+        if(!tripleActive) return;
+        // Clean UI
+        for(let i=1; i<=3; i++) document.getElementById(`triple-opt-${i}`).classList.remove('correct');
+        document.getElementById('triple-msg').innerText = "Select Definition!";
+        
+        // Setup Round
+        const idx = Math.floor(Math.random() * gameData.length);
+        const correctItem = gameData[idx];
+        document.getElementById('triple-word').innerText = correctItem.eng;
+        
+        // Distractors
+        let opts = [correctItem];
+        while(opts.length < 3) {
+            let d = gameData[Math.floor(Math.random() * gameData.length)];
+            if(!opts.find(x => x.eng === d.eng)) opts.push(d);
+        }
+        opts = shuffle(opts);
+        
+        // Render
+        currentTriple = { correctIndex: opts.indexOf(correctItem) + 1 }; // 1, 2, or 3
+        document.getElementById('t-text-1').innerText = opts[0].idn;
+        document.getElementById('t-text-2').innerText = opts[1].idn;
+        document.getElementById('t-text-3').innerText = opts[2].idn;
+    }
+
+    function resolveTriple(player, choiceIdx) {
+        if(!tripleActive) return;
+        
+        if (choiceIdx === currentTriple.correctIndex) {
+            playCorrect();
+            document.getElementById(`triple-opt-${choiceIdx}`).classList.add('correct');
+            document.getElementById('triple-msg').innerText = `Player ${player} Correct!`;
+            document.getElementById('triple-msg').style.color = "var(--success)";
+            
+            if(player === 1) { t1Score++; document.getElementById('t1-score').innerText = t1Score; }
+            else { t2Score++; document.getElementById('t2-score').innerText = t2Score; }
+            
+            tripleActive = false;
+            // Check Win
+            if (t1Score >= tripleTargetScore || t2Score >= tripleTargetScore) {
+                const winner = t1Score >= tripleTargetScore ? 1 : 2;
+                document.getElementById('triple-msg').innerText = `PLAYER ${winner} WINS MATCH!`;
+                speak("Game Over");
+            } else {
+                setTimeout(() => { tripleActive = true; nextTripleRound(); }, 1500);
+            }
+        } else {
+            playWrong();
+            // Wrong answer gives point to opponent
+            const opponent = player === 1 ? 2 : 1;
+            document.getElementById('triple-msg').innerText = `P${player} Wrong! Point P${opponent}`;
+            document.getElementById('triple-msg').style.color = "var(--danger)";
+            
+            if(opponent === 1) { t1Score++; document.getElementById('t1-score').innerText = t1Score; }
+            else { t2Score++; document.getElementById('t2-score').innerText = t2Score; }
+            
+            tripleActive = false;
+            if (t1Score >= tripleTargetScore || t2Score >= tripleTargetScore) {
+                const winner = t1Score >= tripleTargetScore ? 1 : 2;
+                document.getElementById('triple-msg').innerText = `PLAYER ${winner} WINS MATCH!`;
+                speak("Game Over");
+            } else {
+                setTimeout(() => { tripleActive = true; nextTripleRound(); }, 1500);
+            }
+        }
+    }
+
+    // SHARED KEY LISTENER
+    document.addEventListener('keydown', (e) => {
+        const key = e.key.toLowerCase();
+
+        // BATTLE MODE (True/False)
+        if (battleActive && !battleOver) {
+            if (key === 'a') resolveBattle(1, true);
+            if (key === 's') resolveBattle(1, false);
+            if (key === 'k') resolveBattle(2, true);
+            if (key === 'l') resolveBattle(2, false);
+        }
+
+        // DUEL MODE (Left/Right)
+        if (duelActive) {
+            if (key === 'a') resolveDuel(1, 1);
+            if (key === 'd') resolveDuel(1, 2);
+            if (key === 'j') resolveDuel(2, 1);
+            if (key === 'l') resolveDuel(2, 2);
+        }
+
+        // SNIPER MODE (Shoot)
+        if (sniperActive) {
+            if (key === 's') resolveSniper(1);
+            if (key === 'k') resolveSniper(2);
+        }
+
+        // TRIPLE MODE (1/2/3)
+        if (tripleActive) {
+            // P1: A, S, D
+            if (key === 'a') resolveTriple(1, 1);
+            if (key === 's') resolveTriple(1, 2);
+            if (key === 'd') resolveTriple(1, 3);
+            
+            // P2: J, K, L
+            if (key === 'j') resolveTriple(2, 1);
+            if (key === 'k') resolveTriple(2, 2);
+            if (key === 'l') resolveTriple(2, 3);
+        }
+    });
+
+    function buildTable() { const sorted = [...fullVocab].sort((a,b) => a.eng.localeCompare(b.eng)); const tbody = document.getElementById('table-body'); tbody.innerHTML = sorted.map(v => `<tr><td style="font-weight:bold; color:var(--primary)">${v.eng} <button class="speak-btn" onclick="speak('${v.eng}')">🔊</button></td><td>${v.idn}</td><td class="example-text">"${v.ex}"</td></tr>`).join(''); }
+    function filterTable() { let input = document.getElementById("search").value.toLowerCase(); let rows = document.getElementById("table-body").getElementsByTagName("tr"); for (let i = 0; i < rows.length; i++) { let text = rows[i].textContent.toLowerCase(); rows[i].style.display = text.includes(input) ? "" : "none"; } }
+
+    buildTable();
+</script>
+
+</body>
+</html>

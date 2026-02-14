@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Mastery Portal</title>
+    <style>
+        :root {
+            /* Palette matched to your provided files */
+            --bg-deep: #020805;
+            --bg-gradient-start: #0a1f13;
+            --bg-gradient-end: #05140c;
+            --card-bg: rgba(20, 46, 32, 0.6);
+            --card-hover: rgba(34, 197, 94, 0.1);
+            --accent: #4ade80;       /* Bright Green */
+            --accent-dim: #15803d;    /* Dark Green */
+            --text-main: #ecfdf5;
+            --text-muted: #86efac;
+            --border: #1e4533;
+            --neon-shadow: 0 0 15px rgba(74, 222, 128, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none; /* Prevent text selection for app-like feel */
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-deep);
+            background-image: radial-gradient(circle at 50% 30%, var(--bg-gradient-start) 0%, var(--bg-deep) 80%);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* --- START OVERLAY (To unlock Audio) --- */
+        #overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #020805;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .start-btn {
+            padding: 18px 60px;
+            font-size: 1.2rem;
+            color: var(--accent);
+            background: transparent;
+            border: 2px solid var(--accent);
+            border-radius: 50px;
+            cursor: pointer;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--neon-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .start-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.4), transparent);
+            transition: 0.5s;
+        }
+
+        .start-btn:hover::before { left: 100%; }
+        
+        .start-btn:hover {
+            background: var(--accent);
+            color: var(--bg-deep);
+            transform: scale(1.05);
+            box-shadow: 0 0 40px rgba(74, 222, 128, 0.6);
+        }
+
+        /* --- MAIN CONTENT --- */
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            opacity: 0;
+            transform: translateY(-30px);
+            animation: fadeIn 1s ease forwards 0.5s;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 200;
+            margin: 0;
+            letter-spacing: 3px;
+            background: linear-gradient(to right, #fff, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            margin-top: 10px;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+
+        .portal-container {
+            display: flex;
+            gap: 40px;
+            width: 90%;
+            max-width: 1000px;
+            perspective: 1000px; /* For 3D tilt effect */
+            opacity: 0;
+            animation: fadeIn 1s ease forwards 0.8s;
+        }
+
+        /* --- CARDS --- */
+        .option-card {
+            flex: 1;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text-main);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(12px);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 350px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* Card Icons (CSS Shapes) */
+        .icon-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 2.5rem;
+            color: var(--accent);
+            background: rgba(0,0,0,0.3);
+            transition: 0.3s;
+        }
+
+        .option-card h2 {
+            font-size: 1.8rem;
+            margin: 0 0 15px 0;
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+
+        .option-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        /* Hover Effects */
+        .option-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            background: var(--card-hover);
+            border-color: var(--accent);
+            box-shadow: 0 20px 50px rgba(74, 222, 128, 0.15);
+        }
+
+        .option-card:hover .icon-circle {
+            background: var(--accent);
+            color: var(--bg-deep);
+            transform: rotate(360deg);
+        }
+
+        /* Glare effect on hover */
+        .option-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.05), transparent);
+            transform: skewX(-25deg);
+            transition: 0.5s;
+        }
+        .option-card:hover::after { left: 150%; transition: 0.7s; }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .portal-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            h1 { font-size: 2.2rem; }
+            
+            .option-card {
+                height: 250px;
+                padding: 20px;
+            }
+            
+            .icon-circle {
+                width: 60px; height: 60px; font-size: 1.8rem;
+            }
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>TENSES CHECK</h1>
+        <p class="subtitle">Select your learning Mode</p>
+    </header>
+
+    <div class="portal-container">
+        
+        <a href="exam tenses.html" class="option-card" onmouseenter="playHover()" onclick="playClick()">
+            <div class="icon-circle">⏱</div>
+            <h2>EXAM</h2>
+            <p>Timed challenge. Test your knowledge under pressure with automatic scoring and review.</p>
+        </a>
+
+        <a href="soal practice.html" class="option-card" onmouseenter="playHover()" onclick="playClick()">
+            <div class="icon-circle">📚</div>
+            <h2>PRACTICE</h2>
+            <p>Subject focus. Drill specific tenses individually and learn the patterns at your own pace.</p>
+        </a>
+
+    </div>
+
+    <script>
+        /* --- AUDIO ENGINE (No external files needed) --- */
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+
+        function enterSite() {
+            // Initialize Audio Context on user gesture
+            audioCtx = new AudioContext();
+            
+            // Hide Overlay with transition
+            const overlay = document.getElementById('overlay');
+            overlay.style.opacity = '0';
+            overlay.style.transform = 'scale(1.1)';
+            
+            // Play a cool "Power On" sound
+            playPowerOn();
+
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 800);
+        }
+
+        function playHover() {
+            if (!audioCtx) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            // High-tech beep
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.1);
+            
+            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.1);
+        }
+
+        function playClick() {
+            if (!audioCtx) return;
+
+            // Deeper confirmation sound
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.15);
+            
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.15);
+        }
+
+        function playPowerOn() {
+            if (!audioCtx) return;
+
+            // Futurstic power-up sequence
+            const now = audioCtx.currentTime;
+            
+            // Layer 1: Low Drone
+            const osc1 = audioCtx.createOscillator();
+            const gain1 = audioCtx.createGain();
+            osc1.connect(gain1);
+            gain1.connect(audioCtx.destination);
+            osc1.type = 'sawtooth';
+            osc1.frequency.setValueAtTime(50, now);
+            osc1.frequency.linearRampToValueAtTime(100, now + 1);
+            gain1.gain.setValueAtTime(0, now);
+            gain1.gain.linearRampToValueAtTime(0.05, now + 0.5);
+            gain1.gain.linearRampToValueAtTime(0, now + 1.5);
+            osc1.start(now);
+            osc1.stop(now + 1.5);
+
+            // Layer 2: High shimmer
+            const osc2 = audioCtx.createOscillator();
+            const gain2 = audioCtx.createGain();
+            osc2.connect(gain2);
+            gain2.connect(audioCtx.destination);
+            osc2.type = 'sine';
+            osc2.frequency.setValueAtTime(800, now);
+            osc2.frequency.exponentialRampToValueAtTime(2000, now + 0.5);
+            gain2.gain.setValueAtTime(0, now);
+            gain2.gain.linearRampToValueAtTime(0.02, now + 0.2);
+            gain2.gain.linearRampToValueAtTime(0, now + 1);
+            osc2.start(now);
+            osc2.stop(now + 1);
+        }
+    </script>
+</body>
+</html>

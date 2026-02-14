@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Word Scramble: Custom Timer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* --- 1. THEME & VARIABLES --- */
+        :root {
+            --bg-dark: #0f172a;
+            --glass-bg: rgba(30, 41, 59, 0.9);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            
+            /* PLAYER COLORS */
+            --p1-color: #0ea5e9; /* Sky Blue */
+            --p1-bg: rgba(14, 165, 233, 0.15);
+            --p2-color: #f472b6; /* Pink */
+            --p2-bg: rgba(244, 114, 182, 0.15);
+            --p3-color: #fbbf24; /* Amber */
+            --p3-bg: rgba(251, 191, 36, 0.15);
+            --p4-color: #a78bfa; /* Purple */
+            --p4-bg: rgba(167, 139, 250, 0.15);
+
+            --danger: #f87171;
+            --success: #4ade80;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0; height: 100dvh; overflow: hidden;
+            background-image: radial-gradient(at 0% 0%, rgba(14, 165, 233, 0.15) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(244, 114, 182, 0.15) 0px, transparent 50%);
+            display: flex; flex-direction: column;
+        }
+
+        /* UTILITIES */
+        .hidden { display: none !important; }
+        .full-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; z-index: 10; }
+        
+        /* --- LOBBY UI --- */
+        .lobby-wrapper { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+        .card-glass {
+            background: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border); padding: 30px; border-radius: var(--radius-lg);
+            width: 100%; max-width: 420px; text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            display: flex; flex-direction: column; gap: 15px;
+            max-height: 90vh; overflow-y: auto;
+            position: relative; /* For positioning lobby chat button */
+        }
+        .logo-emoji { font-size: 3.5rem; margin-bottom: 5px; animation: float 3s infinite ease-in-out; }
+        .game-title { font-size: 2rem; font-weight: 900; margin: 0; background: linear-gradient(135deg, var(--p1-color), var(--p2-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .code-input { width: 100%; padding: 16px; background: rgba(15, 23, 42, 0.6); border: 2px solid var(--glass-border); border-radius: var(--radius-md); color: white; font-size: 1.5rem; text-align: center; font-weight: 700; letter-spacing: 5px; text-transform: uppercase; }
+        .btn-main { width: 100%; padding: 18px; border: none; border-radius: var(--radius-md); font-size: 1rem; font-weight: 800; cursor: pointer; transition: 0.2s; font-family: 'Outfit', sans-serif; margin-top: 5px; }
+        .btn-create { background: var(--p1-color); color: #0f172a; }
+        .btn-join { background: #334155; color: white; border: 1px solid var(--glass-border); }
+
+        /* LOBBY ELEMENTS */
+        .lobby-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .lobby-section-title { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; text-align: left; margin-top: 10px; }
+        .player-list { width: 100%; background: rgba(0,0,0,0.3); border-radius: 12px; margin-bottom: 5px; border: 1px solid var(--glass-border); }
+        .p-item { padding: 10px 15px; border-bottom: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: white; }
+        .p-item:last-child { border-bottom: none; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+        .dot-green { background: var(--success); box-shadow: 0 0 8px var(--success); }
+        .dot-gray { background: #475569; }
+        .room-code-display { font-size: 2.2rem; font-weight: 900; color: var(--p1-color); letter-spacing: 5px; line-height: 1; margin: 0; }
+        
+        /* SETTINGS GRID */
+        .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 5px; }
+        .setting-box { background: rgba(0,0,0,0.3); padding: 8px; border-radius: 12px; text-align: center; border: 1px solid var(--glass-border); }
+        
+        .setting-val { background: transparent; border: none; color: var(--p1-color); font-size: 1.2rem; font-weight: 900; width: 100%; text-align: center; font-family: 'Outfit', sans-serif; }
+        .setting-lbl { font-size: 0.7rem; color: #94a3b8; margin-top: 4px; }
+
+        /* --- GAMEPLAY UI --- */
+        .game-layout { display: flex; flex-direction: column; height: 100%; max-width: 600px; margin: 0 auto; width: 100%; position: relative; }
+        .top-nav { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid var(--glass-border); z-index: 20; }
+        .room-pill { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 5px 12px; border-radius: 20px; }
+
+        /* TILES */
+        .tiles-container { display: flex; gap: 8px; justify-content: center; margin: 20px 0; flex-wrap: wrap; }
+        .letter-tile {
+            width: 45px; height: 55px; background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 1px solid var(--glass-border); border-radius: 12px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 1.8rem; font-weight: 800; color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
+        }
+        .pop-anim { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+        /* FOUND WORDS */
+        .found-area { 
+            flex: 1; margin: 0 20px 20px 20px; 
+            background: rgba(30, 41, 59, 0.4); border-radius: 20px; 
+            border: 1px solid var(--glass-border); padding: 15px;
+            overflow-y: auto; align-content: flex-start;
+            display: flex; flex-wrap: wrap; gap: 8px;
+        }
+        .found-tag {
+            background: #1e293b; color: white; padding: 6px 14px;
+            border-radius: 20px; font-size: 0.9rem; font-weight: 600;
+            border: 1px solid var(--glass-border); animation: slideUp 0.3s ease-out;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .tag-p1 { border-color: var(--p1-color); color: var(--p1-color); background: var(--p1-bg); }
+        .tag-p2 { border-color: var(--p2-color); color: var(--p2-color); background: var(--p2-bg); }
+        .tag-p3 { border-color: var(--p3-color); color: var(--p3-color); background: var(--p3-bg); }
+        .tag-p4 { border-color: var(--p4-color); color: var(--p4-color); background: var(--p4-bg); }
+
+        /* INPUT */
+        .input-zone { padding: 20px; background: var(--bg-dark); border-top: 1px solid var(--glass-border); }
+        .game-input {
+            width: 100%; padding: 18px; background: #1e293b; border: 2px solid #334155;
+            border-radius: 16px; color: white; font-size: 1.2rem; font-weight: 700;
+            text-align: center; text-transform: uppercase; font-family: 'Outfit', sans-serif; transition: 0.3s;
+        }
+        .game-input:focus { border-color: var(--p1-color); background: #0f172a; }
+        .game-input.error { border-color: var(--danger); animation: shake 0.4s; }
+        
+        .footer-stats { display: flex; gap: 10px; margin-top: 15px; flex-wrap: nowrap; }
+        .stat-card { flex: 1; background: #1e293b; padding: 10px; border-radius: 12px; text-align: center; border: 1px solid transparent; min-width: 0; }
+        .stat-p1 { border-color: var(--p1-color); }
+        .stat-p2 { border-color: var(--p2-color); }
+        .stat-p3 { border-color: var(--p3-color); }
+        .stat-p4 { border-color: var(--p4-color); }
+        .sc-val { font-size: 1.5rem; font-weight: 800; line-height: 1; color: white; }
+        .sc-lbl { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); }
+
+        /* WIN OVERLAY */
+        #win-overlay {
+            position: absolute; top:0; left:0; width:100%; height:100%;
+            background: rgba(15, 23, 42, 0.95); z-index: 100;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .win-title { font-size: 3rem; font-weight: 900; color: var(--p1-color); animation: popIn 0.5s; }
+
+        /* COUNTDOWN OVERLAY (NEW) */
+        #countdown-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.95); z-index: 200;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .countdown-text {
+            font-size: 8rem; font-weight: 900; color: var(--p1-color);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* CHAT - Updated for Global Access */
+        #chat-modal {
+            position: fixed; /* Changed to fixed so it floats above everything */
+            top: 60px; right: 10px; left: 10px; bottom: 80px;
+            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border); border-radius: 20px;
+            z-index: 300; /* High Z-index to cover lobby and game */
+            display: flex; flex-direction: column;
+        }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .chat-bubble { max-width: 80%; padding: 10px 14px; border-radius: 14px; font-size: 0.9rem; line-height: 1.4; }
+        .chat-bubble.mine { align-self: flex-end; background: var(--p1-color); color: #0f172a; border-bottom-right-radius: 4px; }
+        .chat-bubble.theirs { align-self: flex-start; background: #334155; color: white; border-bottom-left-radius: 4px; }
+        .btn-chat-toggle { background: transparent; border: 1px solid var(--glass-border); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative;}
+        
+        /* CHAT BADGE */
+        .chat-badge {
+            position: absolute; top: 0; right: 0; width: 12px; height: 12px; 
+            background: var(--danger); border-radius: 50%; 
+            border: 2px solid #1e293b; display: none;
+            box-shadow: 0 0 5px var(--danger);
+        }
+
+        /* ADDED: Timer Urgent Animation */
+        .timer-urgent { color: var(--danger) !important; font-weight: 900; animation: pulse 0.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+        /* MOBILE FOCUS MODE */
+        @media (max-width: 768px) {
+            body.keyboard-active .top-nav, body.keyboard-active .footer-stats { display: none; }
+            body.keyboard-active .found-area { height: 100px; flex: none; }
+            .sc-val { font-size: 1.2rem; }
+            .sc-lbl { font-size: 0.6rem; }
+        }
+        
+        @keyframes popIn { 0% { transform: scale(0); } 70% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+    <audio id="sfx-success" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
+    <audio id="sfx-error" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
+    <audio id="sfx-win" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3"></audio>
+    <audio id="sfx-shuffle" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
+    <audio id="sfx-tick" src="tick.mp3"></audio>
+
+    <div id="lobby-screen" class="full-screen lobby-wrapper">
+        <div class="card-glass">
+            <div class="logo-emoji">🧩</div>
+            <div>
+                <h1 class="game-title">Word Scramble</h1>
+                <div style="font-size:0.9rem; color:#94a3b8;">Multiplayer Word Battle</div>
+            </div>
+            
+            <button class="btn-main btn-create" id="btn-create" onclick="createRoom()">CREATE ROOM</button>
+            <div style="width:100%; height:1px; background:var(--glass-border);"></div>
+            <input type="text" id="room-input" class="code-input" placeholder="CODE" maxlength="4">
+            <button class="btn-main btn-join" id="btn-join" onclick="joinRoom()">JOIN ROOM</button>
+        </div>
+    </div>
+
+    <div id="room-lobby-overlay" class="full-screen hidden" style="background: rgba(15, 23, 42, 0.95); z-index: 50; justify-content: center; align-items: center; padding: 20px;">
+        <div class="card-glass">
+            <div class="lobby-header">
+                <div>
+                    <div style="font-size:0.8rem; color:#94a3b8; letter-spacing:2px; font-weight:700; text-align: left;">ROOM CODE</div>
+                    <div id="lobby-room-code" class="room-code-display">----</div>
+                </div>
+                <div style="position:relative;">
+                    <button class="btn-chat-toggle" onclick="toggleChat()" style="background: rgba(255,255,255,0.1);">💬</button>
+                    <div id="chat-badge-lobby" class="chat-badge"></div>
+                </div>
+            </div>
+            
+            <div class="lobby-section-title">PLAYERS</div>
+            <div class="player-list" id="lobby-players-list">
+                </div>
+
+            <div class="lobby-section-title">GAME SETTINGS</div>
+            <div class="settings-grid">
+                <div class="setting-box">
+                    <input type="number" id="target-score-input" class="setting-val" value="200" step="50" min="50" disabled onchange="updateSettings()">
+                    <div class="setting-lbl">TARGET SCORE</div>
+                </div>
+                <div class="setting-box">
+                    <select id="letter-count-input" class="setting-val" style="background:#0f172a; border-radius:8px;" disabled onchange="updateSettings()">
+                        <option value="4">4 LETTERS</option>
+                        <option value="5">5 LETTERS</option>
+                        <option value="6" selected>6 LETTERS</option>
+                        <option value="7">7 LETTERS</option>
+                    </select>
+                    <div class="setting-lbl">DIFFICULTY</div>
+                </div>
+                <div class="setting-box">
+                    <select id="max-players-input" class="setting-val" style="background:#0f172a; border-radius:8px;" disabled onchange="updateSettings()">
+                        <option value="2" selected>2 PLAYERS</option>
+                        <option value="3">3 PLAYERS</option>
+                        <option value="4">4 PLAYERS</option>
+                    </select>
+                    <div class="setting-lbl">MAX PLAYERS</div>
+                </div>
+                <div class="setting-box">
+                    <select id="shuffle-time-input" class="setting-val" style="background:#0f172a; border-radius:8px;" disabled onchange="updateSettings()">
+                        <option value="15">15 SECONDS</option>
+                        <option value="20" selected>20 SECONDS</option>
+                        <option value="30">30 SECONDS</option>
+                        <option value="60">60 SECONDS</option>
+                    </select>
+                    <div class="setting-lbl">AUTO-SHUFFLE</div>
+                </div>
+            </div>
+
+            <div class="lobby-section-title">HOW TO PLAY</div>
+            <div style="text-align: left; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; font-size: 0.85rem; color: #cbd5e1; line-height: 1.4;">
+                1. Make words from letters.<br>
+                2. Letters change automatically!<br>
+                3. Found words stay on board.<br>
+                4. First to Target Score wins!
+            </div>
+
+            <button id="btn-start-game" class="btn-main btn-create hidden" onclick="startGame()">START GAME</button>
+            <div id="waiting-msg" style="font-size: 0.9rem; color: #94a3b8; font-style: italic; margin-top: 10px;" class="hidden">WAITING FOR HOST...</div>
+        </div>
+    </div>
+
+    <div id="game-screen" class="hidden full-screen">
+        
+        <div id="countdown-overlay" class="hidden">
+            <div id="countdown-text" class="countdown-text">3</div>
+        </div>
+
+        <div id="win-overlay" class="hidden">
+            <div style="font-size:5rem;">🏆</div>
+            <div class="win-title" id="win-title">YOU WIN!</div>
+            <div style="color:#94a3b8; margin-top:10px;">Refreshing in 3s...</div>
+        </div>
+
+        <div class="game-layout">
+            
+            <div class="top-nav">
+                <div class="room-pill">ROOM <span id="display-room-code" style="color:var(--p1-color)">----</span></div>
+                <div style="position:relative;">
+                    <button class="btn-chat-toggle" onclick="toggleChat()">💬</button>
+                    <div id="chat-badge-game" class="chat-badge"></div>
+                </div>
+            </div>
+
+            <div style="padding: 10px; text-align: center;">
+                <div class="tiles-container" id="tiles-area"></div>
+                <div id="timer-display" style="font-size:0.75rem; color:var(--text-muted); margin-top:5px; font-variant-numeric: tabular-nums;">CHANGES IN 20s</div>
+            </div>
+
+            <div class="found-area" id="found-words-area">
+                <div style="width:100%; text-align:center; color:#64748b; font-size:0.8rem; margin-top:20px;">FOUND WORDS WILL APPEAR HERE</div>
+            </div>
+
+            <div class="input-zone">
+                <input type="text" id="main-input" class="game-input" placeholder="TYPE WORD HERE..." autocomplete="off" enterkeyhint="go">
+                <div class="footer-stats" id="footer-stats-container">
+                    <div class="stat-card stat-p1" id="stat-card-p1">
+                        <div class="sc-lbl">P1</div>
+                        <div class="sc-val" id="score-p1">0</div>
+                    </div>
+                    <div class="stat-card stat-p2" id="stat-card-p2">
+                        <div class="sc-lbl">P2</div>
+                        <div class="sc-val" id="score-p2">0</div>
+                    </div>
+                    <div class="stat-card stat-p3 hidden" id="stat-card-p3">
+                        <div class="sc-lbl">P3</div>
+                        <div class="sc-val" id="score-p3">0</div>
+                    </div>
+                    <div class="stat-card stat-p4 hidden" id="stat-card-p4">
+                        <div class="sc-lbl">P4</div>
+                        <div class="sc-val" id="score-p4">0</div>
+                    </div>
+                    <div style="display:flex; align-items:center; font-size:0.8rem; color:#64748b; flex-direction: column; justify-content: center; padding-left:5px;">
+                        TARGET<br><span id="target-display" style="color:white; font-weight:bold; font-size:1.1rem;">200</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="chat-modal" class="hidden">
+        <div style="padding:15px; border-bottom:1px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between; font-weight:bold;">
+            <span>Chat</span> <span onclick="toggleChat()" style="cursor:pointer">✕</span>
+        </div>
+        <div id="chat-messages" class="chat-messages"></div>
+        <div style="padding:10px; display:flex; gap:10px; border-top:1px solid rgba(255,255,255,0.1);">
+            <input type="text" id="chat-input" style="flex:1; padding:10px; border-radius:10px; border:none; background:#1e293b; color:white;" placeholder="Type...">
+            <button onclick="sendChat()" style="background:var(--p1-color); border:none; width:40px; border-radius:10px;">➤</button>
+        </div>
+    </div>
+
+<script src="Word Scramble.js"></script>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getDatabase, ref, set, onValue, update, get, push, onChildAdded } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+   const firebaseConfig = {
+  apiKey: "AIzaSyAgYCaaoGMzZWVT2dRov7ALUnnMhHoqXmE",
+  authDomain: "english-check-db.firebaseapp.com",
+  databaseURL: "https://english-check-db-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "english-check-db",
+  storageBucket: "english-check-db.firebasestorage.app",
+  messagingSenderId: "136352630898",
+  appId: "1:136352630898:web:dcaa103fa848ca38de9aeb"
+};
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const rootDictionary = {
+    4: [
+        "LION","FISH","BIRD","GOLD","BLUE","READ","LOVE","HOPE","STAR","MOON",
+        "WIND","FIRE","TREE","ROCK","SHIP","RAIN","SNOW","SAND","KING","MATH",
+        "WOLF","BEAR","FROG","LAMP","RING","BOOK","PATH","ROAD","MILK","CAKE",
+        "BYTE","CODE","DATA","NODE","USER","GAME","PLAY","JUMP","FAST","SLOW",
+        "COLD","WARM","DARK","GRID","IRON","WOOD","SALT","SOIL","TIME","ZONE"
+    ],
+
+    5: [
+        "APPLE","GRAPE","TABLE","CHAIR","HOUSE","WATER","BREAD","NIGHT","HAPPY","SMILE",
+        "CLOUD","PLANT","STONE","LIGHT","SOUND","RIVER","SWEET","HEART","DREAM","BRAVE",
+        "PLANE","TRAIN","BEACH","HORSE","EARTH","FLAME","SWORD","CROWN","GRASS","SHELL",
+        "LOGIC","BRAIN","SKILL","POWER","SPEED","TRACK","SCORE","LEVEL","QUEST","MAGIC",
+        "ROBOT","LASER","PIXEL","FRAME","MODEL","VALUE","TREND","BASIC","SHARP","ROUND"
+    ],
+
+    6: [
+        "PLANET","MASTER","GARDEN","ORANGE","FAMILY","NATURE","TRAVEL","SCHOOL","FRIEND","SUMMER",
+        "WINTER","SPRING","AUTUMN","BRIDGE","CASTLE","MARKET","POCKET","SILVER","GOLDEN","STREAM",
+        "FOREST","DESERT","ISLAND","FLOWER","ENERGY","SPIRIT","SECRET","MEMORY","VISION","GLOBAL",
+        "SYSTEM","SERVER","SCRIPT","CODING","DESIGN","STATUS","OBJECT","VECTOR","RANDOM","SIGNAL",
+        "EDITOR","PLAYER","GAMING","SKYLINE","WEALTH","HONEST","FUTURE","LEGEND","CIRCLE","SQUARE"
+    ],
+
+    7: [
+        "STUDENT","TEACHER","MORNING","PICTURE","WELCOME","PROJECT","HOLIDAY","KITCHEN","WINDOWS","CHICKEN",
+        "SUNRISE","ANIMALS","FREEDOM","COUNTRY","VILLAGE","BALANCE","CAPTAIN","EXPLORE","JOURNEY","LIBRARY",
+        "MUSEUMS","WEATHER","HARVEST","FASHION","FACTORY","HISTORY","IMAGINE","ROCKETS","SCIENCE","WRITING",
+        "PROGRAM","NETWORK","BROWSER","OFFLINE","VIRTUAL","PROCESS","CAPTURE","DISCUSS","INSPIRE","SUCCESS",
+        "COURAGE","ACCOUNT","UPGRADE","MANAGER","SUPPORT","PUBLISH","ABILITY","DESTINY","PATTERN","QUALITY"
+    ]
+};
+
+    let myRole = 0;
+    let currentRoom = "";
+    let isChatOpen = false;
+    let shuffleInterval = null;
+    let lastRoomStatus = 'waiting'; 
+    
+    // --- NEW VARIABLES FOR COUNTDOWN ---
+    let visualTimerInterval = null;
+    let previousLettersStr = ""; 
+
+    // --- LOBBY FUNCTIONS ---
+    window.createRoom = function() {
+        const code = Math.floor(1000 + Math.random() * 9000).toString();
+        document.getElementById('btn-create').innerText = "Creating...";
+        
+        const maxP = parseInt(document.getElementById('max-players-input').value) || 2;
+        
+        set(ref(db, 'scramble/' + code), {
+            config: { targetScore: 200, letterCount: 6, shuffleTime: 20, maxPlayers: maxP },
+            status: 'waiting',
+            players: { 1: 'connected' },
+            scores: { 1: 0, 2: 0, 3: 0, 4: 0 },
+            foundWords: {},
+            lastAction: 'created'
+        }).then(() => { enterGame(code, 1); });
+    };
+
+    window.joinRoom = function() {
+        const code = document.getElementById('room-input').value.trim();
+        const btn = document.getElementById('btn-join');
+        if (code.length !== 4) return alert("Enter Code!");
+        btn.innerText = "Joining...";
+
+        get(ref(db, 'scramble/' + code)).then((snap) => {
+            if (snap.exists()) {
+                const data = snap.val();
+                const maxP = data.config.maxPlayers || 2;
+                const players = data.players || {};
+                
+                let assignedRole = null;
+                // Cari slot pemain yang kosong sesuai batas maxPlayers
+                for(let i = 2; i <= maxP; i++) {
+                    if(!players[i] && !players['p'+i]) {
+                        assignedRole = i;
+                        break;
+                    }
+                }
+                
+                if(assignedRole) {
+                    update(ref(db, 'scramble/' + code + '/players'), { [assignedRole]: 'connected' });
+                    enterGame(code, assignedRole);
+                } else {
+                    alert("Room is full!");
+                    btn.innerText = "JOIN ROOM";
+                }
+            } else {
+                alert("Room not found");
+                btn.innerText = "JOIN ROOM";
+            }
+        });
+    };
+
+    window.updateSettings = function() {
+        if(myRole !== 1) return;
+        const score = parseInt(document.getElementById('target-score-input').value);
+        const letters = parseInt(document.getElementById('letter-count-input').value);
+        const time = parseInt(document.getElementById('shuffle-time-input').value);
+        const maxP = parseInt(document.getElementById('max-players-input').value);
+        
+        update(ref(db, 'scramble/' + currentRoom + '/config'), {
+            targetScore: score,
+            letterCount: letters,
+            shuffleTime: time,
+            maxPlayers: maxP
+        });
+    }
+
+    // --- GAME LOGIC ---
+    window.startGame = function() {
+        generateNewLetters(); 
+        update(ref(db, 'scramble/' + currentRoom), { status: 'playing' });
+    }
+
+    function startShuffleTimer() {
+        if(shuffleInterval) clearInterval(shuffleInterval);
+        
+        const shuffleSeconds = parseInt(document.getElementById('shuffle-time-input').value) || 20;
+        
+        shuffleInterval = setInterval(() => {
+            get(ref(db, 'scramble/' + currentRoom + '/status')).then(snap => {
+                if(snap.val() === 'playing') {
+                    generateNewLetters();
+                } else {
+                    clearInterval(shuffleInterval);
+                }
+            });
+        }, shuffleSeconds * 1000);
+    }
+
+    // --- NEW: Visual Countdown Logic ---
+    function startVisualCountdown(seconds) {
+        if (visualTimerInterval) clearInterval(visualTimerInterval);
+        
+        const display = document.getElementById('timer-display');
+        let timeLeft = seconds;
+        
+        // Render initial time immediately
+        updateTimerDisplay(display, timeLeft);
+
+        visualTimerInterval = setInterval(() => {
+            timeLeft--;
+            updateTimerDisplay(display, timeLeft);
+
+            // --- ADDED: TICKING SOUND AT 10 SECONDS ---
+            if (timeLeft <= 10 && timeLeft > 0) {
+                const tickSound = document.getElementById('sfx-tick');
+                if(tickSound) {
+                    tickSound.currentTime = 0;
+                    tickSound.play().catch(e => console.log(e));
+                }
+            }
+            
+            if (timeLeft <= 0) {
+                display.innerText = "SHUFFLING...";
+                display.classList.remove('timer-urgent');
+                clearInterval(visualTimerInterval);
+            }
+        }, 1000);
+    }
+
+    function updateTimerDisplay(el, time) {
+        el.innerText = `CHANGES IN ${time}s`;
+        // Pulse red if 3 seconds or less
+        if(time <= 3) {
+            el.classList.add('timer-urgent');
+        } else {
+            el.classList.remove('timer-urgent');
+        }
+    }
+
+    function generateNewLetters() {
+        const lettersCount = parseInt(document.getElementById('letter-count-input').value);
+        const list = rootDictionary[lettersCount] || rootDictionary[6];
+        const word = list[Math.floor(Math.random() * list.length)];
+        const scrambled = word.split('').sort(() => 0.5 - Math.random());
+        
+        update(ref(db, 'scramble/' + currentRoom), { letters: scrambled });
+    }
+
+    function enterGame(code, role) {
+        currentRoom = code;
+        myRole = role;
+        lastRoomStatus = 'waiting'; 
+        previousLettersStr = ""; // Reset tracker
+        
+        document.getElementById('lobby-screen').classList.add('hidden');
+        document.getElementById('room-lobby-overlay').classList.remove('hidden'); 
+        document.getElementById('display-room-code').innerText = code;
+        document.getElementById('lobby-room-code').innerText = code;
+        
+        if (role === 1) {
+            document.getElementById('target-score-input').disabled = false;
+            document.getElementById('letter-count-input').disabled = false;
+            document.getElementById('shuffle-time-input').disabled = false;
+            document.getElementById('max-players-input').disabled = false;
+            document.getElementById('waiting-msg').innerText = "WAITING FOR PLAYERS...";
+            document.getElementById('waiting-msg').classList.remove('hidden');
+        } else {
+            document.getElementById('waiting-msg').innerText = "WAITING FOR HOST TO START...";
+            document.getElementById('waiting-msg').classList.remove('hidden');
+        }
+
+        const input = document.getElementById('main-input');
+        input.addEventListener('focus', () => document.body.classList.add('keyboard-active'));
+        input.addEventListener('blur', () => document.body.classList.remove('keyboard-active'));
+        input.addEventListener('keypress', (e) => { if(e.key === 'Enter') checkWord(); });
+
+        initChatListener();
+        listenToRoom();
+    }
+
+    // --- COUNTDOWN OVERLAY FUNCTION ---
+    function runCountdownAnimation(callback) {
+        const overlay = document.getElementById('countdown-overlay');
+        const txt = document.getElementById('countdown-text');
+        overlay.classList.remove('hidden');
+        
+        let count = 3;
+        txt.innerText = count;
+
+        const interval = setInterval(() => {
+            count--;
+            if (count > 0) {
+                txt.style.animation = 'none';
+                txt.offsetHeight; 
+                txt.style.animation = 'popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                txt.innerText = count;
+            } else if (count === 0) {
+                txt.style.animation = 'none';
+                txt.offsetHeight; 
+                txt.style.animation = 'popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                txt.innerText = "GO!";
+            } else {
+                clearInterval(interval);
+                overlay.classList.add('hidden');
+                if (callback) callback();
+            }
+        }, 1000);
+    }
+
+    function listenToRoom() {
+        onValue(ref(db, 'scramble/' + currentRoom), (snap) => {
+            const data = snap.val();
+            if (!data) return;
+
+            // Sync Config
+            if (data.config) {
+                if (myRole !== 1) {
+                    document.getElementById('target-score-input').value = data.config.targetScore;
+                    document.getElementById('letter-count-input').value = data.config.letterCount;
+                    document.getElementById('shuffle-time-input').value = data.config.shuffleTime;
+                    document.getElementById('max-players-input').value = data.config.maxPlayers || 2;
+                }
+                document.getElementById('target-display').innerText = data.config.targetScore;
+            }
+
+            // --- DETECT LETTER CHANGES (Play Sound & Restart Timer) ---
+            if (data.status === 'playing' && data.letters) {
+                const currentLettersStr = JSON.stringify(data.letters);
+                
+                // Jika huruf berubah dari state sebelumnya
+                if (currentLettersStr !== previousLettersStr) {
+                    // Play Sound (kecuali load pertama kali jika diinginkan, tapi di sini kita mainkan saja)
+                    if (previousLettersStr !== "") { 
+                        document.getElementById('sfx-shuffle').play().catch(()=>{});
+                    }
+                    
+                    // Reset Visual Countdown
+                    if(data.config && data.config.shuffleTime) {
+                        startVisualCountdown(data.config.shuffleTime);
+                    }
+
+                    previousLettersStr = currentLettersStr;
+                }
+            }
+
+            if (data.status === 'waiting') {
+                lastRoomStatus = 'waiting';
+                if (visualTimerInterval) clearInterval(visualTimerInterval); // Stop timer if back to lobby
+                
+                const pList = document.getElementById('lobby-players-list');
+                pList.innerHTML = '';
+                const maxP = data.config.maxPlayers || 2;
+                let pCount = 0;
+                
+                for(let i=1; i<=maxP; i++) {
+                    const isConnected = data.players && (data.players[i] || data.players['p'+i]);
+                    if(isConnected) pCount++;
+                    
+                    const dotClass = isConnected ? 'dot-green' : 'dot-gray';
+                    let textStr = `WAITING...`;
+                    
+                    // --- MODIFICATION: SHOW WIN COUNT ---
+                    const wins = (data.wins && data.wins[i]) ? data.wins[i] : 0;
+                    const winBadge = wins > 0 ? ` <span style="color:#fbbf24; margin-left:5px;">🏆${wins}</span>` : '';
+                    
+                    if (isConnected) {
+                        if (i === 1) textStr = `HOST (P1)${winBadge}`;
+                        else textStr = `PLAYER ${i} (READY)${winBadge}`;
+                    }
+                    const color = isConnected ? (i===1 ? 'white' : 'var(--success)') : 'inherit';
+                    
+                    pList.innerHTML += `<div class="p-item"><div><span class="status-dot ${dotClass}"></span> <span style="color:${color}">${textStr}</span></div></div>`;
+                }
+                
+                if(myRole === 1) {
+                    if(pCount > 1) {
+                        document.getElementById('btn-start-game').classList.remove('hidden');
+                        document.getElementById('waiting-msg').classList.add('hidden');
+                    } else {
+                        document.getElementById('btn-start-game').classList.add('hidden');
+                        document.getElementById('waiting-msg').innerText = "WAITING FOR PLAYERS...";
+                        document.getElementById('waiting-msg').classList.remove('hidden');
+                    }
+                } else {
+                    document.getElementById('waiting-msg').innerText = "WAITING FOR HOST TO START...";
+                    document.getElementById('waiting-msg').classList.remove('hidden');
+                }
+            } 
+            else if (data.status === 'playing') {
+                document.getElementById('room-lobby-overlay').classList.add('hidden');
+                document.getElementById('game-screen').classList.remove('hidden');
+                
+                if (lastRoomStatus === 'waiting') {
+                    lastRoomStatus = 'playing';
+                    renderLetters(data.letters); 
+                    
+                    runCountdownAnimation(() => {
+                        if (myRole === 1 && !shuffleInterval) {
+                            startShuffleTimer();
+                        }
+                    });
+                } else {
+                    renderLetters(data.letters);
+                }
+            }
+            else if (data.status === 'finished') {
+                lastRoomStatus = 'finished';
+                if(shuffleInterval) clearInterval(shuffleInterval);
+                if(visualTimerInterval) clearInterval(visualTimerInterval);
+                showWinOverlay(data.winner);
+            }
+
+            for(let i=1; i<=4; i++) {
+                const statCard = document.getElementById(`stat-card-p${i}`);
+                if(statCard) {
+                    if(i <= (data.config.maxPlayers || 2)) {
+                        statCard.classList.remove('hidden');
+                        document.getElementById(`score-p${i}`).innerText = (data.scores && data.scores[i]) ? data.scores[i] : 0;
+                    } else {
+                        statCard.classList.add('hidden');
+                    }
+                }
+            }
+
+            renderFoundWords(data.foundWords);
+        });
+    }
+
+    function renderLetters(letters) {
+        if (!letters) return;
+        const container = document.getElementById('tiles-area');
+        if(container.getAttribute('data-rendered') === JSON.stringify(letters)) return;
+        
+        container.innerHTML = '';
+        letters.forEach(char => {
+            const div = document.createElement('div');
+            div.className = 'letter-tile pop-anim';
+            div.innerText = char;
+            container.appendChild(div);
+        });
+        container.setAttribute('data-rendered', JSON.stringify(letters));
+    }
+
+    function renderFoundWords(foundObj) {
+        const container = document.getElementById('found-words-area');
+        container.innerHTML = ''; 
+        if(!foundObj) {
+            container.innerHTML = '<div style="width:100%; text-align:center; color:#64748b; font-size:0.8rem; margin-top:20px;">FOUND WORDS WILL APPEAR HERE</div>';
+            return;
+        }
+        Object.values(foundObj).forEach(item => {
+            const tag = document.createElement('div');
+            tag.className = `found-tag tag-p${item.by}`; 
+            tag.innerHTML = `<span>${item.word}</span>`;
+            container.appendChild(tag);
+        });
+        container.scrollTop = container.scrollHeight;
+    }
+
+    window.checkWord = function() {
+        const input = document.getElementById('main-input');
+        const word = input.value.trim().toUpperCase();
+        
+        if (word.length < 2) return; 
+
+        get(ref(db, 'scramble/' + currentRoom)).then(snap => {
+            const roomData = snap.val();
+            if (canMakeWord(word, roomData.letters)) {
+                validateAndSubmit(word, roomData);
+            } else {
+                shakeInput();
+            }
+        });
+        input.value = "";
+        input.focus();
+    }
+
+    function canMakeWord(word, availableLetters) {
+        let temp = [...availableLetters];
+        for (let char of word) {
+            const idx = temp.indexOf(char);
+            if (idx === -1) return false;
+            temp.splice(idx, 1);
+        }
+        return true;
+    }
+
+    function validateAndSubmit(word, roomData) {
+        const isWordValid = commonWords.some(dictWord => dictWord.toUpperCase() === word);
+
+        if (!isWordValid) {
+            shakeInput(); return;
+        }
+
+        const found = roomData.foundWords || {};
+        const alreadyFound = Object.values(found).some(obj => obj.word === word);
+        
+        if (alreadyFound) {
+            shakeInput(); 
+        } else {
+            const points = word.length >= 6 ? 100 : word.length * 10;
+            const newScore = (roomData.scores[myRole] || 0) + points;
+            
+            push(ref(db, 'scramble/' + currentRoom + '/foundWords'), {
+                word: word,
+                by: myRole
+            });
+
+            const updates = {};
+            updates['scramble/' + currentRoom + '/scores/' + myRole] = newScore;
+            
+            if (newScore >= roomData.config.targetScore) {
+                updates['scramble/' + currentRoom + '/status'] = 'finished';
+                updates['scramble/' + currentRoom + '/winner'] = myRole;
+                
+                // --- MODIFICATION: SAVE WIN COUNT ---
+                const currentWins = (roomData.wins && roomData.wins[myRole]) ? roomData.wins[myRole] : 0;
+                updates['scramble/' + currentRoom + '/wins/' + myRole] = currentWins + 1;
+            }
+
+            update(ref(db), updates);
+            document.getElementById('sfx-success').play().catch(()=>{});
+        }
+    }
+
+    function showWinOverlay(winner) {
+        const overlay = document.getElementById('win-overlay');
+        const title = document.getElementById('win-title');
+        
+        overlay.classList.remove('hidden');
+        if (winner === myRole) {
+            title.innerText = "YOU WIN!";
+            title.style.color = "var(--success)";
+            document.getElementById('sfx-win').play().catch(()=>{});
+        } else {
+            title.innerText = "YOU LOSE!";
+            title.style.color = "var(--danger)";
+        }
+
+        setTimeout(() => {
+            if(myRole === 1) {
+                update(ref(db, 'scramble/' + currentRoom), {
+                    status: 'waiting',
+                    scores: { 1: 0, 2: 0, 3: 0, 4: 0 },
+                    foundWords: null,
+                    winner: null,
+                    letters: null
+                    // Note: 'wins' node is NOT reset, so it persists!
+                });
+            }
+            overlay.classList.add('hidden');
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('room-lobby-overlay').classList.remove('hidden');
+            lastRoomStatus = 'waiting'; 
+        }, 4000);
+    }
+
+    function shakeInput() {
+        const inp = document.getElementById('main-input');
+        inp.classList.add('error');
+        document.getElementById('sfx-error').play().catch(()=>{});
+        setTimeout(() => inp.classList.remove('error'), 400);
+    }
+
+    window.toggleChat = function() {
+        isChatOpen = !isChatOpen;
+        const modal = document.getElementById('chat-modal');
+        const badgeLobby = document.getElementById('chat-badge-lobby');
+        const badgeGame = document.getElementById('chat-badge-game');
+        
+        if (isChatOpen) {
+            modal.classList.remove('hidden');
+            badgeLobby.style.display = 'none'; // Sembunyikan notifikasi
+            badgeGame.style.display = 'none';
+        } else {
+            modal.classList.add('hidden');
+        }
+    }
+
+    window.sendChat = function() {
+        const input = document.getElementById('chat-input');
+        if (!input.value.trim()) return;
+        push(ref(db, 'scramble/' + currentRoom + '/chat'), {
+            text: input.value.trim(),
+            sender: myRole
+        });
+        input.value = '';
+    }
+
+    function initChatListener() {
+        onChildAdded(ref(db, 'scramble/' + currentRoom + '/chat'), (snap) => {
+            const msg = snap.val();
+            const container = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            div.className = `chat-bubble ${msg.sender === myRole ? 'mine' : 'theirs'}`;
+            div.innerText = msg.text;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+            
+            // Jika chat tertutup dan pesan dari orang lain, nyalakan badge merah
+            if (!isChatOpen && msg.sender !== myRole) {
+                document.getElementById('chat-badge-lobby').style.display = 'block';
+                document.getElementById('chat-badge-game').style.display = 'block';
+            }
+        });
+    }
+</script>
+</body>
+</html>

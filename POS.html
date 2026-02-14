@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Elegant | The Master Class Series</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        /* --- THEME VARIABLES (Matching your lessons) --- */
+        :root {
+            --emerald-dark: #0a2f23;
+            --emerald-primary: #14523d;
+            --emerald-light: #e3f0ea;
+            --gold-accent: #c5a059;
+            --gold-hover: #b08d45;
+            --cream-bg: #fdfcf8;
+            --text-main: #2a2a2a;
+            --white: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: var(--emerald-dark); /* Dominated by Dark Green */
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        /* --- TYPOGRAPHY --- */
+        h1, h2, h3 { font-family: 'Playfair Display', serif; }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            background: linear-gradient(135deg, #051a14 0%, #0a2f23 100%);
+            color: var(--white);
+            padding: 5rem 2rem 3rem;
+            text-align: center;
+            border-bottom: 4px solid var(--gold-accent);
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            letter-spacing: 2px;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            font-weight: 300;
+            color: var(--emerald-light);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .divider {
+            height: 2px;
+            width: 100px;
+            background-color: var(--gold-accent);
+            margin: 2rem auto;
+        }
+
+        /* --- GRID CONTAINER --- */
+        .dashboard-container {
+            max-width: 1200px;
+            margin: -50px auto 50px; /* Overlap effect */
+            padding: 0 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        /* --- CARD DESIGN --- */
+        .module-card {
+            background: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            text-decoration: none;
+            color: var(--text-main);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Top colored bar of the card */
+        .card-top {
+            height: 8px;
+            background: var(--gold-accent);
+            width: 100%;
+            transition: 0.3s;
+        }
+
+        .card-content {
+            padding: 2rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--emerald-primary);
+            transition: 0.3s;
+        }
+
+        .card-title {
+            font-size: 1.8rem;
+            color: var(--emerald-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .card-desc {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .card-btn {
+            margin-top: auto;
+            padding: 0.8rem 2rem;
+            border: 1px solid var(--emerald-primary);
+            color: var(--emerald-primary);
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* --- HOVER EFFECTS --- */
+        .module-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(197, 160, 89, 0.2);
+        }
+
+        .module-card:hover .card-top {
+            background: var(--emerald-primary);
+        }
+
+        .module-card:hover .card-icon {
+            transform: scale(1.1);
+            color: var(--gold-accent);
+        }
+
+        .module-card:hover .card-btn {
+            background: var(--emerald-primary);
+            color: var(--white);
+            border-color: var(--emerald-primary);
+        }
+
+        /* --- ANIMATION --- */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .module-card {
+            opacity: 0;
+            animation: fadeIn 0.6s forwards;
+        }
+
+        /* Staggered animation delay for cards */
+        .module-card:nth-child(1) { animation-delay: 0.1s; }
+        .module-card:nth-child(2) { animation-delay: 0.2s; }
+        .module-card:nth-child(3) { animation-delay: 0.3s; }
+        .module-card:nth-child(4) { animation-delay: 0.4s; }
+        .module-card:nth-child(5) { animation-delay: 0.5s; }
+        .module-card:nth-child(6) { animation-delay: 0.6s; }
+        .module-card:nth-child(7) { animation-delay: 0.7s; }
+        .module-card:nth-child(8) { animation-delay: 0.8s; }
+
+        /* --- FOOTER --- */
+        footer {
+            text-align: center;
+            padding: 3rem;
+            color: var(--emerald-light);
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        @media(max-width: 600px) {
+            .hero h1 { font-size: 2.5rem; }
+            .dashboard-container { margin-top: -20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="hero">
+        <p>ENGLISH CHECK MODULE</p>
+        <h1>POS</h1>
+        <div class="divider"></div>
+        <p>Master the 8 Parts of Speech. Choose a module to begin your journey toward articulate expression.</p>
+    </header>
+
+    <div class="dashboard-container">
+        <div class="grid">
+
+            <a href="noun.html" class="module-card">
+                <div class="card-top"></div>
+                <div class="card-content">
+                    <span class="card-icon">🏛️</span>
+                    <h2 class="card-title">The Noun</h2>
+                    <p class="card-desc">The foundation of language. Learn about People, Places, Things, and Ideas.</p>
+                    <span class="card-btn">Enter Class</span>
+                </div>
+            </a>
+
+            <a href="pronoun.html" class="module-card">
+                <div class="card-top"></div>
+                <div class="card-content">
+                    <span class="card-icon">🔄</span>
+                    <h2 class="card-title">The Pronoun</h2>
+                    <p class="card-desc">Master the art of substitution. I, You, He, She, and It.</p>
+                    <span class="card-btn">Enter Class</span>
+                </div>
+            </a>
+
+            <a href="verb.html" class="module-card">
+                <div class="card-top"></div>
+                <div class="card-content">
+                    <span class="card-icon">⚡</span>
+                    <h2 class="card-title">The Verb</h2>
+                    <p class="card-desc">The engine of the sentence. Action, States, and Being.</p>
+                    <span class="card-btn">Enter Class</span>
+                </div>
+            </a>
+
+            <a href="adjective.html" class="module-card">
+                <div class="card-top"></div>
+                <div class="card-content">
+                    <span class="card-icon">🎨</span>
+                    <h2 class="card-title">The Adjective</h2>
+                    <p class="card-desc">Add color to your nouns. Description, Quantity, and Comparison.</p>
+                    <span class="card-btn">Enter Class</span>
+                </div>
+            </a>
+
+            <a href="adverb.html" class="module-card">
+                <div class="card-top"></div>
+                <div class="card-content">
+                    <span class="card-icon">🚀</span>
+                    <h2 class="card-title">The Adverb</h2>
+                    <p class="card-desc">Modify your actions. How? When? Where? and To what extent?</p>
+                    <span class="card-btn">Enter Class</span>
+                </div>
+            </a>
+
+            <a href="preposition.html" class="module-card">
+                <div class="card-top"></div>
+                <div class="card-content">
+                    <span class="card-icon">📍</span>
+                    <h2 class="card-title">The Preposition</h2>
+                    <p class="card-desc">Connect your ideas through Time, Place, and Direction.</p>
+                    <span class="card-btn">Enter Class</span>
+                </div>
+            </a>
+
+            <a href="conjunction.html" class="module-card">
+                <div class="card-top"></div>
+                <div class="card-content">
+                    <span class="card-icon">🔗</span>
+                    <h2 class="card-title">The Conjunction</h2>
+                    <p class="card-desc">The glue of logic. FANBOYS, causes, and effects.</p>
+                    <span class="card-btn">Enter Class</span>
+                </div>
+            </a>
+
+            <a href="interjection.html" class="module-card">
+                <div class="card-top"></div>
+                <div class="card-content">
+                    <span class="card-icon">🎭</span>
+                    <h2 class="card-title">The Interjection</h2>
+                    <p class="card-desc">The language of emotion. Surprise, Joy, and Exclamations!</p>
+                    <span class="card-btn">Enter Class</span>
+                </div>
+            </a>
+
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 English Check.</p>
+    </footer>
+
+</body>
+</html>

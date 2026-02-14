@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Class: The Interjection | English Elegant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        /* --- VARIABLE & RESET --- */
+        :root {
+            --emerald-dark: #0a2f23;
+            --emerald-primary: #14523d;
+            --emerald-light: #e3f0ea;
+            --gold-accent: #c5a059;
+            --gold-hover: #b08d45;
+            --cream-bg: #fdfcf8;
+            --text-main: #2a2a2a;
+            --white: #ffffff;
+            --danger: #d9534f;
+            --success: #28a745;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: var(--cream-bg);
+            color: var(--text-main);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* --- TYPOGRAPHY --- */
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+            color: var(--emerald-dark);
+        }
+
+        .highlight-gold { color: var(--gold-accent); font-weight: bold; }
+        .highlight-green { color: var(--emerald-primary); font-weight: bold; }
+
+        /* --- HEADER --- */
+        header {
+            background: linear-gradient(135deg, var(--emerald-dark) 0%, var(--emerald-primary) 100%);
+            color: var(--white);
+            padding: 4rem 2rem;
+            text-align: center;
+            position: relative;
+            clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
+        }
+
+        header h1 { color: var(--white); font-size: 3.5rem; margin-bottom: 0.5rem; }
+        header p { font-size: 1.2rem; font-weight: 300; opacity: 0.9; }
+
+        /* --- LAYOUT --- */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        section {
+            margin-bottom: 3rem;
+            opacity: 0; /* Untuk animasi fade-in */
+            transform: translateY(20px);
+            animation: fadeUp 0.8s forwards;
+        }
+
+        /* --- CARDS --- */
+        .card {
+            background: var(--white);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(10, 47, 35, 0.08);
+            border-top: 4px solid var(--gold-accent);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover { transform: translateY(-5px); }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1rem;
+        }
+        
+        .section-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+            color: var(--gold-accent);
+        }
+
+        /* --- TABLE STYLING --- */
+        .elegant-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+        
+        .elegant-table th {
+            background-color: var(--emerald-primary);
+            color: var(--white);
+            padding: 1rem;
+            text-align: left;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .elegant-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .elegant-table tr:hover { background-color: var(--emerald-light); }
+
+        /* --- COMPARISON BOX --- */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 1rem;
+        }
+
+        .compare-box {
+            background: #fcfcfc;
+            border: 1px solid #eee;
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .compare-box h4 {
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--gold-accent);
+            display: inline-block;
+        }
+
+        /* --- TIP BOX --- */
+        .tip-box {
+            background-color: var(--emerald-light);
+            border-left: 5px solid var(--emerald-primary);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            border-radius: 4px;
+        }
+        
+        .tip-title {
+            font-weight: bold;
+            color: var(--emerald-primary);
+            display: block;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        /* --- QUIZ STYLES --- */
+        .quiz-wrapper {
+            background: var(--emerald-dark);
+            color: var(--white);
+            padding: 3rem;
+            border-radius: 15px;
+            position: relative;
+        }
+
+        .quiz-wrapper h2 { color: var(--gold-accent); text-align: center; margin-bottom: 2rem; }
+
+        .question-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .question-text { font-size: 1.15rem; font-weight: bold; margin-bottom: 1rem; }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .option-label {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-main);
+            padding: 0.8rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .option-label:hover { background: var(--gold-accent); color: var(--emerald-dark); }
+        .option-label input { margin-right: 10px; accent-color: var(--emerald-dark); }
+
+        /* Feedback Colors */
+        .correct { background-color: var(--success) !important; color: white !important; }
+        .wrong { background-color: var(--danger) !important; color: white !important; }
+
+        /* Button */
+        .btn-gold {
+            background: var(--gold-accent);
+            color: var(--emerald-dark);
+            border: none;
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            display: block;
+            margin: 2rem auto 0;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(197, 160, 89, 0.4);
+        }
+        
+        .btn-gold:hover { background: var(--gold-hover); transform: scale(1.05); }
+
+        /* Score Display */
+        #score-display {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-top: 1.5rem;
+            font-weight: bold;
+            color: var(--white);
+            display: none;
+        }
+
+        /* --- ANIMATION --- */
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        footer {
+            text-align: center;
+            padding: 3rem;
+            color: var(--emerald-primary);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media(max-width: 600px) {
+            header h1 { font-size: 2.5rem; }
+            .card { padding: 1.5rem; }
+            .comparison-grid { grid-template-columns: 1fr; }
+            .elegant-table { display: block; overflow-x: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <h1>The Interjection</h1>
+            <p>COLLABORATING FOR CHANGE, EMPOWERING FOR IMPACT COLLABORATING FOR CHANGE, EMPOWERING FOR IMPACT</p>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <section style="animation-delay: 0.2s;">
+            <div class="card">
+                <div class="section-header">
+                    <span class="section-icon">✦</span>
+                    <h2>Apa itu Interjection?</h2>
+                </div>
+                <p><strong>Interjection</strong> (Kata Seru) adalah "Emoji" dalam bentuk kata-kata. Ia digunakan untuk mengekspresikan emosi spontan yang keluar dari hati atau pikiran.</p>
+                <br>
+                <p><strong>Unik!</strong> Interjection adalah satu-satunya bagian kalimat yang <strong>tidak memiliki hubungan tata bahasa</strong> (grammar) dengan kata lain. Ia berdiri sendiri.</p>
+                <ul style="margin-left: 20px; list-style-type: none; margin-top: 10px; background: var(--emerald-light); padding: 15px; border-radius: 8px;">
+                    <li style="margin-bottom: 8px;">😮 <strong>Tanpa Interjection:</strong> "That hurts."</li>
+                    <li>🤬 <strong>Dengan Interjection:</strong> "<strong>Ouch!</strong> That hurts."</li>
+                </ul>
+            </div>
+        </section>
+
+        <section style="animation-delay: 0.4s;">
+            <div class="card">
+                <div class="section-header">
+                    <span class="section-icon">🎭</span>
+                    <h2>The Emotion Spectrum</h2>
+                </div>
+                <p>Setiap Interjection membawa rasa yang berbeda. Berikut adalah "Menu Emosi" yang paling sering digunakan:</p>
+
+                <table class="elegant-table">
+                    <thead>
+                        <tr>
+                            <th>Emosi / Tujuan</th>
+                            <th>Interjection</th>
+                            <th>Contoh Kalimat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Joy / Celebration</strong><br>(Senang/Hore)</td>
+                            <td>Yay, Hurray, Yippee</td>
+                            <td><strong>Hurray!</strong> We won the game!</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Pain / Sakit</strong><br>(Fisik)</td>
+                            <td>Ouch, Ow</td>
+                            <td><strong>Ouch!</strong> I bit my tongue.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Surprise</strong><br>(Kaget/Kagum)</td>
+                            <td>Wow, Oh my, Gosh</td>
+                            <td><strong>Wow!</strong> That car is amazing.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Disgust</strong><br>(Jijik)</td>
+                            <td>Eww, Yuck, Ugh</td>
+                            <td><strong>Yuck!</strong> This food tastes bad.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Hesitation</strong><br>(Ragu/Berpikir)</td>
+                            <td>Umm, Uh, Well</td>
+                            <td><strong>Umm,</strong> I'm not sure about that.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Mistake</strong><br>(Kesalahan)</td>
+                            <td>Oops, Whoops</td>
+                            <td><strong>Oops!</strong> I dropped my phone.</td>
+                        </tr>
+                         <tr>
+                            <td><strong>Silence</strong><br>(Menyuruh Diam)</td>
+                            <td>Shh, Hush</td>
+                            <td><strong>Shh!</strong> The baby is sleeping.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section style="animation-delay: 0.6s;">
+            <div class="card">
+                <div class="section-header">
+                    <span class="section-icon">❗</span>
+                    <h2>Rule of Punctuation</h2>
+                </div>
+                <p>Kekuatan emosi Anda ditentukan oleh tanda baca yang Anda pilih. Jangan salah pilih!</p>
+
+                <div class="comparison-grid">
+                    <div class="compare-box">
+                       <h4>Strong Emotion (❗)</h4>
+                       <p>Gunakan <strong>Exclamation Mark</strong> (Tanda Seru). Ini memisahkan interjection dari kalimat utamanya.</p>
+                       <ul style="margin-left: 20px; font-size: 0.9rem; margin-top:10px;">
+                           <li><em><strong>Stop!</strong> Don't touch that.</em></li>
+                           <li><em><strong>Wow!</strong> Look at the view.</em></li>
+                           <li>(Emosinya tinggi/kaget/marah).</li>
+                       </ul>
+                   </div>
+
+                   <div class="compare-box">
+                       <h4>Mild Emotion ( , )</h4>
+                       <p>Gunakan <strong>Comma</strong> (Tanda Koma). Ini membuat interjection menjadi bagian dari kalimat yang mengalir lembut.</p>
+                       <ul style="margin-left: 20px; font-size: 0.9rem; margin-top:10px;">
+                           <li><em><strong>Well,</strong> I think it's okay.</em></li>
+                           <li><em><strong>Oh,</strong> I didn't know that.</em></li>
+                           <li>(Emosinya santai/biasa).</li>
+                       </ul>
+                   </div>
+               </div>
+
+               <div class="tip-box">
+                   <span class="tip-title">PRO TIP: CONTEXT MATTERS</span>
+                   <p>Satu kata "<strong>Oh</strong>" bisa punya 100 arti tergantung nada bicara:</p>
+                   <ul style="margin-top: 5px; margin-left: 20px;">
+                       <li>"Oh?" (Kaget/Bertanya)</li>
+                       <li>"Oh..." (Kecewa/Mengerti)</li>
+                       <li>"Oh!" (Senang/Teringat sesuatu)</li>
+                   </ul>
+               </div>
+            </div>
+        </section>
+
+        <section class="quiz-wrapper" style="animation-delay: 0.8s;">
+            <h2>Interjection Knowledge Check</h2>
+            <form id="quizForm">
+
+                <div class="question-item">
+                    <p class="question-text">1. ______, that hurts! (Ekspresi sakit)</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q1" value="wrong"> Wow</label>
+                        <label class="option-label"><input type="radio" name="q1" value="correct"> Ouch</label>
+                        <label class="option-label"><input type="radio" name="q1" value="wrong"> Yay</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">2. ______, I spilled the coffee. (Kesalahan kecil)</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q2" value="wrong"> Hurray</label>
+                        <label class="option-label"><input type="radio" name="q2" value="correct"> Oops</label>
+                        <label class="option-label"><input type="radio" name="q2" value="wrong"> Yuck</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">3. ______! We are going to holiday! (Kegembiraan)</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q3" value="correct"> Yay</label>
+                        <label class="option-label"><input type="radio" name="q3" value="wrong"> Alas</label>
+                        <label class="option-label"><input type="radio" name="q3" value="wrong"> Umm</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">4. ______, that spider is gross. (Jijik)</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q4" value="correct"> Eww</label>
+                        <label class="option-label"><input type="radio" name="q4" value="wrong"> Wow</label>
+                        <label class="option-label"><input type="radio" name="q4" value="wrong"> Phew</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">5. ______, be quiet please. (Menyuruh diam)</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q5" value="wrong"> Well</label>
+                        <label class="option-label"><input type="radio" name="q5" value="wrong"> Hey</label>
+                        <label class="option-label"><input type="radio" name="q5" value="correct"> Shh</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">6. ______, I don't know the answer. (Ragu-ragu)</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q6" value="wrong"> Bingo</label>
+                        <label class="option-label"><input type="radio" name="q6" value="correct"> Umm</label>
+                        <label class="option-label"><input type="radio" name="q6" value="wrong"> Bravo</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">7. "Wow__ That is huge." (Pilih tanda baca untuk emosi KUAT)</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q7" value="correct"> ! (Exclamation)</label>
+                        <label class="option-label"><input type="radio" name="q7" value="wrong"> , (Comma)</label>
+                        <label class="option-label"><input type="radio" name="q7" value="wrong"> ? (Question)</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">8. ______, I forgot to call her. (Teringat tiba-tiba/Kesal ringan)</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q8" value="wrong"> Yippee</label>
+                        <label class="option-label"><input type="radio" name="q8" value="correct"> Oh no</label>
+                        <label class="option-label"><input type="radio" name="q8" value="wrong"> Aha</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">9. "Well, let's go now." Tanda koma menunjukkan...</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q9" value="correct"> Mild emotion (Santai)</label>
+                        <label class="option-label"><input type="radio" name="q9" value="wrong"> Strong emotion (Kuat)</label>
+                        <label class="option-label"><input type="radio" name="q9" value="wrong"> A question (Pertanyaan)</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">10. Apakah Interjection punya hubungan grammar dengan subjek?</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q10" value="wrong"> Yes</label>
+                        <label class="option-label"><input type="radio" name="q10" value="correct"> No (Berdiri Sendiri)</label>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-gold" onclick="calculateResult()">Submit Answers</button>
+                <div id="score-display"></div>
+            </form>
+        </section>
+
+    </div>
+
+    <footer>
+        <p>&copy; 2026 English Check - Interjection Edition.</p>
+    </footer>
+
+    <script>
+        function calculateResult() {
+            let score = 0;
+            const totalQuestions = 10;
+            
+            // Loop through all 10 questions
+            for (let i = 1; i <= totalQuestions; i++) {
+                const options = document.getElementsByName('q' + i);
+                let answered = false;
+
+                // Reset styles
+                options.forEach(opt => {
+                    opt.parentElement.classList.remove('correct', 'wrong');
+                });
+
+                options.forEach(opt => {
+                    if (opt.checked) {
+                        answered = true;
+                        if (opt.value === 'correct') {
+                            score++;
+                            opt.parentElement.classList.add('correct');
+                        } else {
+                            opt.parentElement.classList.add('wrong');
+                        }
+                    }
+                });
+            }
+
+            // Display Score
+            const resultDiv = document.getElementById('score-display');
+            resultDiv.style.display = 'block';
+            
+            let message = "";
+            if(score === 10) message = "Wow! Perfect Score!";
+            else if(score > 7) message = "Yay! Great Job!";
+            else message = "Oops! Try again.";
+
+            resultDiv.innerHTML = `Your Score: ${score} / ${totalQuestions}<br><span style="font-size: 1rem; font-weight:normal">${message}</span>`;
+            
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+
+</body>
+</html>

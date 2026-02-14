@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Class: The Phrase | English Elegant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        /* --- VARIABLE & RESET --- */
+        :root {
+            --emerald-dark: #0a2f23;
+            --emerald-primary: #14523d;
+            --emerald-light: #e3f0ea;
+            --gold-accent: #c5a059;
+            --gold-hover: #b08d45;
+            --cream-bg: #fdfcf8;
+            --text-main: #2a2a2a;
+            --white: #ffffff;
+            --danger: #d9534f;
+            --success: #28a745;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: var(--cream-bg);
+            color: var(--text-main);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* --- TYPOGRAPHY --- */
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+            color: var(--emerald-dark);
+        }
+
+        .highlight-gold { color: var(--gold-accent); font-weight: bold; }
+        .highlight-green { color: var(--emerald-primary); font-weight: bold; }
+
+        /* --- HEADER --- */
+        header {
+            background: linear-gradient(135deg, var(--emerald-dark) 0%, var(--emerald-primary) 100%);
+            color: var(--white);
+            padding: 4rem 2rem;
+            text-align: center;
+            position: relative;
+            clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
+        }
+
+        header h1 { color: var(--white); font-size: 3.5rem; margin-bottom: 0.5rem; }
+        header p { font-size: 1.2rem; font-weight: 300; opacity: 0.9; }
+
+        /* --- LAYOUT --- */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        section {
+            margin-bottom: 3rem;
+            opacity: 0; /* Untuk animasi fade-in */
+            transform: translateY(20px);
+            animation: fadeUp 0.8s forwards;
+        }
+
+        /* --- CARDS --- */
+        .card {
+            background: var(--white);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(10, 47, 35, 0.08);
+            border-top: 4px solid var(--gold-accent);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover { transform: translateY(-5px); }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1rem;
+        }
+        
+        .section-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+            color: var(--gold-accent);
+        }
+
+        /* --- TABLE STYLING --- */
+        .elegant-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+        
+        .elegant-table th {
+            background-color: var(--emerald-primary);
+            color: var(--white);
+            padding: 1rem;
+            text-align: left;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .elegant-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .elegant-table tr:hover { background-color: var(--emerald-light); }
+
+        /* --- TIP BOX --- */
+        .tip-box {
+            background-color: var(--emerald-light);
+            border-left: 5px solid var(--emerald-primary);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            border-radius: 4px;
+        }
+        
+        .tip-title {
+            font-weight: bold;
+            color: var(--emerald-primary);
+            display: block;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        /* --- QUIZ STYLES --- */
+        .quiz-wrapper {
+            background: var(--emerald-dark);
+            color: var(--white);
+            padding: 3rem;
+            border-radius: 15px;
+            position: relative;
+        }
+
+        .quiz-wrapper h2 { color: var(--gold-accent); text-align: center; margin-bottom: 2rem; }
+
+        .question-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .question-text { font-size: 1.15rem; font-weight: bold; margin-bottom: 1rem; }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .option-label {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-main);
+            padding: 0.8rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .option-label:hover { background: var(--gold-accent); color: var(--emerald-dark); }
+        .option-label input { margin-right: 10px; accent-color: var(--emerald-dark); }
+
+        /* Feedback Colors */
+        .correct { background-color: var(--success) !important; color: white !important; }
+        .wrong { background-color: var(--danger) !important; color: white !important; }
+
+        /* Button */
+        .btn-gold {
+            background: var(--gold-accent);
+            color: var(--emerald-dark);
+            border: none;
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            display: block;
+            margin: 2rem auto 0;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(197, 160, 89, 0.4);
+        }
+        
+        .btn-gold:hover { background: var(--gold-hover); transform: scale(1.05); }
+
+        /* Score Display */
+        #score-display {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-top: 1.5rem;
+            font-weight: bold;
+            color: var(--white);
+            display: none;
+        }
+
+        /* --- ANIMATION --- */
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        footer {
+            text-align: center;
+            padding: 3rem;
+            color: var(--emerald-primary);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media(max-width: 600px) {
+            header h1 { font-size: 2.5rem; }
+            .card { padding: 1.5rem; }
+            .comparison-grid { grid-template-columns: 1fr; }
+            .elegant-table { display: block; overflow-x: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <h1>The Phrase</h1>
+            <p>COLLABORATING FOR CHANGE, EMPOWERING FOR IMPACT</p>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <section style="animation-delay: 0.2s;">
+            <div class="card">
+                <div class="section-header">
+                    <span class="section-icon">✦</span>
+                    <h2>Apa itu Phrase?</h2>
+                </div>
+                <p><strong>Phrase</strong> (Frasa) adalah kelompok kata yang memiliki makna tertentu namun <strong>tidak memiliki predikat</strong>, sehingga tidak dapat berdiri sendiri sebagai kalimat lengkap.</p>
+                <br>
+                <p>Bayangkan frasa sebagai "bahan masakan" dalam sebuah kalimat, sedangkan kalimat lengkap adalah "hidangan utuh". Frasa berfungsi sebagai bagian dari kalimat yang lebih besar dan biasanya terdiri dari dua atau lebih kata yang saling berhubungan.</p>
+                
+                <div class="tip-box">
+                    <span class="tip-title">FUNGSI UTAMA</span>
+                    <p>Frasa dapat berperan sebagai: <strong>Subjek, Objek, Pelengkap, atau Keterangan</strong> dalam kalimat.</p>
+                </div>
+            </div>
+        </section>
+
+        <section style="animation-delay: 0.4s;">
+            <div class="card">
+                <div class="section-header">
+                    <span class="section-icon">📦</span>
+                    <h2>Noun Phrase</h2>
+                </div>
+                <p>Frasa ini berfungsi sebagai kata benda. Rumus di bawah ini menunjukkan bagaimana kita bisa memperluas satu kata benda menjadi frasa yang detail.</p>
+                <p><em>Ket: N (Noun), Adj (Adjective), Det (Determiner), Adv (Adverb).</em></p>
+
+                <table class="elegant-table">
+                    <thead>
+                        <tr>
+                            <th>Rumus (Formula)</th>
+                            <th>Contoh (Example)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>N + N</strong></td>
+                            <td>Coffee Shop</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Adj + N</strong></td>
+                            <td>Bright Idea</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Adj + Adj + N</strong></td>
+                            <td>Tall dark building</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Det + N</strong></td>
+                            <td>The book</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Det + N + N</strong></td>
+                            <td>The art gallery</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Det + Adj + N</strong></td>
+                            <td>A blue car</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Det + Adv + Adj + N</strong></td>
+                            <td>The very old tree</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section style="animation-delay: 0.6s;">
+            <div class="card">
+                <div class="section-header">
+                    <span class="section-icon">🏃</span>
+                    <h2>Verb Phrase</h2>
+                </div>
+                <p>Frasa ini berpusat pada kata kerja. Pola ini sering melibatkan kata keterangan (Adverb) atau kata kerja bantu (Modal).</p>
+                <p><em>Ket: V1 (Present), V2 (Past), Modal (Will/Can/Should etc).</em></p>
+
+                <table class="elegant-table">
+                    <thead>
+                        <tr>
+                            <th>Rumus (Formula)</th>
+                            <th>Contoh (Example)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Adv + V1</strong></td>
+                            <td>Quickly run</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Adv + V2</strong></td>
+                            <td>Happily walked</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Modal V1 + V1</strong></td>
+                            <td>Can go</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Modal V2 + V1</strong></td>
+                            <td>Should Play</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Modal V1 + Adv + V1</strong></td>
+                            <td>Will carefully examine</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Modal V2 + Adv + V1</strong></td>
+                            <td>Would quietly sit</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section style="animation-delay: 0.8s;">
+            <div class="card">
+                <div class="section-header">
+                    <span class="section-icon">📍</span>
+                    <h2>Adverb Phrase</h2>
+                </div>
+                <p>Frasa ini berfungsi menjelaskan "Bagaimana", "Di mana", atau "Untuk apa".</p>
+
+                <table class="elegant-table">
+                    <thead>
+                        <tr>
+                            <th>Rumus (Formula)</th>
+                            <th>Contoh (Example)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Adv + Adv</strong></td>
+                            <td>Very quickly</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Pre + Noun phrase</strong></td>
+                            <td>in the school</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Modal V1 + V1</strong></td>
+                            <td>To play a game<br><small><em>(Note: Berfungsi sebagai keterangan tujuan)</em></small></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section style="animation-delay: 1s;">
+            <div class="card">
+                <div class="section-header">
+                    <span class="section-icon">🎨</span>
+                    <h2>Adjective & Gerund Phrase</h2>
+                </div>
+                
+                <h3 style="margin-top: 1rem; color: var(--emerald-primary);">Adjective Phrase</h3>
+                <p>Frasa yang berfungsi sebagai kata sifat untuk menjelaskan benda.</p>
+                <table class="elegant-table">
+                    <thead>
+                        <tr>
+                            <th>Rumus (Formula)</th>
+                            <th>Contoh (Example)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Adj + Adj</strong></td>
+                            <td>So good</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <br>
+                <h3 style="color: var(--emerald-primary);">Gerund Phrase</h3>
+                <p>Frasa yang dimulai dengan <strong>V-ing</strong> tetapi berfungsi sebagai kata benda (Noun).</p>
+                <table class="elegant-table">
+                    <thead>
+                        <tr>
+                            <th>Rumus (Formula)</th>
+                            <th>Contoh (Example)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Ving + noun</strong></td>
+                            <td>Playing guitar</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Ving + noun phrase</strong></td>
+                            <td>Swimming in the ocean</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="quiz-wrapper" style="animation-delay: 1.2s;">
+            <h2>Phrase Knowledge Check</h2>
+            <p style="text-align:center; color:white; margin-bottom:2rem;">Berdasarkan pola dan rumus di atas, jawablah pertanyaan berikut:</p>
+            <form id="quizForm">
+
+                <div class="question-item">
+                    <p class="question-text">1. Apa itu Phrase?</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q1" value="correct"> Kelompok kata bermakna tanpa predikat.</label>
+                        <label class="option-label"><input type="radio" name="q1" value="wrong"> Kalimat lengkap dengan subjek.</label>
+                        <label class="option-label"><input type="radio" name="q1" value="wrong"> Sebuah kata kerja tunggal.</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">2. Manakah contoh dari Noun Phrase dengan rumus "Det + Adv + Adj + N"?</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q2" value="wrong"> Coffee Shop</label>
+                        <label class="option-label"><input type="radio" name="q2" value="correct"> The very old tree</label>
+                        <label class="option-label"><input type="radio" name="q2" value="wrong"> Tall dark building</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">3. "Happily walked" termasuk dalam rumus...</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q3" value="wrong"> Adv + V1</label>
+                        <label class="option-label"><input type="radio" name="q3" value="correct"> Adv + V2</label>
+                        <label class="option-label"><input type="radio" name="q3" value="wrong"> Modal V1 + V1</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">4. "Playing guitar" adalah contoh dari...</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q4" value="correct"> Gerund Phrase</label>
+                        <label class="option-label"><input type="radio" name="q4" value="wrong"> Verb Phrase</label>
+                        <label class="option-label"><input type="radio" name="q4" value="wrong"> Adjective Phrase</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">5. Manakah contoh Adjective Phrase (Adj + Adj)?</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q5" value="wrong"> Bright Idea</label>
+                        <label class="option-label"><input type="radio" name="q5" value="correct"> So good</label>
+                        <label class="option-label"><input type="radio" name="q5" value="wrong"> Very quickly</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">6. Rumus dari "Will carefully examine" adalah...</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q6" value="correct"> Modal V1 + Adv + V1</label>
+                        <label class="option-label"><input type="radio" name="q6" value="wrong"> Modal V2 + Adv + V1</label>
+                        <label class="option-label"><input type="radio" name="q6" value="wrong"> Adv + V1</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">7. "Coffee Shop" menggunakan pola...</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q7" value="correct"> N + N</label>
+                        <label class="option-label"><input type="radio" name="q7" value="wrong"> Adj + N</label>
+                        <label class="option-label"><input type="radio" name="q7" value="wrong"> Det + N</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">8. "Very quickly" adalah contoh dari...</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q8" value="wrong"> Verb Phrase</label>
+                        <label class="option-label"><input type="radio" name="q8" value="correct"> Adverb Phrase</label>
+                        <label class="option-label"><input type="radio" name="q8" value="wrong"> Gerund Phrase</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">9. "To play a game" dikategorikan dalam file ini sebagai...</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q9" value="correct"> Adverb Phrase</label>
+                        <label class="option-label"><input type="radio" name="q9" value="wrong"> Noun Phrase</label>
+                        <label class="option-label"><input type="radio" name="q9" value="wrong"> Adjective Phrase</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">10. Manakah rumus untuk "Tall dark building"?</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q10" value="wrong"> Det + Adj + N</label>
+                        <label class="option-label"><input type="radio" name="q10" value="correct"> Adj + Adj + N</label>
+                        <label class="option-label"><input type="radio" name="q10" value="wrong"> N + N</label>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-gold" onclick="calculateResult()">Submit Answers</button>
+                <div id="score-display"></div>
+            </form>
+        </section>
+
+    </div>
+
+    <footer>
+        <p>&copy; 2026 English Check - Phrase Edition.</p>
+        <p style="font-size: 0.8rem; margin-top: 10px;">Authored by Kohan, Icha</p>
+    </footer>
+
+    <script>
+        function calculateResult() {
+            let score = 0;
+            const totalQuestions = 10;
+            
+            // Loop through all 10 questions
+            for (let i = 1; i <= totalQuestions; i++) {
+                const options = document.getElementsByName('q' + i);
+                let answered = false;
+
+                // Reset styles
+                options.forEach(opt => {
+                    opt.parentElement.classList.remove('correct', 'wrong');
+                });
+
+                options.forEach(opt => {
+                    if (opt.checked) {
+                        answered = true;
+                        if (opt.value === 'correct') {
+                            score++;
+                            opt.parentElement.classList.add('correct');
+                        } else {
+                            opt.parentElement.classList.add('wrong');
+                        }
+                    }
+                });
+            }
+
+            // Display Score
+            const resultDiv = document.getElementById('score-display');
+            resultDiv.style.display = 'block';
+            
+            let message = "";
+            if(score === 10) message = "Perfect Score! You mastered the formulas!";
+            else if(score > 7) message = "Great Job! You understand the patterns.";
+            else message = "Good effort! Review the tables again.";
+
+            resultDiv.innerHTML = `Your Score: ${score} / ${totalQuestions}<br><span style="font-size: 1rem; font-weight:normal">${message}</span>`;
+            
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+
+</body>
+</html>

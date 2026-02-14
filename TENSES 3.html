@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Class: Tenses 3 | English Elegant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        /* --- VARIABLE & RESET --- */
+        :root {
+            --emerald-dark: #0a2f23;
+            --emerald-primary: #14523d;
+            --emerald-light: #e3f0ea;
+            --gold-accent: #c5a059;
+            --gold-hover: #b08d45;
+            --cream-bg: #fdfcf8;
+            --text-main: #2a2a2a;
+            --white: #ffffff;
+            --danger: #d9534f;
+            --success: #28a745;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: var(--cream-bg);
+            color: var(--text-main);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* --- TYPOGRAPHY --- */
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+            color: var(--emerald-dark);
+        }
+
+        .highlight-gold { color: var(--gold-accent); font-weight: bold; }
+        .highlight-green { color: var(--emerald-primary); font-weight: bold; }
+
+        /* --- HEADER --- */
+        header {
+            background: linear-gradient(135deg, var(--emerald-dark) 0%, var(--emerald-primary) 100%);
+            color: var(--white);
+            padding: 4rem 2rem;
+            text-align: center;
+            position: relative;
+            clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
+        }
+
+        header h1 { color: var(--white); font-size: 3.5rem; margin-bottom: 0.5rem; }
+        header p { font-size: 1.2rem; font-weight: 300; opacity: 0.9; }
+
+        /* --- LAYOUT --- */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        section {
+            margin-bottom: 3rem;
+            opacity: 0; /* Untuk animasi fade-in */
+            transform: translateY(20px);
+            animation: fadeUp 0.8s forwards;
+        }
+
+        /* --- CARDS --- */
+        .card {
+            background: var(--white);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(10, 47, 35, 0.08);
+            border-top: 4px solid var(--gold-accent);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover { transform: translateY(-5px); }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1rem;
+        }
+        
+        .section-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+            color: var(--gold-accent);
+        }
+
+        /* --- TABLE STYLING --- */
+        .elegant-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+        }
+        
+        .elegant-table th {
+            background-color: var(--emerald-primary);
+            color: var(--white);
+            padding: 1rem;
+            text-align: left;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .elegant-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            vertical-align: top;
+        }
+        
+        .elegant-table tr:hover { background-color: var(--emerald-light); }
+
+        /* --- TIP BOX --- */
+        .tip-box {
+            background-color: var(--emerald-light);
+            border-left: 5px solid var(--emerald-primary);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            border-radius: 4px;
+        }
+        
+        .tip-title {
+            font-weight: bold;
+            color: var(--emerald-primary);
+            display: block;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        /* --- QUIZ STYLES --- */
+        .quiz-wrapper {
+            background: var(--emerald-dark);
+            color: var(--white);
+            padding: 3rem;
+            border-radius: 15px;
+            position: relative;
+        }
+
+        .quiz-wrapper h2 { color: var(--gold-accent); text-align: center; margin-bottom: 2rem; }
+
+        .question-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .question-text { font-size: 1.15rem; font-weight: bold; margin-bottom: 1rem; }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .option-label {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-main);
+            padding: 0.8rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .option-label:hover { background: var(--gold-accent); color: var(--emerald-dark); }
+        .option-label input { margin-right: 10px; accent-color: var(--emerald-dark); }
+
+        /* Feedback Colors */
+        .correct { background-color: var(--success) !important; color: white !important; }
+        .wrong { background-color: var(--danger) !important; color: white !important; }
+
+        /* Button */
+        .btn-gold {
+            background: var(--gold-accent);
+            color: var(--emerald-dark);
+            border: none;
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            display: block;
+            margin: 2rem auto 0;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(197, 160, 89, 0.4);
+        }
+        
+        .btn-gold:hover { background: var(--gold-hover); transform: scale(1.05); }
+
+        /* Score Display */
+        #score-display {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-top: 1.5rem;
+            font-weight: bold;
+            color: var(--white);
+            display: none;
+        }
+
+        /* --- ANIMATION --- */
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        footer {
+            text-align: center;
+            padding: 3rem;
+            color: var(--emerald-primary);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media(max-width: 600px) {
+            header h1 { font-size: 2.5rem; }
+            .card { padding: 1.5rem; }
+            .comparison-grid { grid-template-columns: 1fr; }
+            .elegant-table { display: block; overflow-x: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <h1>Tenses 3</h1>
+            <p>COLLABORATING FOR CHANGE, EMPOWERING FOR IMPACT</p>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <section style="animation-delay: 0.2s;">
+            <div class="card">
+                <div class="section-header">
+                    <span class="section-icon">🔄</span>
+                    <h2>Apa itu Tenses 3?</h2>
+                </div>
+                <p><strong>Tenses 3</strong> adalah tingkatan lanjut yang berfokus pada bentuk <strong>Perfect Continuous</strong>. Bentuk ini menggabungkan aspek "sudah terjadi" (Perfect) dan "sedang berlangsung" (Continuous).</p>
+                <br>
+                <p>Tenses ini sangat penting untuk:</p>
+                <ul style="margin-left: 20px; list-style-type: square; margin-top: 10px;">
+                    <li>Menekankan <strong>durasi</strong> suatu kejadian.</li>
+                    <li>Menyatakan kejadian yang dimulai di masa lalu dan <strong>masih berlangsung</strong> hingga titik waktu tertentu (sekarang, masa lalu, atau masa depan).</li>
+                </ul>
+            </div>
+        </section>
+
+        <section style="animation-delay: 0.3s;">
+            <div class="card" style="border-top-color: var(--emerald-primary);">
+                <div class="section-header">
+                    <span class="section-icon">📊</span>
+                    <h2>Tenses 3 Matrix (Rangkuman Rumus)</h2>
+                </div>
+                <p>Berikut adalah peta rumus khusus untuk bentuk Perfect Continuous di tiga zona waktu:</p>
+                
+                <div style="overflow-x:auto;">
+                    <table class="elegant-table">
+                        <thead>
+                            <tr>
+                                <th>Bentuk</th>
+                                <th>Present (Sekarang)</th>
+                                <th>Past (Lampau)</th>
+                                <th>Future (Akan Datang)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Perfect Continuous</strong><br><small>(Sudah & Masih Berlangsung)</small></td>
+                                <td>S + Have/Has + Been + V-ing</td>
+                                <td>S + Had + Been + V-ing</td>
+                                <td>S + Will + Have + Been + V-ing</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tip-box">
+                    <p><em>Kunci Hafalan: Semua bentuk ini wajib menggunakan "Been" dan "V-ing". Perbedaannya hanya pada auxiliary (Have/Has, Had, atau Will Have).</em></p>
+                </div>
+            </div>
+        </section>
+
+        <section style="animation-delay: 0.4s;">
+            <div class="card">
+                <div class="section-header">
+                    <span class="section-icon">☀️</span>
+                    <h2>Present Perfect Continuous</h2>
+                </div>
+                <p>Digunakan untuk menyatakan kejadian yang sudah dimulai di masa lampau dan <strong>masih berlangsung hingga sekarang</strong>, atau baru saja selesai dengan menekankan durasinya.</p>
+                
+                <h3 style="margin-top:1.5rem; color:var(--emerald-primary);">Rumus & Contoh</h3>
+                <table class="elegant-table">
+                    <thead>
+                        <tr>
+                            <th>Jenis Kalimat</th>
+                            <th>Rumus</th>
+                            <th>Contoh</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Positif (+)</strong></td>
+                            <td>S + have/has + been + V-ing</td>
+                            <td>She has been reading for two hours.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Negatif (-)</strong></td>
+                            <td>S + have/has + not + been + V-ing</td>
+                            <td>They have not been working since morning.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tanya (?)</strong></td>
+                            <td>Have/Has + S + been + V-ing?</td>
+                            <td>Have you been waiting long?</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="tip-box">
+                    <span class="tip-title">TIME SIGNALS & FUNGSI</span>
+                    <p><strong>Waktu:</strong> Since (sejak), For (selama), Lately (akhir-akhir ini), Recently, All day.</p>
+                    <p style="margin-top:10px;"><strong>Fungsi Utama:</strong><br>
+                    1. Kejadian masih berlangsung (Learning English for 3 years).<br>
+                    2. Kejadian baru saja selesai (Cleaning house -> Tired).<br>
+                    3. Menekankan durasi (Waiting since morning).</p>
+                </div>
+            </div>
+        </section>
+
+        <section style="animation-delay: 0.6s;">
+            <div class="card">
+                <div class="section-header">
+                    <span class="section-icon">⏮️</span>
+                    <h2>Past Perfect Continuous</h2>
+                </div>
+                <p>Digunakan untuk menyatakan kejadian yang sedang berlangsung di masa lampau dan berlangsung selama periode waktu tertentu <strong>sebelum kejadian lain terjadi</strong> di masa lampau.</p>
+
+                <h3 style="margin-top:1.5rem; color:var(--emerald-primary);">Rumus & Contoh</h3>
+                <table class="elegant-table">
+                    <thead>
+                        <tr>
+                            <th>Jenis Kalimat</th>
+                            <th>Rumus</th>
+                            <th>Contoh</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Positif (+)</strong></td>
+                            <td>S + had been + V-ing</td>
+                            <td>They had been playing football for two hours before it rained.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Negatif (-)</strong></td>
+                            <td>S + had not been + V-ing</td>
+                            <td>He had not been studying when the teacher arrived.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tanya (?)</strong></td>
+                            <td>Had + S + been + V-ing?</td>
+                            <td>Had she been working there for a long time?</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="tip-box">
+                    <span class="tip-title">TIME SIGNALS & FUNGSI</span>
+                    <p><strong>Waktu:</strong> For, Since, Before, When, Until, How long.</p>
+                    <p style="margin-top:10px;"><strong>Fungsi Utama:</strong><br>
+                    1. Berlangsung sebelum kejadian lain (Studying before mom arrived).<br>
+                    2. Menekankan durasi di masa lalu (Living there for ten years before moving).<br>
+                    3. Hasil dari kejadian masa lalu (Tired because had been working).</p>
+                </div>
+            </div>
+        </section>
+
+        <section style="animation-delay: 0.8s;">
+            <div class="card">
+                <div class="section-header">
+                    <span class="section-icon">🚀</span>
+                    <h2>Future Perfect Continuous</h2>
+                </div>
+                <p>Digunakan untuk menyatakan kejadian yang <strong>akan sudah berlangsung</strong> selama periode waktu tertentu di masa depan, sebelum kejadian lain terjadi atau sebelum waktu tertentu.</p>
+
+                <h3 style="margin-top:1.5rem; color:var(--emerald-primary);">Rumus & Contoh</h3>
+                <table class="elegant-table">
+                    <thead>
+                        <tr>
+                            <th>Jenis Kalimat</th>
+                            <th>Rumus</th>
+                            <th>Contoh</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Positif (+)</strong></td>
+                            <td>S + will have been + V-ing</td>
+                            <td>He will have been working here for 10 years by next month.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Negatif (-)</strong></td>
+                            <td>S + will not have been + V-ing</td>
+                            <td>They will not have been studying for long by then.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tanya (?)</strong></td>
+                            <td>Will + S + have been + V-ing?</td>
+                            <td>Will you have been waiting for two hours by the time I arrive?</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="tip-box">
+                    <span class="tip-title">TIME SIGNALS & FUNGSI</span>
+                    <p><strong>Waktu:</strong> By next month, For, By the time, Before.</p>
+                    <p style="margin-top:10px;"><strong>Fungsi Utama:</strong><br>
+                    1. Menunjukkan durasi di masa depan (Working for 5 years by next year).<br>
+                    2. Aktivitas sebelum kejadian lain (Driving for 6 hours before reach city).<br>
+                    3. Prediksi kondisi (Cooking all day -> will be tired).</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="quiz-wrapper" style="animation-delay: 1s;">
+            <h2>Tenses 3 Knowledge Check</h2>
+            <p style="text-align:center; color:white; margin-bottom:2rem;">Uji pemahamanmu tentang Perfect Continuous Tenses.</p>
+            <form id="quizForm">
+
+                <div class="question-item">
+                    <p class="question-text">1. Rumus Present Perfect Continuous adalah...</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q1" value="correct"> S + have/has + been + V-ing</label>
+                        <label class="option-label"><input type="radio" name="q1" value="wrong"> S + had + been + V-ing</label>
+                        <label class="option-label"><input type="radio" name="q1" value="wrong"> S + will have + been + V-ing</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">2. "I ______ learning English for 3 years." (Masih berlangsung)</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q2" value="wrong"> had been</label>
+                        <label class="option-label"><input type="radio" name="q2" value="correct"> have been</label>
+                        <label class="option-label"><input type="radio" name="q2" value="wrong"> will have been</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">3. Keterangan waktu "By next month" adalah ciri khas dari...</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q3" value="correct"> Future Perfect Continuous</label>
+                        <label class="option-label"><input type="radio" name="q3" value="wrong"> Present Perfect Continuous</label>
+                        <label class="option-label"><input type="radio" name="q3" value="wrong"> Past Perfect Continuous</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">4. "They ______ playing football before it rained." (Kejadian masa lalu)</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q4" value="wrong"> have been</label>
+                        <label class="option-label"><input type="radio" name="q4" value="correct"> had been</label>
+                        <label class="option-label"><input type="radio" name="q4" value="wrong"> has been</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">5. "She ______ working here for 10 years by next month."</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q5" value="wrong"> has been</label>
+                        <label class="option-label"><input type="radio" name="q5" value="correct"> will have been</label>
+                        <label class="option-label"><input type="radio" name="q5" value="wrong"> had been</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">6. Fungsi utama Past Perfect Continuous adalah...</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q6" value="correct"> Durasi sebelum kejadian lain di masa lalu</label>
+                        <label class="option-label"><input type="radio" name="q6" value="wrong"> Kebiasaan di masa lalu</label>
+                        <label class="option-label"><input type="radio" name="q6" value="wrong"> Kejadian yang akan datang</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">7. "She is tired because she ______ working all day." (Konteks masa lalu/result)</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q7" value="correct"> had been</label>
+                        <label class="option-label"><input type="radio" name="q7" value="wrong"> has been</label>
+                        <label class="option-label"><input type="radio" name="q7" value="wrong"> will be</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">8. Apa auxiliary verb untuk Present Perfect Continuous (Subjek: He)?</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q8" value="wrong"> Have been</label>
+                        <label class="option-label"><input type="radio" name="q8" value="correct"> Has been</label>
+                        <label class="option-label"><input type="radio" name="q8" value="wrong"> Had been</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">9. "How long ______ waiting?" (Present Perfect Continuous)</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q9" value="correct"> have you been</label>
+                        <label class="option-label"><input type="radio" name="q9" value="wrong"> had you been</label>
+                        <label class="option-label"><input type="radio" name="q9" value="wrong"> will you be</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">10. Bentuk verb apa yang selalu digunakan di semua Tenses 3?</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q10" value="wrong"> V3 (Past Participle)</label>
+                        <label class="option-label"><input type="radio" name="q10" value="correct"> V-ing (Present Participle)</label>
+                        <label class="option-label"><input type="radio" name="q10" value="wrong"> V2 (Past)</label>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-gold" onclick="calculateResult()">Submit Answers</button>
+                <div id="score-display"></div>
+            </form>
+        </section>
+
+    </div>
+
+    <footer>
+        <p>&copy; 2026 English Check - Tenses 3 Edition.</p>
+        <p style="font-size: 0.8rem; margin-top: 10px;">Authored by Kohan, Icha</p>
+    </footer>
+
+    <script>
+        function calculateResult() {
+            let score = 0;
+            const totalQuestions = 10;
+            
+            // Loop through all 10 questions
+            for (let i = 1; i <= totalQuestions; i++) {
+                const options = document.getElementsByName('q' + i);
+                let answered = false;
+
+                // Reset styles
+                options.forEach(opt => {
+                    opt.parentElement.classList.remove('correct', 'wrong');
+                });
+
+                options.forEach(opt => {
+                    if (opt.checked) {
+                        answered = true;
+                        if (opt.value === 'correct') {
+                            score++;
+                            opt.parentElement.classList.add('correct');
+                        } else {
+                            opt.parentElement.classList.add('wrong');
+                        }
+                    }
+                });
+            }
+
+            // Display Score
+            const resultDiv = document.getElementById('score-display');
+            resultDiv.style.display = 'block';
+            
+            let message = "";
+            if(score === 10) message = "Perfect Score! You mastered Perfect Continuous!";
+            else if(score > 7) message = "Great Job! You understand duration well.";
+            else message = "Good effort! Check the formulas again.";
+
+            resultDiv.innerHTML = `Your Score: ${score} / ${totalQuestions}<br><span style="font-size: 1rem; font-weight:normal">${message}</span>`;
+            
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+
+</body>
+</html>

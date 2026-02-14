@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Class: The Noun | English Elegant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        /* --- VARIABLE & RESET --- */
+        :root {
+            --emerald-dark: #0a2f23;
+            --emerald-primary: #14523d;
+            --emerald-light: #e3f0ea;
+            --gold-accent: #c5a059;
+            --gold-hover: #b08d45;
+            --cream-bg: #fdfcf8;
+            --text-main: #2a2a2a;
+            --white: #ffffff;
+            --danger: #d9534f;
+            --success: #28a745;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: var(--cream-bg);
+            color: var(--text-main);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* --- TYPOGRAPHY --- */
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+            color: var(--emerald-dark);
+        }
+
+        .highlight-gold { color: var(--gold-accent); font-weight: bold; }
+        .highlight-green { color: var(--emerald-primary); font-weight: bold; }
+
+        /* --- HEADER --- */
+        header {
+            background: linear-gradient(135deg, var(--emerald-dark) 0%, var(--emerald-primary) 100%);
+            color: var(--white);
+            padding: 4rem 2rem;
+            text-align: center;
+            position: relative;
+            clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
+        }
+
+        header h1 { color: var(--white); font-size: 3.5rem; margin-bottom: 0.5rem; }
+        header p { font-size: 1.2rem; font-weight: 300; opacity: 0.9; }
+
+        /* --- LAYOUT --- */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        section {
+            margin-bottom: 3rem;
+            opacity: 0; /* Untuk animasi fade-in */
+            transform: translateY(20px);
+            animation: fadeUp 0.8s forwards;
+        }
+
+        /* --- CARDS --- */
+        .card {
+            background: var(--white);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(10, 47, 35, 0.08);
+            border-top: 4px solid var(--gold-accent);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover { transform: translateY(-5px); }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1rem;
+        }
+        
+        .section-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+            color: var(--gold-accent);
+        }
+
+        /* --- TABLE STYLING --- */
+        .elegant-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+        
+        .elegant-table th {
+            background-color: var(--emerald-primary);
+            color: var(--white);
+            padding: 1rem;
+            text-align: left;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .elegant-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .elegant-table tr:hover { background-color: var(--emerald-light); }
+
+        /* --- COMPARISON BOX (NEW) --- */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 1rem;
+        }
+
+        .compare-box {
+            background: #fcfcfc;
+            border: 1px solid #eee;
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .compare-box h4 {
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--gold-accent);
+            display: inline-block;
+        }
+
+        /* --- QUIZ STYLES --- */
+        .quiz-wrapper {
+            background: var(--emerald-dark);
+            color: var(--white);
+            padding: 3rem;
+            border-radius: 15px;
+            position: relative;
+        }
+
+        .quiz-wrapper h2 { color: var(--gold-accent); text-align: center; margin-bottom: 2rem; }
+
+        .question-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .question-text { font-size: 1.15rem; font-weight: bold; margin-bottom: 1rem; }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .option-label {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-main);
+            padding: 0.8rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .option-label:hover { background: var(--gold-accent); color: var(--emerald-dark); }
+        .option-label input { margin-right: 10px; accent-color: var(--emerald-dark); }
+
+        /* Feedback Colors */
+        .correct { background-color: var(--success) !important; color: white !important; }
+        .wrong { background-color: var(--danger) !important; color: white !important; }
+
+        /* Button */
+        .btn-gold {
+            background: var(--gold-accent);
+            color: var(--emerald-dark);
+            border: none;
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            display: block;
+            margin: 2rem auto 0;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(197, 160, 89, 0.4);
+        }
+        
+        .btn-gold:hover { background: var(--gold-hover); transform: scale(1.05); }
+
+        /* Score Display */
+        #score-display {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-top: 1.5rem;
+            font-weight: bold;
+            color: var(--white);
+            display: none;
+        }
+
+        /* --- ANIMATION --- */
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        footer {
+            text-align: center;
+            padding: 3rem;
+            color: var(--emerald-primary);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media(max-width: 600px) {
+            header h1 { font-size: 2.5rem; }
+            .card { padding: 1.5rem; }
+            .comparison-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <h1>The Noun</h1>
+            <p>COLLABORATING FOR CHANGE, EMPOWERING FOR IMPACT COLLABORATING FOR CHANGE, EMPOWERING FOR IMPACT</p>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <section style="animation-delay: 0.2s;">
+            <div class="card">
+                <div class="section-header">
+                    <span class="section-icon">✦</span>
+                    <h2>Apa itu Noun?</h2>
+                </div>
+                <p><strong>Noun</strong> adalah fondasi dari sebuah kalimat. Ia adalah kata yang kita gunakan untuk menamai:</p>
+                <ul style="margin-left: 20px; list-style-type: square; margin-top: 10px;">
+                    <li>👤 <strong>People</strong> (Orang): Doctor, Artist, Kohaan.</li>
+                    <li>🏛️ <strong>Places</strong> (Tempat): University, Laboratory, Singapore.</li>
+                    <li>🍎 <strong>Things</strong> (Benda): Pipeline, Computer, Book.</li>
+                    <li>💡 <strong>Ideas</strong> (Gagasan): Integrity, Innovation, Success.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section style="animation-delay: 0.4s;">
+            <div class="card">
+                <div class="section-header">
+                    <span class="section-icon">❖</span>
+                    <h2>Singular vs. Plural</h2>
+                </div>
+                <p>Salah satu aspek terpenting dalam Noun adalah jumlahnya. <br>
+                <strong>Singular</strong> = Satu (Tunggal). <br>
+                <strong>Plural</strong> = Lebih dari satu (Jamak).</p>
+
+                <br>
+                <h3>Aturan Perubahan (The Rules)</h3>
+                <p>Bagaimana mengubah kata benda tunggal menjadi jamak? Perhatikan tabel berikut:</p>
+
+                <table class="elegant-table">
+                    <thead>
+                        <tr>
+                            <th>Aturan (Rule)</th>
+                            <th>Singular (Tunggal)</th>
+                            <th>Plural (Jamak)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Umum (+s)</strong><br>Sebagian besar kata benda.</td>
+                            <td>Book, Car, Student</td>
+                            <td>Books, Cars, Students</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Akhiran -ch, -sh, -s, -x (+es)</strong><br>Jika kata berakhiran desis.</td>
+                            <td>Box, Watch, Bus</td>
+                            <td>Boxes, Watches, Buses</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Akhiran Konsonan + y (-ies)</strong><br>Hapus 'y' ganti 'ies'.</td>
+                            <td>City, Baby, Party</td>
+                            <td>Cities, Babies, Parties</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Akhiran -f atau -fe (-ves)</strong><br>Hapus 'f/fe' ganti 'ves'.</td>
+                            <td>Leaf, Knife, Life</td>
+                            <td>Leaves, Knives, Lives</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Irregular (Tidak Beraturan)</strong><br>Bentuknya berubah total.</td>
+                            <td>Man, Child, Tooth</td>
+                            <td>Men, Children, Teeth</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section style="animation-delay: 0.6s;">
+            <div class="card">
+                <div class="section-header">
+                    <span class="section-icon">∞</span>
+                    <h2>Countable vs. Uncountable</h2>
+                </div>
+                <p>Tidak semua kata benda bisa dihitung dengan jari. Dalam bahasa Inggris, kita membedakannya menjadi dua kelompok besar:</p>
+
+                <div class="comparison-grid">
+                    <div class="compare-box">
+                        <h4>Countable Noun (Bisa Dihitung)</h4>
+                        <p>Benda yang wujudnya jelas bisa dipisahkan satu per satu.</p>
+                        <ul style="margin-left: 20px; font-size: 0.95rem;">
+                            <li>✅ Boleh pakai angka (One, Two, Three).</li>
+                            <li>✅ Punya bentuk Singular dan Plural.</li>
+                            <li>✅ Boleh pakai artikel 'a' atau 'an'.</li>
+                        </ul>
+                        <p style="margin-top:10px;"><strong>Contoh:</strong><br>
+                        <em>A cat, Three houses, An apple.</em></p>
+                    </div>
+
+                    <div class="compare-box">
+                        <h4>Uncountable Noun (Tak Bisa Dihitung)</h4>
+                        <p>Benda yang berupa cairan, butiran kecil, atau konsep abstrak.</p>
+                        <ul style="margin-left: 20px; font-size: 0.95rem;">
+                            <li>❌ Tidak bisa pakai angka langsung (bukan "one water").</li>
+                            <li>❌ Selalu dianggap Singular (tidak ada 's' di akhir).</li>
+                            <li>❌ Tidak boleh pakai 'a' atau 'an'.</li>
+                        </ul>
+                        <p style="margin-top:10px;"><strong>Contoh:</strong><br>
+                        <em>Water, Sugar, Money, Information, Advice.</em></p>
+                    </div>
+                </div>
+
+                <br>
+                <h3>Cheat Sheet: Quantifiers (Kata Penunjuk Jumlah)</h3>
+                <p>Hati-hati dalam memilih kata penunjuk jumlah untuk kedua jenis noun ini:</p>
+                
+                <table class="elegant-table">
+                    <thead>
+                        <tr>
+                            <th>Arti</th>
+                            <th>Countable (Pakai ini)</th>
+                            <th>Uncountable (Pakai ini)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Banyak</td>
+                            <td><strong>Many</strong> (Many books)</td>
+                            <td><strong>Much</strong> (Much water)</td>
+                        </tr>
+                        <tr>
+                            <td>Sedikit</td>
+                            <td><strong>A few</strong> (A few friends)</td>
+                            <td><strong>A little</strong> (A little sugar)</td>
+                        </tr>
+                        <tr>
+                            <td>Beberapa/Sejumlah</td>
+                            <td><strong>Some / Any</strong></td>
+                            <td><strong>Some / Any</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="quiz-wrapper" style="animation-delay: 0.8s;">
+            <h2>Knowledge Check</h2>
+            <form id="quizForm">
+
+                <div class="question-item">
+                    <p class="question-text">1. Apa bentuk jamak (plural) dari "City"?</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q1" value="wrong"> Citys</label>
+                        <label class="option-label"><input type="radio" name="q1" value="correct"> Cities</label>
+                        <label class="option-label"><input type="radio" name="q1" value="wrong"> Citieses</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">2. Manakah yang merupakan Proper Noun?</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q2" value="wrong"> university</label>
+                        <label class="option-label"><input type="radio" name="q2" value="correct"> Oxford University</label>
+                        <label class="option-label"><input type="radio" name="q2" value="wrong"> a big school</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">3. Bentuk jamak dari "Knife" adalah...</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q3" value="wrong"> Knifes</label>
+                        <label class="option-label"><input type="radio" name="q3" value="correct"> Knives</label>
+                        <label class="option-label"><input type="radio" name="q3" value="wrong"> Knive</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">4. "Advice" (Nasihat) termasuk jenis noun apa?</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q4" value="correct"> Uncountable Noun</label>
+                        <label class="option-label"><input type="radio" name="q4" value="wrong"> Countable Noun</label>
+                        <label class="option-label"><input type="radio" name="q4" value="wrong"> Plural Noun</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">5. Bentuk jamak dari "Child" adalah...</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q5" value="wrong"> Childs</label>
+                        <label class="option-label"><input type="radio" name="q5" value="wrong"> Childrens</label>
+                        <label class="option-label"><input type="radio" name="q5" value="correct"> Children</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">6. Manakah yang BENAR penggunaan kata jumlahnya?</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q6" value="correct"> I have many friends.</label>
+                        <label class="option-label"><input type="radio" name="q6" value="wrong"> I have much friends.</label>
+                        <label class="option-label"><input type="radio" name="q6" value="wrong"> I have a little friends.</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">7. "Honesty is the best policy." Kata "Honesty" adalah:</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q7" value="correct"> Abstract Noun</label>
+                        <label class="option-label"><input type="radio" name="q7" value="wrong"> Concrete Noun</label>
+                        <label class="option-label"><input type="radio" name="q7" value="wrong"> Proper Noun</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">8. Saya ingin minum air. Kalimat mana yang benar?</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q8" value="wrong"> Give me a water.</label>
+                        <label class="option-label"><input type="radio" name="q8" value="correct"> Give me some water.</label>
+                        <label class="option-label"><input type="radio" name="q8" value="wrong"> Give me two waters.</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">9. Pilih kalimat dengan penulisan kapital yang benar:</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q9" value="wrong"> i live in jakarta.</label>
+                        <label class="option-label"><input type="radio" name="q9" value="correct"> I live in Jakarta.</label>
+                        <label class="option-label"><input type="radio" name="q9" value="wrong"> I live in jakarta.</label>
+                    </div>
+                </div>
+
+                <div class="question-item">
+                    <p class="question-text">10. Bentuk jamak dari "Potato" adalah:</p>
+                    <div class="options-grid">
+                        <label class="option-label"><input type="radio" name="q10" value="wrong"> Potatos</label>
+                        <label class="option-label"><input type="radio" name="q10" value="correct"> Potatoes</label>
+                        <label class="option-label"><input type="radio" name="q10" value="wrong"> Potaties</label>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-gold" onclick="calculateResult()">Submit Answers</button>
+                <div id="score-display"></div>
+            </form>
+        </section>
+
+    </div>
+
+    <footer>
+        <p>&copy; 2026 English Check.</p>
+    </footer>
+
+    <script>
+        function calculateResult() {
+            let score = 0;
+            const totalQuestions = 10;
+            
+            // Loop through all 10 questions
+            for (let i = 1; i <= totalQuestions; i++) {
+                const options = document.getElementsByName('q' + i);
+                let answered = false;
+
+                // Reset styles
+                options.forEach(opt => {
+                    opt.parentElement.classList.remove('correct', 'wrong');
+                });
+
+                options.forEach(opt => {
+                    if (opt.checked) {
+                        answered = true;
+                        if (opt.value === 'correct') {
+                            score++;
+                            opt.parentElement.classList.add('correct');
+                        } else {
+                            opt.parentElement.classList.add('wrong');
+                        }
+                    }
+                    // Optional: Highlight correct answer if wrong one is picked
+                    // if(opt.value === 'correct' && !opt.checked) { ... }
+                });
+            }
+
+            // Display Score
+            const resultDiv = document.getElementById('score-display');
+            resultDiv.style.display = 'block';
+            
+            let message = "";
+            if(score === 10) message = "Perfect Score! Excellent!";
+            else if(score > 7) message = "Great Job!";
+            else message = "Keep Practicing!";
+
+            resultDiv.innerHTML = `Your Score: ${score} / ${totalQuestions}<br><span style="font-size: 1rem; font-weight:normal">${message}</span>`;
+            
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+
+</body>
+</html>

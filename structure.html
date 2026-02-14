@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>English Check - Practice</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- TEMA SERAGAM DENGAN DASHBOARD --- */
+        :root {
+            --bg-dark: #0f3d3e;       
+            --bg-darker: #0a2b2c;     
+            --accent-lime: #d4e157;   
+            --body-bg: #f4fcf7;       
+            --text-dark: #1b4d3e;
+            --white: #ffffff;
+            --grey-text: #666666;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--body-bg);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* HEADER */
+        .header-section {
+            background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
+            padding: 30px 20px 40px 20px;
+            color: white;
+            border-bottom-left-radius: 35px;
+            border-bottom-right-radius: 35px;
+            box-shadow: 0 10px 30px rgba(15, 61, 62, 0.3);
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .back-btn {
+            position: absolute; top: 30px; left: 20px;
+            color: white; font-size: 1.2rem; cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+        .back-btn:active { transform: scale(0.9); }
+
+        .header-title h1 { font-size: 1.8rem; font-weight: 800; color: var(--white); margin: 0; }
+        .header-title p { font-size: 0.85rem; color: var(--accent-lime); opacity: 0.9; margin-top: 5px; }
+
+        /* CONTENT CONTAINER */
+        .content-container {
+            padding: 30px 20px;
+            margin-top: -20px;
+            z-index: 20;
+        }
+
+        /* GRID MENU (3 Kolom untuk Practice) */
+        .grid-menu {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3 Kolom agar seimbang */
+            gap: 20px;
+        }
+
+        .grid-item {
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            text-decoration: none; color: var(--text-dark); cursor: pointer;
+            transition: transform 0.2s; position: relative;
+        }
+        .grid-item:active { transform: scale(0.95); }
+
+        .grid-icon {
+            width: 65px; height: 65px; border-radius: 20px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 1.8rem; background: #ffffff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            color: var(--bg-dark); transition: 0.2s;
+            position: relative;
+        }
+
+        .grid-text {
+            font-size: 0.8rem; text-align: center; font-weight: 700;
+            color: #444; line-height: 1.2;
+        }
+
+        /* WARNA ICON */
+        .icon-orange { color: #ef6c00; background: #fff3e0; }
+        .icon-teal { color: #00897b; background: #e0f2f1; }
+        .icon-purple { color: #7b1fa2; background: #f3e5f5; }
+
+        /* --- FITUR LOCK --- */
+        .tutor-lock-btn {
+            position: absolute; top: -8px; left: 0;
+            width: 24px; height: 24px; background: white; border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 15;
+            display: none; /* Muncul lewat JS */
+            justify-content: center; align-items: center; font-size: 0.7rem; color: #aaa;
+            transition: 0.2s;
+        }
+        .tutor-lock-btn:hover { transform: scale(1.1); }
+        .tutor-lock-btn.locked { color: #e53935; border: 1px solid #e53935; }
+
+        .item-locked { opacity: 0.6; filter: grayscale(0.8); }
+        .lock-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; justify-content: center; align-items: center;
+            z-index: 5; border-radius: 20px;
+        }
+        .item-locked .lock-overlay { display: flex; }
+        .lock-icon-large {
+            font-size: 1.5rem; color: #555; background: rgba(255,255,255,0.9);
+            padding: 8px; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Animasi */
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .grid-item { opacity: 0; animation: fadeInUp 0.4s forwards; }
+        .grid-item:nth-child(1) { animation-delay: 0.1s; }
+        .grid-item:nth-child(2) { animation-delay: 0.2s; }
+        .grid-item:nth-child(3) { animation-delay: 0.3s; }
+
+    </style>
+</head>
+<body>
+
+    <div class="header-section">
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <div class="header-title">
+            <h1>Practice Check</h1>
+            <p>Sharpen Your Skills</p>
+        </div>
+    </div>
+
+    <div class="content-container">
+        
+        <div class="grid-menu">
+            
+            <div class="grid-item" id="p_tenses" onclick="handlePracticeClick('soal all tenses.html', 'p_tenses')">
+                <div class="tutor-lock-btn" onclick="event.stopPropagation(); toggleLock('p_tenses')"><i class="fas fa-lock"></i></div>
+                <div class="grid-icon icon-orange">
+                    <div class="lock-overlay"><i class="fas fa-lock lock-icon-large"></i></div>
+                    📝
+                </div>
+                <div class="grid-text">Tenses Check</div>
+            </div>
+
+            <div class="grid-item" id="p_cond" onclick="handlePracticeClick('if conditional.html', 'p_cond')">
+                <div class="tutor-lock-btn" onclick="event.stopPropagation(); toggleLock('p_cond')"><i class="fas fa-lock"></i></div>
+                <div class="grid-icon icon-teal">
+                    <div class="lock-overlay"><i class="fas fa-lock lock-icon-large"></i></div>
+                    🔀
+                </div>
+                <div class="grid-text">If Conditionals</div>
+            </div>
+
+            <div class="grid-item" id="p_toefl" onclick="handlePracticeClick('soal toefl.html', 'p_toefl')">
+                <div class="tutor-lock-btn" onclick="event.stopPropagation(); toggleLock('p_toefl')"><i class="fas fa-lock"></i></div>
+                <div class="grid-icon icon-purple">
+                    <div class="lock-overlay"><i class="fas fa-lock lock-icon-large"></i></div>
+                    🎓
+                </div>
+                <div class="grid-text">TOEFL Check</div>
+            </div>
+
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js";
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-database.js";
+
+        // --- PASTE FIREBASE CONFIG DARI INDEX.HTML ANDA DISINI ---
+       const firebaseConfig = {
+  apiKey: "AIzaSyAgYCaaoGMzZWVT2dRov7ALUnnMhHoqXmE",
+  authDomain: "english-check-db.firebaseapp.com",
+  databaseURL: "https://english-check-db-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "english-check-db",
+  storageBucket: "english-check-db.firebasestorage.app",
+  messagingSenderId: "136352630898",
+  appId: "1:136352630898:web:dcaa103fa848ca38de9aeb"
+};
+        // ----------------------------------------------------
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let lockedFeatures = {};
+
+        // 1. Toggle Lock (Tutor Only)
+        window.toggleLock = function(featureId) {
+            const isLocked = lockedFeatures[featureId] || false;
+            set(ref(db, 'locks/' + featureId), !isLocked).catch((err) => console.error(err));
+        };
+
+        // 2. Listen Data Lock
+        onValue(ref(db, 'locks'), (snapshot) => {
+            if (snapshot.exists()) {
+                lockedFeatures = snapshot.val();
+            } else {
+                lockedFeatures = {};
+            }
+            updateLockUI();
+        });
+
+        // 3. Update Tampilan
+        function updateLockUI() {
+            const isTutor = localStorage.getItem('ec_role') === 'tutor';
+            const practices = ['p_tenses', 'p_cond', 'p_toefl'];
+
+            practices.forEach(id => {
+                const isLocked = lockedFeatures[id] === true;
+                const lockBtn = document.querySelector(`#${id} .tutor-lock-btn`);
+                const itemDiv = document.getElementById(id);
+
+                // Tombol Lock untuk Tutor
+                if(lockBtn) {
+                    lockBtn.style.display = isTutor ? 'flex' : 'none';
+                    if(isLocked) {
+                        lockBtn.innerHTML = '<i class="fas fa-lock"></i>';
+                        lockBtn.classList.add('locked');
+                    } else {
+                        lockBtn.innerHTML = '<i class="fas fa-lock-open"></i>';
+                        lockBtn.classList.remove('locked');
+                    }
+                }
+
+                // Efek untuk Student
+                if(isLocked && !isTutor) {
+                    if(itemDiv) itemDiv.classList.add('item-locked');
+                } else {
+                    if(itemDiv) itemDiv.classList.remove('item-locked');
+                }
+            });
+        }
+
+        // 4. Handle Click (Gabungan Audio & Lock)
+        window.handlePracticeClick = function(targetUrl, featureId) {
+            const isTutor = localStorage.getItem('ec_role') === 'tutor';
+            const isLocked = lockedFeatures[featureId] === true;
+
+            // Jika Tutor -> Bebas akses
+            if (isTutor) {
+                playNavSound(); // Bunyi
+                setTimeout(() => { window.location.href = targetUrl; }, 300);
+                return;
+            }
+
+            // Jika Student -> Cek Lock
+            if (isLocked) {
+                alert("🔒 Maaf, latihan ini sedang dikunci oleh Tutor.");
+            } else {
+                playNavSound(); // Bunyi
+                setTimeout(() => { window.location.href = targetUrl; }, 300);
+            }
+        };
+        
+        // Init UI on load
+        updateLockUI();
+    </script>
+
+    <script>
+        // --- SOUND EFFECT LOGIC (DIAMBIL DARI FILE ASLI ANDA) ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // Fungsi Suara Navigasi (Sesuai file asli structure.html)
+        function playNavSound() {
+            initAudio(); 
+            
+            if (audioCtx) {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.3);
+                
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            }
+        }
+    </script>
+
+</body>
+</html>
