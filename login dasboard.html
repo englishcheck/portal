@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>English Check - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #0f3d3e;       
+            --bg-darker: #0a2b2c;     
+            --accent-lime: #d4e157;   
+            --body-bg: #f4fcf7;       
+            --text-dark: #1b4d3e;
+            --white: #ffffff;
+            --grey-text: #666666;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--body-bg); color: var(--text-dark); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+
+        /* SPLASH & LOADERS */
+        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-dark); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10000; transition: opacity 0.5s ease, visibility 0.5s; text-align: center; padding: 20px; color: white; }
+        .splash-logo { font-size: 2.5rem; font-weight: 800; color: var(--accent-lime); margin-bottom: 10px; }
+        .splash-loader { width: 50px; height: 4px; background: rgba(255,255,255,0.1); margin-top: 20px; border-radius: 10px; overflow: hidden; position: relative; }
+        .splash-loader::after { content: ''; position: absolute; width: 40%; height: 100%; background: var(--accent-lime); animation: loading 1.5s infinite ease-in-out; }
+        @keyframes loading { 0% { left: -40%; } 100% { left: 100%; } }
+        .fade-out { opacity: 0; visibility: hidden; }
+
+        /* LOGIN & ROLE SELECTION */
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, var(--bg-dark), var(--bg-darker)); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; padding: 30px; }
+        .login-card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 30px 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); width: 100%; max-width: 350px; text-align: center; animation: fadeInUp 0.5s ease-out; position: relative; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .login-title { color: var(--accent-lime); font-size: 1.5rem; font-weight: 700; margin-bottom: 5px; }
+        .login-subtitle { color: #e0f2f1; font-size: 0.85rem; margin-bottom: 25px; opacity: 0.8; }
+        
+        /* ROLE CARDS */
+        .role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; margin-bottom: 20px; }
+        .role-card { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 15px; padding: 20px 10px; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .role-card:hover, .role-card:active { background: var(--accent-lime); border-color: var(--accent-lime); }
+        .role-card i { font-size: 2rem; color: white; transition: 0.3s; }
+        .role-card span { font-size: 0.9rem; font-weight: 600; color: white; transition: 0.3s; }
+        .role-card:hover i, .role-card:active i, .role-card:hover span, .role-card:active span { color: var(--bg-dark); }
+
+        /* AUTH FORM */
+        .input-group input { width: 100%; padding: 15px 20px; border-radius: 50px; border: none; outline: none; background: rgba(255,255,255,0.9); font-family: 'Poppins'; font-size: 1rem; color: var(--bg-dark); text-align: center; font-weight: 600; margin-bottom: 15px; }
+        .btn-start { background: var(--accent-lime); color: var(--bg-dark); border: none; padding: 12px 40px; border-radius: 50px; font-size: 1rem; font-weight: 700; cursor: pointer; width: 100%; transition: transform 0.2s; margin-top: 10px; }
+        .btn-start:active { transform: scale(0.95); }
+        .auth-toggle-text { margin-top: 20px; color: white; font-size: 0.85rem; cursor: pointer; text-decoration: underline; opacity: 0.9; }
+        .back-login { position: absolute; top: 15px; left: 15px; color: rgba(255,255,255,0.6); cursor: pointer; font-size: 1.2rem; display: none; }
+        
+        /* EMAIL HINT */
+        .email-hint { font-size: 0.7rem; color: #a5d6a7; margin-top: -10px; margin-bottom: 15px; display: none; }
+
+        /* DASHBOARD */
+        #dashboard { display: none; flex-direction: column; min-height: 100vh; }
+        .header-section { background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-darker) 100%); padding: 20px 20px 35px 20px; color: white; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; box-shadow: 0 10px 30px rgba(15, 61, 62, 0.3); position: relative; z-index: 50; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .greeting h1 { font-size: 1.5rem; font-weight: 800; color: var(--white); letter-spacing: -0.5px; }
+        .greeting p { font-size: 0.75rem; color: var(--accent-lime); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 2px;}
+        .top-icons { display: flex; gap: 15px; }
+        .icon-btn { position: relative; font-size: 1.2rem; cursor: pointer; color: var(--white); transition: transform 0.2s; }
+        .icon-btn:active { transform: scale(0.8); }
+        .badge { position: absolute; top: -5px; right: -5px; background: var(--accent-lime); color: var(--bg-dark); font-size: 0.6rem; padding: 2px 5px; border-radius: 50%; font-weight: 800; }
+        .balance-card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 18px; padding: 20px; margin-bottom: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.2); position: relative; overflow: hidden; }
+        .balance-card::before { content: ''; position: absolute; top: -20px; right: -20px; width: 80px; height: 80px; background: var(--accent-lime); opacity: 0.2; border-radius: 50%; filter: blur(20px); }
+        .balance-label { font-size: 0.8rem; opacity: 0.8; margin-bottom: 5px; color: var(--accent-lime); }
+        .student-name-display { font-size: 1.6rem; font-weight: 700; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
+        
+        /* NEW: Email Display */
+        .student-email-display { font-size: 0.75rem; color: #e0f2f1; margin-bottom: 12px; opacity: 0.8; }
+
+        .daily-score-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 12px; color: white; font-size: 0.85rem; }
+        .score-val { color: var(--accent-lime); font-weight: 700; font-size: 1rem; }
+        .balance-footer { margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 12px; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; color: var(--white); font-weight: 500; opacity: 0.9; }
+        .quick-actions { display: flex; justify-content: space-between; margin-bottom: 5px; padding: 0 5px; }
+        .q-action { display: flex; flex-direction: column; align-items: center; gap: 8px; color: white; text-decoration: none; width: 25%; cursor: pointer; position: relative; }
+        .q-action:active { transform: scale(0.9); }
+        .q-icon-box { width: 48px; height: 48px; background: rgba(255,255,255,0.15); border-radius: 14px; display: flex; justify-content: center; align-items: center; font-size: 1.3rem; color: var(--accent-lime); border: 1px solid rgba(212, 225, 87, 0.2); }
+        .q-text { font-size: 0.75rem; font-weight: 500; text-align: center; }
+
+        /* CONTENT SECTION */
+        .content-section { background: var(--body-bg); padding: 25px 20px 40px 20px; margin-top: -10px; border-radius: 30px 30px 0 0; z-index: 40; }
+        .daily-word-card { background: linear-gradient(135deg, #d4e157 0%, #afb42b 100%); color: var(--bg-dark); border-radius: 20px; padding: 20px; margin-bottom: 25px; box-shadow: 0 10px 20px rgba(212, 225, 87, 0.3); position: relative; overflow: hidden; border: 2px solid white; }
+        .dw-header { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; opacity: 0.8; display: flex; align-items: center; gap: 5px; }
+        .dw-word { font-size: 1.8rem; font-weight: 800; line-height: 1.2; margin-bottom: 2px; }
+        .dw-meaning { font-size: 1rem; font-weight: 600; margin-bottom: 12px; font-style: italic; opacity: 0.9; }
+        .dw-sentence { font-size: 0.85rem; background: rgba(255,255,255,0.4); padding: 10px 12px; border-radius: 12px; font-weight: 500; }
+        .search-box { background: #ffffff; border-radius: 50px; padding: 12px 20px; display: flex; align-items: center; gap: 12px; margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .search-box input { border: none; background: transparent; outline: none; width: 100%; font-family: 'Poppins'; font-size: 0.9rem; }
+        
+        /* GRID MENU */
+        .grid-menu { display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px 10px; }
+        .grid-item { display: flex; flex-direction: column; align-items: center; gap: 8px; text-decoration: none; color: var(--text-dark); cursor: pointer; position: relative; }
+        .grid-icon { width: 50px; height: 50px; border-radius: 16px; display: flex; justify-content: center; align-items: center; font-size: 1.3rem; background: #ffffff; box-shadow: 0 4px 10px rgba(0,0,0,0.05); color: var(--bg-dark); transition: 0.2s; }
+        .grid-item:active .grid-icon { transform: scale(0.95); background: var(--accent-lime); }
+        .grid-text { font-size: 0.7rem; text-align: center; font-weight: 600; color: #444; }
+        
+        /* EXPANDABLE ITEMS LOGIC */
+        .expanded-item { display: none; }
+        .grid-menu.show-all .expanded-item { display: flex; }
+
+        /* GAME CARDS IN MODAL */
+        .game-card { padding: 20px; border-radius: 15px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 10px; border: 2px solid transparent; }
+        .game-card:active { transform: scale(0.95); }
+        .game-card i { font-size: 2.5rem; margin-bottom: 5px; }
+        .game-card span { font-weight: 700; font-size: 0.9rem; }
+
+        .icon-lime { color: #afb42b; background: #f9fbe7; } .icon-green { color: #2e7d32; background: #e8f5e9; } .icon-blue { color: #0277bd; background: #e1f5fe; } .icon-orange { color: #ef6c00; background: #fff3e0; } .icon-teal { color: #00897b; background: #e0f2f1; } .icon-pink { color: #d81b60; background: #fce4ec; } .icon-red { color: #e53935; background: #ffebee; } .icon-purple { color: #7e22ce; background: #f3e8ff; } 
+
+        .info-section { margin-top: 35px; margin-bottom: 20px; position: relative; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--bg-dark); }
+        .see-all { font-size: 0.8rem; color: var(--text-dark); text-decoration: none; font-weight: 600; }
+        .info-card { background: var(--white); border-radius: 16px; padding: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; cursor: pointer; transition: transform 0.2s; position: relative; }
+        .info-card-top { display: flex; align-items: flex-start; gap: 15px; width: 100%; }
+        .info-card:active { transform: scale(0.98); }
+        .info-icon-container { width: 50px; height: 50px; border-radius: 12px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; }
+        .info-content { flex: 1; }
+        .info-tag { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 5px; }
+        .info-title { font-size: 0.95rem; font-weight: 700; color: var(--text-dark); margin-bottom: 3px; line-height: 1.3; }
+        .info-desc { font-size: 0.75rem; color: var(--grey-text); line-height: 1.4; }
+        .info-blue { background: #e3f2fd; color: #1976d2; } .tag-blue { background: #e3f2fd; color: #1976d2; }
+        .info-orange { background: #fff3e0; color: #f57c00; } .tag-orange { background: #fff3e0; color: #f57c00; }
+        .info-green { background: #e8f5e9; color: #2e7d32; } .tag-green { background: #e8f5e9; color: #2e7d32; }
+        .card-comments-preview { border-top: 1px solid #f0f0f0; margin-top: 5px; padding-top: 10px; width: 100%; }
+        .preview-item { font-size: 0.75rem; margin-bottom: 6px; color: #555; display: flex; gap: 5px; }
+        .preview-user { font-weight: 700; color: var(--bg-dark); white-space: nowrap; }
+        .preview-text { text-overflow: ellipsis; overflow: hidden; white-space: nowrap; flex: 1; color: #777; }
+        .view-more-comments { font-size: 0.75rem; color: var(--text-dark); font-weight: 600; cursor: pointer; margin-top: 5px; display: inline-block; text-decoration: none; }
+        .view-more-comments:hover { text-decoration: underline; color: var(--bg-dark); }
+        .tutor-lock-btn { position: absolute; top: -5px; right: -5px; width: 24px; height: 24px; background: white; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 15; display: none; justify-content: center; align-items: center; font-size: 0.7rem; color: #aaa; transition: 0.2s; }
+        .tutor-lock-btn:hover { transform: scale(1.1); }
+        .tutor-lock-btn.locked { color: #e53935; border: 1px solid #e53935; } 
+        .item-locked { opacity: 0.6; filter: grayscale(0.8); pointer-events: none; }
+        .lock-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; justify-content: center; align-items: center; z-index: 5; border-radius: 16px; }
+        .item-locked .lock-overlay { display: flex; }
+        .lock-icon-large { font-size: 1.5rem; color: #555; background: rgba(255,255,255,0.9); padding: 8px; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .card-tools { position: absolute; top: 10px; right: 10px; display: flex; gap: 12px; z-index: 20; }
+        .tool-btn { cursor: pointer; font-size: 1rem; color: #aaa; transition: 0.2s; background: rgba(255,255,255,0.8); width: 25px; height: 25px; display: flex; justify-content: center; align-items: center; border-radius: 50%; }
+        .tool-btn:hover { transform: scale(1.1); }
+        .tool-btn.delete { color: #e57373; } .tool-btn.delete:hover { color: #c62828; background: #ffebee; }
+        .tool-btn.comment { color: #64b5f6; } .tool-btn.comment:hover { color: #1976d2; background: #e3f2fd; }
+
+        /* CALENDAR */
+        .calendar-section { background: #fff; border-radius: 20px; padding: 20px; margin-top: 30px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .cal-month { font-weight: 700; color: var(--bg-dark); font-size: 1rem; }
+        .cal-nav { cursor: pointer; color: var(--grey-text); font-size: 1.2rem; padding: 5px; }
+        .cal-nav:hover { color: var(--accent-lime); }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; }
+        .cal-day-name { font-size: 0.7rem; font-weight: 600; color: #aaa; margin-bottom: 5px; }
+        .cal-day { height: 35px; width: 35px; display: flex; justify-content: center; align-items: center; font-size: 0.85rem; color: var(--text-dark); border-radius: 50%; cursor: pointer; margin: 0 auto; position: relative; transition: 0.2s; }
+        .cal-day:hover { background: #f0f0f0; }
+        .cal-day.empty { cursor: default; background: none; }
+        .cal-day.event-red { background: #ef5350; color: white; font-weight: 600; box-shadow: 0 3px 8px rgba(239, 83, 80, 0.4); }
+        .cal-day.event-green { background: #66bb6a; color: white; font-weight: 600; box-shadow: 0 3px 8px rgba(102, 187, 106, 0.4); }
+        .cal-day.event-blue { background: #42a5f5; color: white; font-weight: 600; box-shadow: 0 3px 8px rgba(66, 165, 245, 0.4); }
+        .cal-day.event-yellow { background: #ffa726; color: white; font-weight: 600; box-shadow: 0 3px 8px rgba(255, 167, 38, 0.4); }
+        .cal-day.today { border: 2px solid var(--bg-dark); font-weight: 800; color: var(--bg-dark); }
+        .cal-day.today.event-red, .cal-day.today.event-green, .cal-day.today.event-blue, .cal-day.today.event-yellow { color: white; border: 2px solid white; }
+
+        /* BOTTOM SECTION */
+        .bottom-section { background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-darker) 100%); padding: 40px 20px 80px 20px; margin-top: -30px; border-top-left-radius: 35px; border-top-right-radius: 35px; position: relative; z-index: 45; color: white; overflow: hidden; }
+        .bottom-section::before { content: ''; position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: radial-gradient(circle, var(--accent-lime) 0%, transparent 70%); opacity: 0.1; border-radius: 50%; pointer-events: none; }
+        .bottom-section::after { content: ''; position: absolute; bottom: 50px; left: -50px; width: 150px; height: 150px; background: radial-gradient(circle, #26a69a 0%, transparent 70%); opacity: 0.1; border-radius: 50%; pointer-events: none; }
+        .profile-section { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 25px 20px; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; position: relative; }
+        .profile-icon { font-size: 2.5rem; color: var(--accent-lime); margin-bottom: 15px; text-shadow: 0 0 10px rgba(212, 225, 87, 0.3); }
+        .profile-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 10px; color: white; letter-spacing: 0.5px; }
+        .profile-desc { font-size: 0.85rem; line-height: 1.6; opacity: 0.9; color: #e0f2f1; }
+        .highlight { color: var(--accent-lime); font-weight: 700; }
+        .gallery-section { margin-top: 10px; }
+        .gallery-header .section-title { color: white; font-weight: 700; font-size: 1.1rem; }
+        .gallery-header .gallery-add-btn { background: var(--accent-lime); color: var(--bg-dark); }
+        .gallery-container { display: flex; gap: 15px; overflow-x: auto; padding: 5px 5px 20px 5px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
+        .gallery-container::-webkit-scrollbar { display: none; }
+        .gallery-item { min-width: 280px; height: 180px; border-radius: 18px; background-size: cover; background-position: center; background-repeat: no-repeat; background-color: rgba(255,255,255,0.1); box-shadow: 0 8px 20px rgba(0,0,0,0.3); position: relative; flex-shrink: 0; transition: transform 0.3s ease, box-shadow 0.3s ease; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
+        .gallery-item:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.4); }
+        .gallery-add-btn { font-size: 0.8rem; background: var(--bg-dark); color: var(--accent-lime); padding: 5px 12px; border-radius: 20px; font-weight: 600; cursor: pointer; display: none; transition: 0.2s; }
+        .gallery-add-btn:active { transform: scale(0.9); }
+        .delete-gallery-btn { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); color: #e53935; width: 28px; height: 28px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 5; transition: transform 0.2s; }
+        .delete-gallery-btn:hover { transform: scale(1.1); }
+        .logout-container { margin-top: 30px; margin-bottom: 20px; width: 100%; display: flex; justify-content: center; }
+        .btn-logout { background: rgba(255,255,255,0.1); color: #ff8a80; border: 1px solid rgba(255,138,128, 0.3); padding: 12px 30px; border-radius: 50px; font-weight: 600; font-family: 'Poppins'; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s; backdrop-filter: blur(5px); }
+        .btn-logout:active { transform: scale(0.95); background: rgba(255,138,128, 0.1); }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 99999; display: none; justify-content: center; align-items: flex-end; }
+        .modal-content { background: #f4fcf7; width: 100%; max-width: 500px; border-top-left-radius: 25px; border-top-right-radius: 25px; padding: 25px; max-height: 80vh; overflow-y: auto; animation: slideUp 0.3s ease-out; display: flex; flex-direction: column; color: var(--text-dark); }
+        .modal-header h3 { color: var(--bg-dark); }
+        .close-btn { font-size: 1.5rem; color: #888; cursor: pointer; }
+        #tutor-fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: var(--accent-lime); color: var(--bg-dark); border-radius: 50%; display: none; justify-content: center; align-items: center; font-size: 1.5rem; box-shadow: 0 10px 20px rgba(0,0,0,0.2); z-index: 999; cursor: pointer; transition: transform 0.2s; }
+        #tutor-fab:active { transform: scale(0.9); }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 5px; color: var(--text-dark); }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #ddd; font-family: 'Poppins'; font-size: 0.9rem; }
+        .btn-submit { background: var(--bg-dark); color: white; border: none; padding: 10px 20px; border-radius: 10px; width: 100%; font-weight: 700; cursor: pointer; }
+        .comment-actions { float: right; font-size: 0.7rem; opacity: 0.6; display: flex; gap: 8px; }
+        .comment-actions i { cursor: pointer; transition: 0.2s; }
+        .comment-actions i.fa-edit:hover { color: var(--bg-dark); opacity: 1; }
+        .comment-actions i.fa-trash:hover { color: #e53935; opacity: 1; }
+        .color-options { display: flex; gap: 10px; margin-top: 5px; }
+        .color-circle { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
+        .color-circle.selected { border-color: var(--bg-dark); transform: scale(1.1); }
+        .bg-red { background: #ef5350; } .bg-green { background: #66bb6a; } .bg-blue { background: #42a5f5; } .bg-yellow { background: #ffa726; }
+        
+        /* CHAT STYLES */
+        .comment-list { flex: 1; overflow-y: auto; margin-bottom: 15px; display: flex; flex-direction: column; gap: 12px; padding: 15px; background: #f9f9f9; }
+        .chat-bubble { max-width: 80%; display: flex; flex-direction: column; position: relative; }
+        .chat-right { align-self: flex-end; align-items: flex-end; }
+        .chat-right .bubble-content { background: var(--bg-dark); color: white; border-radius: 18px 18px 4px 18px; padding: 10px 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .chat-right .chat-info { font-size: 0.65rem; color: #888; margin-top: 4px; text-align: right; display: flex; align-items: center; gap: 5px; justify-content: flex-end; }
+        .chat-left { align-self: flex-start; align-items: flex-start; }
+        .chat-left .bubble-content { background: white; border: 1px solid #eee; color: var(--text-dark); border-radius: 18px 18px 18px 4px; padding: 10px 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .chat-left .chat-info { font-size: 0.65rem; color: #aaa; margin-top: 4px; display: flex; gap: 5px; align-items: center; }
+        .chat-username { font-weight: 700; font-size: 0.7rem; margin-bottom: 2px; display: block; opacity: 0.8; }
+        .chat-right .chat-username { display: none; }
+        .chat-left .chat-username { color: var(--bg-dark); }
+        .chat-avatar { width: 28px; height: 28px; border-radius: 50%; background: #ddd; color: #555; display: flex; justify-content: center; align-items: center; font-size: 0.7rem; font-weight: 700; margin-bottom: 5px; }
+        .chat-right .chat-avatar { display: none; }
+        .comment-input-area { display: flex; gap: 10px; align-items: center; border-top: 1px solid #eee; padding: 15px; background: white; }
+        .comment-input-area input { flex: 1; padding: 12px 20px; border-radius: 50px; border: 1px solid #ddd; outline: none; font-family: 'Poppins'; font-size: 0.9rem; background: #f5f5f5; transition: 0.2s; }
+        .comment-input-area input:focus { background: white; border-color: var(--accent-lime); }
+        .btn-send-comment { background: var(--accent-lime); color: var(--bg-dark); border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 1.1rem; transition: 0.2s; box-shadow: 0 4px 10px rgba(212, 225, 87, 0.4); }
+        .btn-send-comment:active { transform: scale(0.9); }
+
+        /* PRIVATE CHAT */
+        #private-chat-btn { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: var(--bg-dark); color: white; border: 2px solid var(--accent-lime); border-radius: 50%; display: none; justify-content: center; align-items: center; font-size: 1.5rem; box-shadow: 0 10px 20px rgba(0,0,0,0.3); z-index: 1000; cursor: pointer; transition: transform 0.2s; }
+        #private-chat-btn:active { transform: scale(0.9); }
+        .fab-stacked { bottom: 100px !important; } 
+        #private-chat-window { position: fixed; bottom: 100px; right: 20px; width: 320px; height: 450px; background: #f4fcf7; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); z-index: 1001; display: none; flex-direction: column; overflow: hidden; border: 1px solid #eee; animation: slideUpChat 0.3s ease-out; }
+        @keyframes slideUpChat { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .pc-header { background: var(--bg-dark); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .pc-header h4 { font-size: 0.95rem; margin: 0; display: flex; align-items: center; gap: 8px; }
+        .pc-close { cursor: pointer; opacity: 0.8; }
+        .pc-body { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: #fff; }
+        .pc-input { padding: 10px; background: #eee; display: flex; gap: 10px; align-items: center; }
+        .pc-input input { flex: 1; padding: 8px 15px; border-radius: 20px; border: none; outline: none; font-family: 'Poppins'; font-size: 0.85rem; }
+        .pc-send { background: var(--bg-dark); color: var(--accent-lime); border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+        .student-list-item { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .student-list-item:hover { background: #f9f9f9; }
+        .student-list-name { font-weight: 600; color: var(--bg-dark); }
+        .unread-dot { width: 8px; height: 8px; background: red; border-radius: 50%; display: none; }
+        /* Chat Actions for Private Chat */
+        .chat-actions { font-size: 0.7rem; color: #fff; opacity: 0.8; margin-left: 5px; display: inline-flex; gap: 5px; }
+        .chat-actions i { cursor: pointer; }
+        .chat-actions i:hover { opacity: 1; }
+    </style>
+</head>
+<body>
+
+    <audio id="hoverSound" preload="auto"><source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg"></audio>
+    <audio id="clickSound" preload="auto"><source src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3" type="audio/mpeg"></audio>
+
+    <div id="splash-screen">
+        <div class="splash-logo">English Check</div>
+        <p style="opacity: 0.8; font-size: 0.9rem;">Collaborating For Change,<br>Empowering For Impact.</p>
+        <div class="splash-loader"></div>
+    </div>
+
+    <div id="login-screen">
+        <div class="login-card">
+            <i class="fas fa-arrow-left back-login" id="backBtn" onclick="resetSelection()"></i>
+            
+            <div style="font-size: 3rem; margin-bottom: 15px;">雌</div>
+            <h2 class="login-title" id="authTitle">Welcome</h2>
+            <p class="login-subtitle" id="authSub">Silakan pilih akses anda.</p>
+
+            <div class="role-grid" id="roleSelection">
+                <div class="role-card" onclick="selectRole('student')"><i class="fas fa-user-graduate"></i><span>Student</span></div>
+                <div class="role-card" onclick="selectRole('tutor')"><i class="fas fa-chalkboard-teacher"></i><span>Tutor</span></div>
+            </div>
+
+            <div id="authForm" style="width: 100%; display: none;">
+                <div class="input-group" id="nameGroup" style="display:none;">
+                    <input type="text" id="regName" placeholder="Nama Lengkap" autocomplete="off">
+                </div>
+                
+                <div class="input-group">
+                    <input type="email" id="regEmail" placeholder="Email" autocomplete="off">
+                </div>
+                
+                <p id="emailHelp" class="email-hint">Contoh: nama@ecstudent.com</p>
+
+                <div class="input-group">
+                    <input type="password" id="regPassword" placeholder="Password (Min. 6 huruf)" autocomplete="off">
+                </div>
+
+                <button class="btn-start" onclick="handleAuthAction()" id="btnAuth">Masuk</button>
+                
+                <p class="auth-toggle-text" onclick="toggleAuthMode()" id="toggleText">
+                   Belum punya akun? Daftar
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="dashboard">
+        <div class="header-section">
+            <div class="top-bar">
+                <div class="greeting"><p>Collaborating For Change</p><h1>English Check</h1></div>
+                <div class="top-icons">
+                    <div class="icon-btn" onclick="toggleModal('notif-modal')"><i class="far fa-bell"></i><div class="badge" id="notif-count">!</div></div>
+                    <div class="icon-btn" onclick="toggleSound(this)"><i class="fas fa-headset" id="soundIcon"></i></div>
+                    <div class="icon-btn" onclick="toggleModal('settings-modal')"><i class="fas fa-cog"></i></div>
+                </div>
+            </div>
+            <div class="balance-card">
+                <div class="balance-label">Active Session</div>
+                <div class="student-name-display" id="cardNameDisplay">User</div>
+                <div class="student-email-display" id="cardEmailDisplay">user@email.com</div>
+
+                <div class="daily-score-badge"><i class="fas fa-star" style="color: #f1c40f;"></i><span>Score Harian: <span class="score-val" id="dailyScoreDisplay">0</span></span></div>
+                <div class="balance-footer" onclick="handleMenuClick('Modul Check.html', 'modul')"><span>Cek Progress Belajar</span><i class="fas fa-chart-line"></i></div>
+            </div>
+            <div class="quick-actions">
+                <div class="q-action" id="qa-modul" onclick="handleMenuClick('Modul Check.html', 'modul')">
+                    <div class="tutor-lock-btn" onclick="event.stopPropagation(); toggleLock('modul')"><i class="fas fa-lock"></i></div>
+                    <div class="lock-overlay"><i class="fas fa-lock lock-icon-large"></i></div>
+                    <div class="q-icon-box"><i class="fas fa-scroll"></i></div><div class="q-text">Modul</div>
+                </div>
+                <div class="q-action" id="qa-structure" onclick="handleMenuClick('structure.html', 'structure')">
+                    <div class="tutor-lock-btn" onclick="event.stopPropagation(); toggleLock('structure')"><i class="fas fa-lock"></i></div>
+                    <div class="lock-overlay"><i class="fas fa-lock lock-icon-large"></i></div>
+                    <div class="q-icon-box"><i class="fas fa-pen-fancy"></i></div><div class="q-text">Practice</div>
+                </div>
+                <div class="q-action" id="qa-vocab" onclick="handleMenuClick('Vocab Check.html', 'vocab')">
+                    <div class="tutor-lock-btn" onclick="event.stopPropagation(); toggleLock('vocab')"><i class="fas fa-lock"></i></div>
+                    <div class="lock-overlay"><i class="fas fa-lock lock-icon-large"></i></div>
+                    <div class="q-icon-box"><i class="fas fa-spell-check"></i></div><div class="q-text">Vocab</div>
+                </div>
+                <div class="q-action" id="qa-game" onclick="openGameGroup()">
+                    <div class="tutor-lock-btn" onclick="event.stopPropagation(); toggleLock('game')"><i class="fas fa-lock"></i></div>
+                    <div class="lock-overlay"><i class="fas fa-lock lock-icon-large"></i></div>
+                    <div class="q-icon-box"><i class="fas fa-gamepad"></i></div><div class="q-text">Game</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <div class="daily-word-card">
+                <div class="dw-header"><i class="fas fa-calendar-day"></i> Daily Word</div>
+                <div class="dw-content">
+                    <h2 class="dw-word" id="dw-word">Loading...</h2>
+                    <p class="dw-meaning" id="dw-meaning">...</p>
+                    <p class="dw-sentence" id="dw-sentence">...</p>
+                </div>
+            </div>
+            <div class="search-box"><i class="fas fa-search" style="color: var(--bg-dark);"></i><input type="text" placeholder="Cari materi..."></div>
+            
+            <div class="grid-menu" id="gridMenu">
+                <div class="grid-item" id="grid-modul" onclick="handleMenuClick('Modul Check.html', 'modul')">
+                    <div class="tutor-lock-btn" onclick="event.stopPropagation(); toggleLock('modul')"><i class="fas fa-lock"></i></div>
+                    <div class="lock-overlay"><i class="fas fa-lock lock-icon-large"></i></div>
+                    <div class="grid-icon icon-lime"><i class="fas fa-scroll"></i></div><div class="grid-text">Modul</div>
+                </div>
+                <div class="grid-item" id="grid-structure" onclick="handleMenuClick('structure.html', 'structure')">
+                    <div class="tutor-lock-btn" onclick="event.stopPropagation(); toggleLock('structure')"><i class="fas fa-lock"></i></div>
+                    <div class="lock-overlay"><i class="fas fa-lock lock-icon-large"></i></div>
+                    <div class="grid-icon icon-green"><i class="fas fa-pen-fancy"></i></div><div class="grid-text">Practice</div>
+                </div>
+                <div class="grid-item" id="grid-vocab" onclick="handleMenuClick('Vocab Check.html', 'vocab')">
+                    <div class="tutor-lock-btn" onclick="event.stopPropagation(); toggleLock('vocab')"><i class="fas fa-lock"></i></div>
+                    <div class="lock-overlay"><i class="fas fa-lock lock-icon-large"></i></div>
+                    <div class="grid-icon icon-blue"><i class="fas fa-spell-check"></i></div><div class="grid-text">Vocab</div>
+                </div>
+                
+                <div class="grid-item" id="grid-game" onclick="openGameGroup()">
+                    <div class="tutor-lock-btn" onclick="event.stopPropagation(); toggleLock('game')"><i class="fas fa-lock"></i></div>
+                    <div class="lock-overlay"><i class="fas fa-lock lock-icon-large"></i></div>
+                    <div class="grid-icon icon-orange"><i class="fas fa-gamepad"></i></div><div class="grid-text">Game Zone</div>
+                </div>
+
+                <div class="grid-item" id="grid-absensi" onclick="handleMenuClick('Absensi.html', 'absensi')">
+                    <div class="tutor-lock-btn" onclick="event.stopPropagation(); toggleLock('absensi')"><i class="fas fa-lock"></i></div>
+                    <div class="lock-overlay"><i class="fas fa-lock lock-icon-large"></i></div>
+                    <div class="grid-icon icon-teal"><i class="fas fa-calendar-check"></i></div><div class="grid-text">Absensi</div>
+                </div>
+                
+                <div class="grid-item" id="grid-lainnya" onclick="toggleLainnya()">
+                    <div class="grid-icon" style="color: #777; background: #f1f2f6;"><i class="fas fa-th-large"></i></div><div class="grid-text">Lainnya</div>
+                </div>
+
+                <div class="grid-item expanded-item" id="grid-support" onclick="handleMenuClick('#', 'support')">
+                    <div class="tutor-lock-btn" onclick="event.stopPropagation(); toggleLock('support')"><i class="fas fa-lock"></i></div>
+                    <div class="lock-overlay"><i class="fas fa-lock lock-icon-large"></i></div>
+                    <div class="grid-icon icon-pink"><i class="fas fa-heart"></i></div><div class="grid-text">Support</div>
+                </div>
+                <div class="grid-item expanded-item" id="grid-certif" onclick="handleMenuClick('#', 'certif')">
+                    <div class="tutor-lock-btn" onclick="event.stopPropagation(); toggleLock('certif')"><i class="fas fa-lock"></i></div>
+                    <div class="lock-overlay"><i class="fas fa-lock lock-icon-large"></i></div>
+                    <div class="grid-icon icon-blue"><i class="fas fa-certificate"></i></div><div class="grid-text">Certif</div>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <div class="section-header">
+                    <div class="section-title">Informasi & Update</div>
+                    <div class="gallery-add-btn" id="infoAddBtn" onclick="toggleModal('add-modal')">
+                        <i class="fas fa-plus"></i> Tambah Info
+                    </div>
+                </div>
+                <div id="info-feed-container">
+                    <p style="text-align:center; opacity:0.6; font-size:0.8rem;">Memuat data...</p>
+                </div>
+            </div>
+
+            <div class="calendar-section">
+                <div class="calendar-header">
+                    <i class="fas fa-chevron-left cal-nav" onclick="prevMonth()"></i>
+                    <div class="cal-month" id="calendarMonth"></div>
+                    <i class="fas fa-chevron-right cal-nav" onclick="nextMonth()"></i>
+                </div>
+                <div class="grid-names" style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; margin-bottom: 5px;">
+                    <div class="cal-day-name">Sun</div><div class="cal-day-name">Mon</div><div class="cal-day-name">Tue</div><div class="cal-day-name">Wed</div><div class="cal-day-name">Thu</div><div class="cal-day-name">Fri</div><div class="cal-day-name">Sat</div>
+                </div>
+                <div class="calendar-grid" id="calendarGrid"></div>
+            </div>
+        </div>
+
+        <div class="bottom-section">
+            <div class="profile-section">
+                <div class="profile-icon"><i class="fas fa-users"></i></div>
+                <h3 class="profile-title">English Check Community</h3>
+                <p class="profile-desc">
+                    Komunitas yang berdedikasi menyediakan <span class="highlight">Kelas Bahasa Inggris GRATIS</span> bagi mahasiswa. 
+                    雌 Kami menggunakan <span class="highlight">metode & kurikulum khusus</span> yang disusun mandiri untuk memastikan pembelajaran yang efektif dan menyenangkan.
+                </p>
+            </div>
+
+            <div class="gallery-section">
+                <div class="gallery-header">
+                    <div class="section-title">Kegiatan Seru Kami</div>
+                    <div class="gallery-add-btn" id="galleryAddBtn" onclick="toggleModal('add-photo-modal')">
+                        <i class="fas fa-plus"></i> Tambah Foto
+                    </div>
+                </div>
+                <div class="gallery-container" id="galleryContainer" onmouseover="pauseScroll()" onmouseout="resumeScroll()" ontouchstart="pauseScroll()" ontouchend="resumeScroll()">
+                    <p style="text-align:center; width:100%; opacity:0.6; font-size:0.8rem; color: #ccc;">Memuat foto...</p>
+                </div>
+            </div>
+
+            <div class="logout-container">
+                <button class="btn-logout" onclick="confirmLogout()">
+                    <i class="fas fa-sign-out-alt"></i> Log Out
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="tutor-fab" onclick="toggleModal('add-modal')"><i class="fas fa-plus"></i></div>
+    <div id="private-chat-btn" onclick="togglePrivateChat()"><i class="fas fa-comment-alt"></i></div>
+
+    <div id="private-chat-window">
+        <div class="pc-header">
+            <h4 id="pc-title"><i class="fas fa-user-circle"></i> Chat Tutor</h4>
+            <div style="display:flex; gap:10px;">
+                <i class="fas fa-chevron-left pc-close" id="pc-back-btn" onclick="backToStudentList()" style="display:none;"></i>
+                <i class="fas fa-times pc-close" onclick="togglePrivateChat()"></i>
+            </div>
+        </div>
+        <div class="pc-body" id="pc-body"></div>
+        <div class="pc-input" id="pc-input-area">
+            <input type="text" id="pc-text" placeholder="Ketik pesan..." autocomplete="off">
+            <button class="pc-send" onclick="sendPrivateMsg()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <div id="notif-modal" class="modal-overlay" onclick="closeModalOnOutside(event, 'notif-modal')">
+        <div class="modal-content">
+            <div class="modal-header"><h3>Notifikasi</h3><div class="close-btn" onclick="toggleModal('notif-modal')">&times;</div></div>
+            <div id="notif-content-body"></div>
+        </div>
+    </div>
+
+    <div id="settings-modal" class="modal-overlay" onclick="closeModalOnOutside(event, 'settings-modal')">
+        <div class="modal-content">
+            <div class="modal-header"><h3>Pengaturan Akun</h3><div class="close-btn" onclick="toggleModal('settings-modal')">&times;</div></div>
+            
+            <div style="margin-bottom: 20px;">
+                <h4 style="margin-bottom: 10px; font-size: 0.9rem;">Ganti User Name</h4>
+                <div class="form-group"><input type="text" id="set-new-name" placeholder="User Name Baru"></div>
+                <button class="btn-submit" onclick="changeUsername()">Simpan Nama</button>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #ddd; margin: 20px 0;">
+
+            <div>
+                <h4 style="margin-bottom: 10px; font-size: 0.9rem;">Ganti Password</h4>
+                <div class="form-group"><input type="password" id="set-new-pass" placeholder="Password Baru (Min. 6 huruf)"></div>
+                <button class="btn-submit" style="background: #e57373;" onclick="changeUserPassword()">Ubah Password</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-selection-modal" class="modal-overlay" onclick="closeModalOnOutside(event, 'game-selection-modal')">
+        <div class="modal-content">
+            <div class="modal-header"><h3>Game Zone</h3><div class="close-btn" onclick="toggleModal('game-selection-modal')">&times;</div></div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="game-card" style="background:#fff3e0; border-color:#ffe0b2;" onclick="window.location.href='all.html'">
+                    <i class="fas fa-gamepad" style="color:#ef6c00;"></i>
+                    <span style="color:#ef6c00;">Classic</span>
+                </div>
+                <div class="game-card" style="background:#ffebee; border-color:#ffcdd2;" onclick="window.location.href='intermediate game.html'">
+                    <i class="fas fa-crosshairs" style="color:#e53935;"></i>
+                    <span style="color:#e53935;">Sniper/Inter</span>
+                </div>
+                <div class="game-card" style="background:#f3e8ff; border-color:#d8b4fe;" onclick="window.location.href='word_bomb_pro.html'">
+                    <i class="fas fa-bomb" style="color:#7e22ce;"></i>
+                    <span style="color:#7e22ce;">Word Bomb</span>
+                </div>
+                <div class="game-card" style="background:#e0f2f1; border-color:#80cbc4;" onclick="window.location.href='Word Sandwich.html'">
+                    <i class="fas fa-hamburger" style="color:#00897b;"></i>
+                    <span style="color:#00897b;">Sandwich</span>
+                </div>
+                <div class="game-card" style="background:#e3f2fd; border-color:#bbdefb;" onclick="window.location.href='Word Scramble.html'">
+                    <i class="fas fa-puzzle-piece" style="color:#1976d2;"></i>
+                    <span style="color:#1976d2;">Scramble</span>
+                </div>
+                <div class="game-card" style="background:#f3e8ff; border-color:#d8b4fe;" onclick="window.location.href='word chain.html'">
+                     <i class="fas fa-bomb" style="color:#86ce22;"></i>
+                     <span style="color:#58ce22;">Word Chain</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="add-modal" class="modal-overlay" onclick="closeModalOnOutside(event, 'add-modal')">
+        <div class="modal-content">
+            <div class="modal-header"><h3>Tambah Info Baru</h3><div class="close-btn" onclick="toggleModal('add-modal')">&times;</div></div>
+            <div class="form-group"><label>Judul Informasi</label><input type="text" id="post-title" placeholder="Contoh: Kelas Tambahan"></div>
+            <div class="form-group"><label>Kategori</label><select id="post-tag"><option value="blue">Tips (Biru)</option><option value="orange">Materi (Orange)</option><option value="green">Pengumuman (Hijau)</option></select></div>
+            <div class="form-group"><label>Deskripsi Singkat</label><textarea id="post-desc" rows="3" placeholder="Isi detail informasi..."></textarea></div>
+            <button class="btn-submit" onclick="saveNewPost()">Posting</button>
+        </div>
+    </div>
+
+    <div id="add-photo-modal" class="modal-overlay" onclick="closeModalOnOutside(event, 'add-photo-modal')">
+        <div class="modal-content">
+            <div class="modal-header"><h3>Tambah Foto Kegiatan</h3><div class="close-btn" onclick="toggleModal('add-photo-modal')">&times;</div></div>
+            <div class="form-group"><label>Pilih Foto</label><input type="file" id="photo-file" accept="image/*"></div>
+            <button class="btn-submit" onclick="saveGalleryPhoto()">Upload & Simpan</button>
+        </div>
+    </div>
+
+    <div id="comment-modal" class="modal-overlay" onclick="closeModalOnOutside(event, 'comment-modal')">
+        <div class="modal-content" style="background:#f2f2f2; height:80vh; border-radius: 20px 20px 0 0;">
+            <div class="modal-header" style="background:white; padding:15px; border-radius: 20px 20px 0 0; margin-bottom:0; border-bottom:1px solid #eee;">
+                <h3>Diskusi</h3><div class="close-btn" onclick="closeComments()">&times;</div>
+            </div>
+            <div class="comment-list" id="comment-list-container"><p style="text-align:center; color:#aaa; margin-top:20px;">Belum ada komentar.</p></div>
+            <div class="comment-input-area">
+                <input type="text" id="comment-input" placeholder="Tulis pesan..." autocomplete="off">
+                <button class="btn-send-comment" onclick="sendComment()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="calendar-modal" class="modal-overlay" onclick="closeModalOnOutside(event, 'calendar-modal')">
+        <div class="modal-content">
+            <div class="modal-header"><h3 id="cal-modal-date">Tanggal</h3><div class="close-btn" onclick="toggleModal('calendar-modal')">&times;</div></div>
+            <div id="cal-tutor-form" style="display:none;">
+                <div class="form-group"><label>Deskripsi Acara</label><textarea id="cal-event-desc" rows="3" placeholder="Misal: Kelas Speaking Jam 10"></textarea></div>
+                <div class="form-group"><label>Warna Penanda</label><div class="color-options"><div class="color-circle bg-red" onclick="selectCalColor('red')"></div><div class="color-circle bg-green" onclick="selectCalColor('green')"></div><div class="color-circle bg-blue" onclick="selectCalColor('blue')"></div><div class="color-circle bg-yellow" onclick="selectCalColor('yellow')"></div></div><input type="hidden" id="cal-event-color"></div>
+                <button class="btn-submit" onclick="saveCalendarEvent()">Simpan Agenda</button>
+                <button class="btn-submit" style="background:#e57373; margin-top:10px;" onclick="deleteCalendarEvent()">Hapus Agenda</button>
+            </div>
+            <div id="cal-student-view" style="display:none;"><p id="cal-event-display" style="font-size:1rem; color:var(--text-dark);"></p></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js";
+        import { getDatabase, ref, push, onValue, query, limitToLast, remove, off, set, update, get } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-database.js";
+        import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-storage.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, signOut, onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-auth.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyB_GP_VQ3yQ9138bF7PvQgwTYnMZbwRtMQ",
+          authDomain: "english-check-community.firebaseapp.com",
+          databaseURL: "https://english-check-community-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "english-check-community",
+          storageBucket: "english-check-community.firebasestorage.app",
+          messagingSenderId: "637232276152",
+          appId: "1:637232276152:web:31b91ed4ff39b97cc14a4d"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const storage = getStorage(app);
+        const auth = getAuth(app);
+
+        // --- AUTH LOGIC START ---
+        let isRegisterMode = false;
+        let selectedRole = '';
+
+        // Select Role Function
+        window.selectRole = function(role) {
+            selectedRole = role;
+            document.getElementById('roleSelection').style.display = 'none';
+            document.getElementById('authForm').style.display = 'block';
+            document.getElementById('backBtn').style.display = 'block';
+            const emailInput = document.getElementById('regEmail');
+            const emailHint = document.getElementById('emailHelp');
+
+            const title = document.getElementById('authTitle');
+            const sub = document.getElementById('authSub');
+            const toggleText = document.getElementById('toggleText');
+            
+            // Reset state
+            isRegisterMode = false;
+            document.getElementById('nameGroup').style.display = 'none';
+            document.getElementById('btnAuth').innerText = "Masuk";
+
+            if (role === 'student') {
+                title.innerText = "Student Login";
+                sub.innerText = "Masuk untuk mulai belajar.";
+                toggleText.style.display = 'block'; 
+                toggleText.innerText = "Belum punya akun? Daftar";
+                
+                // Show hint specifically for students
+                emailInput.placeholder = "Email (nama@ecstudent.com)";
+                emailHint.style.display = "block";
+            } else {
+                title.innerText = "Tutor Login";
+                sub.innerText = "Masuk ke panel Tutor.";
+                toggleText.style.display = 'none';
+                
+                // Reset placeholder for tutors
+                emailInput.placeholder = "Email Tutor";
+                emailHint.style.display = "none";
+            }
+        };
+
+        // Reset Selection (Back Button)
+        window.resetSelection = function() {
+            selectedRole = '';
+            document.getElementById('authForm').style.display = 'none';
+            document.getElementById('roleSelection').style.display = 'grid';
+            document.getElementById('backBtn').style.display = 'none';
+            document.getElementById('authTitle').innerText = "Welcome";
+            document.getElementById('authSub').innerText = "Silakan pilih akses anda.";
+            document.getElementById('regEmail').value = "";
+            document.getElementById('regPassword').value = "";
+        };
+
+        // Toggle antara Login dan Register (Only for Student)
+        window.toggleAuthMode = function() {
+            if(selectedRole === 'tutor') return; 
+
+            isRegisterMode = !isRegisterMode;
+            const nameGroup = document.getElementById('nameGroup');
+            const btn = document.getElementById('btnAuth');
+            const toggleText = document.getElementById('toggleText');
+
+            if (isRegisterMode) {
+                nameGroup.style.display = 'block';
+                btn.innerText = "Daftar Sekarang";
+                toggleText.innerText = "Sudah punya akun? Login";
+            } else {
+                nameGroup.style.display = 'none';
+                btn.innerText = "Masuk";
+                toggleText.innerText = "Belum punya akun? Daftar";
+            }
+        };
+
+        // Handle Login/Register Button
+        window.handleAuthAction = function() {
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const name = document.getElementById('regName').value;
+
+            if (!email || !password) {
+                alert("Mohon isi Email dan Password!");
+                return;
+            }
+
+            // --- VALIDATION: STUDENT EMAIL MUST END WITH @ecstudent.com ---
+            if (isRegisterMode && selectedRole === 'student') {
+                if (!email.endsWith('@ecstudent.com')) {
+                    alert("Gagal Registrasi:\n\nEmail Student WAJIB menggunakan format: nama@ecstudent.com\n\nContoh yang benar: budi@ecstudent.com");
+                    return;
+                }
+
+                if (!name) { alert("Nama wajib diisi!"); return; }
+                
+                createUserWithEmailAndPassword(auth, email, password)
+                    .then((userCredential) => {
+                        const user = userCredential.user;
+                        updateProfile(user, { displayName: name }).then(() => {
+                            // Simpan data user ke DB (Student)
+                            set(ref(db, 'users/' + user.uid), {
+                                username: name,
+                                email: email,
+                                role: "student"
+                            });
+                            alert("Registrasi Berhasil! Anda akan masuk otomatis.");
+                        });
+                    })
+                    .catch((error) => { alert("Gagal Daftar: " + error.message); });
+            } else {
+                // LOGIN (Both Student & Tutor)
+                signInWithEmailAndPassword(auth, email, password)
+                    .then((userCredential) => {
+                        // Success handled by onAuthStateChanged
+                    })
+                    .catch((error) => { alert("Login Gagal: Password atau Email salah."); });
+            }
+        };
+
+        // Listen for Auth State Changes
+        onAuthStateChanged(auth, (user) => {
+            const splash = document.getElementById('splash-screen');
+            const login = document.getElementById('login-screen');
+            const dashboard = document.getElementById('dashboard');
+
+            if (user) {
+                // User is signed in
+                const email = user.email;
+                const isTutor = (email === "admin@tutor.com");
+
+                // ==========================================
+                // LOGIKA: KELUARKAN SEMUA USER LAMA (RESET PAKSA)
+                // ==========================================
+                if (!isTutor && !email.endsWith('@ecstudent.com')) {
+                    alert("⚠️ SISTEM DIPERBARUI ⚠️\n\nMohon maaf, semua akun lama (Gmail/Yahoo/dll) sudah tidak berlaku.\n\nSilakan DAFTAR KEMBALI menggunakan email khusus: @ecstudent.com");
+                    signOut(auth).then(() => { window.location.reload(); });
+                    return; 
+                }
+                // ==========================================
+
+                const name = user.displayName || "User";
+                
+                localStorage.setItem('ec_username', name);
+                localStorage.setItem('ec_role', isTutor ? 'tutor' : 'student');
+
+                // UI Transitions
+                if(login.style.display !== 'none') {
+                    login.style.opacity = '0';
+                    setTimeout(() => {
+                        login.style.display = 'none';
+                        dashboard.style.display = 'flex';
+                        setupDashboard(name, email, isTutor); // Pass Email here
+                        window.renderCalendar(new Date().getMonth(), new Date().getFullYear());
+                    }, 300);
+                } else {
+                    dashboard.style.display = 'flex';
+                    setupDashboard(name, email, isTutor);
+                    window.renderCalendar(new Date().getMonth(), new Date().getFullYear());
+                }
+                splash.classList.add('fade-out');
+                setTimeout(() => splash.style.display = 'none', 500);
+
+            } else {
+                // User is signed out
+                localStorage.removeItem('ec_username');
+                localStorage.removeItem('ec_role');
+                
+                dashboard.style.display = 'none';
+                login.style.display = 'flex';
+                login.style.opacity = '1';
+                
+                // Reset to role selection
+                resetSelection();
+
+                splash.classList.add('fade-out');
+                setTimeout(() => splash.style.display = 'none', 500);
+            }
+        });
+
+        window.confirmLogout = function() {
+            if (confirm("Apakah Anda yakin ingin keluar?")) {
+                signOut(auth).then(() => { location.reload(); }).catch((error) => { console.error(error); });
+            }
+        };
+
+        // --- NEW: SETTINGS LOGIC ---
+        window.changeUsername = function() {
+            const newName = document.getElementById('set-new-name').value;
+            if (!newName) { alert("Nama tidak boleh kosong."); return; }
+            
+            const user = auth.currentUser;
+            if(user) {
+                updateProfile(user, { displayName: newName }).then(() => {
+                    update(ref(db, 'users/' + user.uid), { username: newName });
+                    document.getElementById('cardNameDisplay').innerText = newName;
+                    alert("Nama berhasil diubah!");
+                    document.getElementById('set-new-name').value = "";
+                }).catch((error) => { alert("Gagal: " + error.message); });
+            }
+        };
+
+        window.changeUserPassword = function() {
+            const newPass = document.getElementById('set-new-pass').value;
+            if (newPass.length < 6) { alert("Password minimal 6 karakter!"); return; }
+            
+            const user = auth.currentUser;
+            if(user) {
+                updatePassword(user, newPass).then(() => {
+                    alert("Password berhasil diubah!");
+                    document.getElementById('set-new-pass').value = "";
+                }).catch((error) => {
+                    if(error.code === 'auth/requires-recent-login') {
+                        alert("Demi keamanan, silakan Logout dan Login kembali sebelum mengganti password.");
+                    } else {
+                        alert("Gagal: " + error.message);
+                    }
+                });
+            }
+        };
+        // --- AUTH LOGIC END ---
+
+        // --- PRIVATE CHAT SYSTEM (UPDATED: Edit & Delete) ---
+        let privateChatListener = null;
+        let currentChatTarget = null; 
+
+        window.togglePrivateChat = function() {
+            const chatWindow = document.getElementById('private-chat-window');
+            if (chatWindow.style.display === 'flex') {
+                chatWindow.style.display = 'none';
+                if(privateChatListener) off(privateChatListener); 
+            } else {
+                chatWindow.style.display = 'flex';
+                loadPrivateChat();
+            }
+        };
+
+        window.loadPrivateChat = function() {
+            const isTutor = localStorage.getItem('ec_role') === 'tutor';
+            const username = localStorage.getItem('ec_username');
+            const pcBody = document.getElementById('pc-body');
+            const pcTitle = document.getElementById('pc-title');
+            const inputArea = document.getElementById('pc-input-area');
+            const backBtn = document.getElementById('pc-back-btn');
+
+            pcBody.innerHTML = '<p style="text-align:center; color:#aaa; margin-top:20px;">Memuat...</p>';
+
+            if (isTutor) {
+                if (currentChatTarget) {
+                    renderChatMessages(currentChatTarget);
+                    pcTitle.innerHTML = `<i class="fas fa-user"></i> ${currentChatTarget}`;
+                    inputArea.style.display = 'flex';
+                    backBtn.style.display = 'block';
+                } else {
+                    pcTitle.innerHTML = `<i class="fas fa-list"></i> Daftar Student`;
+                    inputArea.style.display = 'none';
+                    backBtn.style.display = 'none';
+                    const chatsRef = ref(db, 'private_chats');
+                    onValue(chatsRef, (snapshot) => {
+                        pcBody.innerHTML = '';
+                        if (snapshot.exists()) {
+                            const students = Object.keys(snapshot.val());
+                            students.forEach(student => {
+                                pcBody.innerHTML += `<div class="student-list-item" onclick="openStudentChat('${student}')"><span class="student-list-name">${student}</span><i class="fas fa-chevron-right" style="color:#ccc;"></i></div>`;
+                            });
+                        } else { pcBody.innerHTML = '<p style="text-align:center; color:#aaa;">Belum ada pesan masuk.</p>'; }
+                    }, { onlyOnce: true });
+                }
+            } else {
+                pcTitle.innerHTML = `<i class="fas fa-chalkboard-teacher"></i> Chat Tutor`;
+                inputArea.style.display = 'flex';
+                backBtn.style.display = 'none';
+                renderChatMessages(username);
+            }
+        };
+
+        window.openStudentChat = function(studentName) {
+            currentChatTarget = studentName;
+            loadPrivateChat(); 
+        };
+
+        window.backToStudentList = function() {
+            currentChatTarget = null;
+            if(privateChatListener) off(privateChatListener);
+            loadPrivateChat();
+        };
+
+        function renderChatMessages(targetUser) {
+            const pcBody = document.getElementById('pc-body');
+            const chatRef = ref(db, 'private_chats/' + targetUser);
+            const currentUser = localStorage.getItem('ec_username');
+
+            if(privateChatListener) off(privateChatListener); 
+            
+            privateChatListener = onValue(chatRef, (snapshot) => {
+                pcBody.innerHTML = '';
+                if (snapshot.exists()) {
+                    const messages = Object.entries(snapshot.val()); // Use entries to get key
+                    messages.forEach(([msgId, msg]) => {
+                        const isMe = msg.sender === currentUser;
+                        const date = new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                        
+                        let chatHtml = '';
+                        if(isMe) {
+                            // My Message (Right + Edit/Delete)
+                            chatHtml = `
+                                <div class="chat-bubble chat-right" style="margin-bottom:8px;">
+                                    <div class="bubble-content" style="padding:8px 12px; font-size:0.85rem;">${msg.text}</div>
+                                    <div class="chat-info">
+                                        ${date}
+                                        <span class="chat-actions">
+                                            <i class="fas fa-edit" onclick="window.editPrivateMsg('${targetUser}', '${msgId}', '${msg.text}')"></i>
+                                            <i class="fas fa-trash" onclick="window.deletePrivateMsg('${targetUser}', '${msgId}')"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            // Other Message (Left)
+                            chatHtml = `
+                                <div class="chat-bubble chat-left" style="margin-bottom:8px;">
+                                    <div class="bubble-content" style="padding:8px 12px; font-size:0.85rem;">${msg.text}</div>
+                                    <div class="chat-info">${date}</div>
+                                </div>
+                            `;
+                        }
+                        pcBody.innerHTML += chatHtml;
+                    });
+                    pcBody.scrollTop = pcBody.scrollHeight;
+                } else {
+                    pcBody.innerHTML = '<p style="text-align:center; color:#ccc; font-size:0.8rem; margin-top:20px;">Mulai percakapan...</p>';
+                }
+            });
+        }
+
+        window.sendPrivateMsg = function() {
+            const input = document.getElementById('pc-text');
+            const text = input.value.trim();
+            const isTutor = localStorage.getItem('ec_role') === 'tutor';
+            const myName = localStorage.getItem('ec_username');
+            
+            let targetPath = isTutor ? currentChatTarget : myName;
+
+            if(!text || !targetPath) return;
+
+            push(ref(db, 'private_chats/' + targetPath), {
+                sender: myName, text: text, timestamp: Date.now()
+            });
+            input.value = '';
+        };
+
+        window.deletePrivateMsg = function(targetUser, msgId) {
+            if(confirm("Hapus pesan ini?")) {
+                remove(ref(db, `private_chats/${targetUser}/${msgId}`));
+            }
+        };
+
+        window.editPrivateMsg = function(targetUser, msgId, currentText) {
+            let newText = prompt("Edit pesan:", currentText);
+            if(newText !== null && newText.trim() !== "") {
+                update(ref(db, `private_chats/${targetUser}/${msgId}`), { text: newText });
+            }
+        };
+        
+        document.getElementById('pc-text').addEventListener('keypress', function(e){
+            if(e.key === 'Enter') window.sendPrivateMsg();
+        });
+
+
+        // --- CALENDAR SYSTEM ---
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        let calendarData = {};
+        let selectedDateKey = null;
+
+        onValue(ref(db, 'calendar'), (snapshot) => {
+            if (snapshot.exists()) { calendarData = snapshot.val(); } else { calendarData = {}; }
+            window.renderCalendar(currentMonth, currentYear);
+        });
+
+        window.renderCalendar = function(month, year) {
+            const container = document.getElementById('calendarGrid');
+            const monthLabel = document.getElementById('calendarMonth');
+            const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            
+            monthLabel.innerText = `${months[month]} ${year}`;
+            container.innerHTML = "";
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            for (let i = 0; i < firstDay; i++) { container.innerHTML += `<div class="cal-day empty"></div>`; }
+
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dayKey = `${year}-${month + 1}-${i}`;
+                let eventClass = "";
+                if (calendarData[dayKey]) { eventClass = `event-${calendarData[dayKey].color}`; }
+                
+                const today = new Date();
+                let todayClass = "";
+                if (i === today.getDate() && month === today.getMonth() && year === today.getFullYear()) { todayClass = "today"; }
+
+                container.innerHTML += `<div class="cal-day ${todayClass} ${eventClass}" onclick="openCalendarModal('${dayKey}')">${i}</div>`;
+            }
+        };
+
+        window.prevMonth = function() { currentMonth--; if (currentMonth < 0) { currentMonth = 11; currentYear--; } window.renderCalendar(currentMonth, currentYear); };
+        window.nextMonth = function() { currentMonth++; if (currentMonth > 11) { currentMonth = 0; currentYear++; } window.renderCalendar(currentMonth, currentYear); };
+
+        window.openCalendarModal = function(dateKey) {
+            selectedDateKey = dateKey;
+            const isTutor = localStorage.getItem('ec_role') === 'tutor';
+            document.getElementById('cal-modal-date').innerText = "Agenda: " + dateKey;
+            document.getElementById('calendar-modal').style.display = 'flex';
+            const eventData = calendarData[dateKey];
+
+            if (isTutor) {
+                document.getElementById('cal-tutor-form').style.display = 'block';
+                document.getElementById('cal-student-view').style.display = 'none';
+                if(eventData) {
+                    document.getElementById('cal-event-desc').value = eventData.desc;
+                    document.getElementById('cal-event-color').value = eventData.color;
+                } else {
+                    document.getElementById('cal-event-desc').value = "";
+                    document.getElementById('cal-event-color').value = "blue";
+                }
+            } else {
+                document.getElementById('cal-tutor-form').style.display = 'none';
+                document.getElementById('cal-student-view').style.display = 'block';
+                if (eventData) { document.getElementById('cal-event-display').innerText = eventData.desc; } 
+                else { document.getElementById('cal-event-display').innerText = "Tidak ada agenda pada tanggal ini."; }
+            }
+        };
+
+        window.selectCalColor = function(color) {
+            document.getElementById('cal-event-color').value = color;
+            document.querySelectorAll('.color-circle').forEach(el => el.classList.remove('selected'));
+            document.querySelector(`.bg-${color}`).classList.add('selected');
+        };
+
+        window.saveCalendarEvent = function() {
+            const desc = document.getElementById('cal-event-desc').value;
+            const color = document.getElementById('cal-event-color').value || 'blue';
+            if(!desc) { alert("Isi deskripsi!"); return; }
+            update(ref(db, 'calendar/' + selectedDateKey), { desc: desc, color: color }).then(() => {
+                alert("Agenda disimpan!"); document.getElementById('calendar-modal').style.display = 'none';
+            });
+        };
+
+        window.deleteCalendarEvent = function() {
+            if(confirm("Hapus agenda tanggal ini?")) {
+                remove(ref(db, 'calendar/' + selectedDateKey)).then(() => {
+                    document.getElementById('calendar-modal').style.display = 'none';
+                });
+            }
+        };
+
+        // --- GALLERY SYSTEM ---
+        window.saveGalleryPhoto = function() {
+            const fileInput = document.getElementById('photo-file');
+            const file = fileInput.files[0];
+            if(!file) { alert("Pilih foto terlebih dahulu!"); return; }
+            const fileName = 'gallery/' + Date.now() + '_' + file.name;
+            const storageRef = sRef(storage, fileName);
+            uploadBytes(storageRef, file).then((snapshot) => { return getDownloadURL(snapshot.ref); }).then((downloadURL) => {
+                return push(ref(db, 'gallery'), { url: downloadURL, timestamp: Date.now() });
+            }).then(() => {
+                alert("Foto berhasil diupload!");
+                document.getElementById('add-photo-modal').style.display = 'none';
+                fileInput.value = "";
+            }).catch((error) => { alert("Gagal upload: " + error.message); });
+        };
+
+        window.deleteGalleryPhoto = function(id) {
+            if(confirm("Hapus foto ini dari galeri?")) { remove(ref(db, 'gallery/' + id)); }
+        };
+
+        onValue(ref(db, 'gallery'), (snapshot) => {
+            const container = document.getElementById('galleryContainer');
+            if(snapshot.exists()) {
+                const data = snapshot.val();
+                const photos = Object.entries(data).reverse();
+                const isTutor = localStorage.getItem('ec_role') === 'tutor';
+                let html = '';
+                photos.forEach(([key, item]) => {
+                    let deleteBtn = '';
+                    if(isTutor) { deleteBtn = `<div class="delete-gallery-btn" onclick="window.deleteGalleryPhoto('${key}')"><i class="fas fa-trash"></i></div>`; }
+                    html += `<div class="gallery-item" style="background-image: url('${item.url}');">${deleteBtn}</div>`;
+                });
+                if(photos.length > 2) html += html; 
+                container.innerHTML = html;
+                startAutoScroll();
+            } else { container.innerHTML = '<p style="text-align:center; width:100%; opacity:0.6; font-size:0.8rem; color:#ccc;">Belum ada foto kegiatan.</p>'; }
+        });
+
+        let scrollInterval; let isPaused = false;
+        function startAutoScroll() {
+            const container = document.getElementById('galleryContainer');
+            if(scrollInterval) clearInterval(scrollInterval);
+            scrollInterval = setInterval(() => {
+                if(!isPaused) { container.scrollLeft += 1; if(container.scrollLeft >= (container.scrollWidth / 2)) { container.scrollLeft = 0; } }
+            }, 30);
+        }
+        window.pauseScroll = function() { isPaused = true; }
+        window.resumeScroll = function() { isPaused = false; }
+
+        window.updateTutorUI = function() {
+            const isTutor = localStorage.getItem('ec_role') === 'tutor';
+            const galleryBtn = document.getElementById('galleryAddBtn');
+            const infoBtn = document.getElementById('infoAddBtn');
+            const fab = document.getElementById('tutor-fab');
+            const privateChatBtn = document.getElementById('private-chat-btn');
+            
+            if(galleryBtn) galleryBtn.style.display = isTutor ? 'block' : 'none';
+            if(infoBtn) infoBtn.style.display = isTutor ? 'block' : 'none';
+            if(fab) fab.style.display = isTutor ? 'flex' : 'none';
+            
+            if(privateChatBtn) {
+                privateChatBtn.style.display = 'flex';
+                if(isTutor) privateChatBtn.classList.add('fab-stacked');
+                else privateChatBtn.classList.remove('fab-stacked');
+            }
+        }
+
+        // --- LOCK SYSTEM ---
+        let lockedFeatures = {};
+        window.toggleLock = function(featureId) {
+            const isLocked = lockedFeatures[featureId] || false;
+            set(ref(db, 'locks/' + featureId), !isLocked).catch((err) => console.error(err));
+        };
+        onValue(ref(db, 'locks'), (snapshot) => {
+            lockedFeatures = snapshot.exists() ? snapshot.val() : {};
+            updateLockUI();
+        });
+        function updateLockUI() {
+            const isTutor = localStorage.getItem('ec_role') === 'tutor';
+            const features = ['modul', 'structure', 'vocab', 'game', 'absensi', 'support', 'certif', 'intermediate', 'wordbomb', 'lainnya'];
+            features.forEach(id => {
+                const isLocked = lockedFeatures[id] === true;
+                const gridLockBtn = document.querySelector(`#grid-${id} .tutor-lock-btn`);
+                const qaLockBtn = document.querySelector(`#qa-${id} .tutor-lock-btn`);
+                if(gridLockBtn) {
+                    gridLockBtn.innerHTML = isLocked ? '<i class="fas fa-lock"></i>' : '<i class="fas fa-lock-open"></i>';
+                    isLocked ? gridLockBtn.classList.add('locked') : gridLockBtn.classList.remove('locked');
+                }
+                if(qaLockBtn) {
+                    qaLockBtn.innerHTML = isLocked ? '<i class="fas fa-lock"></i>' : '<i class="fas fa-lock-open"></i>';
+                    isLocked ? qaLockBtn.classList.add('locked') : qaLockBtn.classList.remove('locked');
+                }
+                const gridItem = document.getElementById(`grid-${id}`);
+                const qaItem = document.getElementById(`qa-${id}`);
+                if(isLocked && !isTutor) {
+                    if(gridItem) gridItem.classList.add('item-locked');
+                    if(qaItem) qaItem.classList.add('item-locked');
+                } else {
+                    if(gridItem) gridItem.classList.remove('item-locked');
+                    if(qaItem) qaItem.classList.remove('item-locked');
+                }
+            });
+        }
+        window.refreshLockUI = updateLockUI;
+
+        // --- POSTING ---
+        window.saveNewPost = function() {
+            const title = document.getElementById('post-title').value;
+            const desc = document.getElementById('post-desc').value;
+            const color = document.getElementById('post-tag').value;
+            if(!title || !desc) { alert("Mohon isi semua data"); return; }
+            let tagText = "Umum";
+            if(color === 'blue') tagText = "Tips";
+            if(color === 'orange') tagText = "Materi";
+            if(color === 'green') tagText = "Pengumuman";
+            push(ref(db, 'posts'), { title: title, desc: desc, color: color, tag: tagText, timestamp: Date.now() }).then(() => {
+                alert("Berhasil diposting!");
+                document.getElementById('add-modal').style.display = 'none';
+                document.getElementById('post-title').value = "";
+                document.getElementById('post-desc').value = "";
+            });
+        };
+        window.deletePost = function(postId) {
+            if(confirm("Hapus informasi ini?")) { remove(ref(db, 'posts/' + postId)); }
+        };
+
+        const postsRef = query(ref(db, 'posts'), limitToLast(10));
+        onValue(postsRef, (snapshot) => {
+            const container = document.getElementById('info-feed-container');
+            const notifBody = document.getElementById('notif-content-body');
+            const badge = document.getElementById('notif-count');
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                const posts = Object.entries(data).reverse(); 
+                const isTutor = localStorage.getItem('ec_role') === 'tutor';
+                let html = '';
+                posts.forEach(([key, post]) => {
+                    let iconClass = 'fa-bell';
+                    if(post.color === 'blue') iconClass = 'fa-lightbulb';
+                    if(post.color === 'orange') iconClass = 'fa-fire';
+                    if(post.color === 'green') iconClass = 'fa-bullhorn';
+                    let commentsHtml = '';
+                    let commentCount = 0;
+                    if(post.comments) {
+                        const commentsArr = Object.values(post.comments);
+                        commentCount = commentsArr.length;
+                        const recentComments = commentsArr.slice(-3);
+                        commentsHtml = `<div class="card-comments-preview">`;
+                        recentComments.forEach(c => { commentsHtml += `<div class="preview-item"><span class="preview-user">${c.user}:</span><span class="preview-text">${c.text}</span></div>`; });
+                        if(commentCount > 3) { commentsHtml += `<div class="view-more-comments" onclick="event.stopPropagation(); window.openComments('${key}')">Lihat semua ${commentCount} komentar...</div>`; }
+                        commentsHtml += `</div>`;
+                    }
+                    let toolsHtml = `<div class="card-tools">`;
+                    toolsHtml += `<div class="tool-btn comment" onclick="event.stopPropagation(); window.openComments('${key}')"><i class="far fa-comment-dots"></i></div>`;
+                    if(isTutor) { toolsHtml += `<div class="tool-btn delete" onclick="event.stopPropagation(); window.deletePost('${key}')"><i class="fas fa-trash"></i></div>`; }
+                    toolsHtml += `</div>`;
+                    html += `<div class="info-card" onclick="window.playClick('#')">${toolsHtml}<div class="info-card-top"><div class="info-icon-container info-${post.color}"><i class="fas ${iconClass}"></i></div><div class="info-content"><span class="info-tag tag-${post.color}">${post.tag}</span><h4 class="info-title">${post.title}</h4><p class="info-desc">${post.desc}</p></div></div>${commentsHtml}</div>`;
+                });
+                container.innerHTML = html;
+                notifBody.innerHTML = html;
+                badge.innerText = posts.length;
+            } else { container.innerHTML = '<p style="text-align:center; opacity:0.6;">Belum ada update terbaru.</p>'; }
+        });
+
+        // --- PUBLIC COMMENTS ---
+        let currentPostId = null;
+        let commentsListener = null;
+        window.openComments = function(postId) {
+            currentPostId = postId;
+            document.getElementById('comment-modal').style.display = 'flex';
+            document.getElementById('comment-list-container').innerHTML = '<p style="text-align:center; margin-top:20px;">Memuat komentar...</p>';
+            const commentsRef = ref(db, 'posts/' + postId + '/comments');
+            if(commentsListener) { off(commentsRef); }
+            commentsListener = onValue(commentsRef, (snapshot) => {
+                const listDiv = document.getElementById('comment-list-container');
+                listDiv.innerHTML = ''; 
+                if (snapshot.exists()) {
+                    const commentsData = snapshot.val();
+                    const commentsArr = Object.entries(commentsData); 
+                    const currentUser = localStorage.getItem('ec_username');
+                    commentsArr.forEach(([commentId, c]) => {
+                        const date = new Date(c.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                        const isMyComment = c.user === currentUser;
+                        let chatHtml = '';
+                        if(isMyComment) {
+                            chatHtml = `<div class="chat-bubble chat-right"><div class="bubble-content"><div class="chat-text">${c.text}</div></div><div class="chat-info">${date} <span class="comment-actions"><i class="fas fa-edit" onclick="window.editComment('${postId}', '${commentId}', '${c.text}')"></i><i class="fas fa-trash" onclick="window.deleteComment('${postId}', '${commentId}')"></i></span></div></div>`;
+                        } else {
+                            const initial = c.user.charAt(0).toUpperCase();
+                            chatHtml = `<div class="chat-bubble chat-left"><div style="display:flex; gap:8px;"><div class="chat-avatar">${initial}</div><div><span class="chat-username">${c.user}</span><div class="bubble-content"><div class="chat-text">${c.text}</div></div><div class="chat-info">${date}</div></div></div></div>`;
+                        }
+                        listDiv.innerHTML += chatHtml;
+                    });
+                    listDiv.scrollTop = listDiv.scrollHeight;
+                } else { listDiv.innerHTML = '<p style="text-align:center; color:#aaa; margin-top:20px;">Belum ada komentar.</p>'; }
+            });
+        };
+        window.closeComments = function() {
+            document.getElementById('comment-modal').style.display = 'none';
+            if(currentPostId) { const commentsRef = ref(db, 'posts/' + currentPostId + '/comments'); off(commentsRef); }
+            currentPostId = null;
+        };
+        window.sendComment = function() {
+            const input = document.getElementById('comment-input');
+            const text = input.value.trim();
+            const username = localStorage.getItem('ec_username') || 'Anonymous';
+            if(!text) return;
+            if(!currentPostId) return;
+            push(ref(db, 'posts/' + currentPostId + '/comments'), { user: username, text: text, timestamp: Date.now() });
+            input.value = '';
+        };
+        window.deleteComment = function(postId, commentId) {
+            if(confirm("Hapus komentar ini?")) { remove(ref(db, 'posts/' + postId + '/comments/' + commentId)); }
+        };
+        window.editComment = function(postId, commentId, currentText) {
+            let newText = prompt("Edit komentar Anda:", currentText);
+            if(newText !== null && newText.trim() !== "") { update(ref(db, 'posts/' + postId + '/comments/' + commentId), { text: newText }); }
+        };
+        document.getElementById('comment-input').addEventListener('keypress', function (e) { if (e.key === 'Enter') window.sendComment(); });
+
+        window.handleMenuClick = function(targetUrl, featureId) {
+            const isTutor = localStorage.getItem('ec_role') === 'tutor';
+            const isLocked = lockedFeatures[featureId] === true;
+            if (isTutor) { window.playClick(targetUrl); return; }
+            if (isLocked) { alert("白 Maaf, materi ini sedang dikunci oleh Tutor."); } else { window.playClick(targetUrl); }
+        };
+        
+        window.toggleLainnya = function() {
+            const menu = document.getElementById('gridMenu');
+            menu.classList.toggle('show-all');
+        };
+        
+        window.openGameGroup = function() {
+            const isTutor = localStorage.getItem('ec_role') === 'tutor';
+            const isLocked = lockedFeatures['game'] === true; 
+            if (!isTutor && isLocked) {
+                alert("白 Maaf, Menu Game sedang dikunci oleh Tutor.");
+                return;
+            }
+            toggleModal('game-selection-modal');
+        };
+    </script>
+
+    <script>
+        const dailyWords = [
+            { word: "Resilience", meaning: "Ketangguhan", sentence: "Resilience is key to overcoming life's challenges." },
+            { word: "Ephemeral", meaning: "Sesaat / Fana", sentence: "Fashion trends are often ephemeral." },
+            { word: "Serendipity", meaning: "Kebetulan", sentence: "Meeting you here was pure serendipity." }
+        ];
+        let isMuted = false;
+        const clickSfx = document.getElementById('clickSound');
+
+        // Main setup handled by onAuthStateChanged now
+        
+        function setupDashboard(name, email, isTutor) {
+            document.getElementById('cardNameDisplay').innerText = name;
+            
+            // NEW: Set Email Display
+            const emailDisplay = document.getElementById('cardEmailDisplay');
+            if(emailDisplay) {
+                emailDisplay.innerText = email || "";
+            }
+
+            const lockBtns = document.querySelectorAll('.tutor-lock-btn');
+            lockBtns.forEach(btn => {
+                btn.style.display = isTutor ? 'flex' : 'none';
+            });
+            if(isTutor) {
+                document.getElementById('tutor-fab').style.display = "flex";
+                document.querySelector('.balance-label').innerText = "Mode Tutor";
+            } else {
+                document.getElementById('tutor-fab').style.display = "none";
+                document.querySelector('.balance-label').innerText = "Active Student ID";
+            }
+            if(window.refreshLockUI) window.refreshLockUI();
+            if(window.updateTutorUI) window.updateTutorUI();
+            const randomIndex = Math.floor(Math.random() * dailyWords.length);
+            const todayWord = dailyWords[randomIndex];
+            document.getElementById('dw-word').innerText = todayWord.word;
+            document.getElementById('dw-meaning').innerText = todayWord.meaning;
+            document.getElementById('dw-sentence').innerText = `"${todayWord.sentence}"`;
+            document.getElementById('dailyScoreDisplay').innerText = Math.floor(Math.random() * 50) * 10;
+        }
+
+        window.toggleModal = function(id) {
+            const modal = document.getElementById(id);
+            if(modal.style.display === 'flex') modal.style.display = 'none';
+            else { modal.style.display = 'flex'; if(!isMuted) clickSfx.play(); }
+        }
+        window.closeModalOnOutside = function(e, id) {
+            if(e.target.id === id) document.getElementById(id).style.display = 'none';
+        }
+        window.toggleSound = function(btn) {
+            isMuted = !isMuted;
+            const icon = document.getElementById('soundIcon');
+            if(isMuted) { icon.classList.remove('fa-headset'); icon.classList.add('fa-volume-mute'); icon.style.opacity = "0.6"; }
+            else { icon.classList.remove('fa-volume-mute'); icon.classList.add('fa-headset'); icon.style.opacity = "1"; clickSfx.currentTime = 0; clickSfx.play(); }
+        }
+        window.playClick = function(targetUrl) {
+            if(!isMuted) { clickSfx.currentTime = 0; clickSfx.play().catch(e=>{}); }
+            if(targetUrl && targetUrl !== '#') setTimeout(() => { window.location.href = targetUrl; }, 200);
+        }
+        document.getElementById('regPassword').addEventListener('keypress', function (e) { if (e.key === 'Enter') handleAuthAction(); });
+    </script>
+</body>
+</html>
