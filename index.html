@@ -174,6 +174,7 @@
             border-bottom: 4px solid var(--primary);
             display: flex;
             flex-direction: column;
+            overflow: hidden; /* Mencegah konten keluar */
         }
 
         .card:hover { transform: translateY(-10px); }
@@ -231,6 +232,46 @@
             display: flex;
             align-items: center;
             gap: 5px;
+        }
+
+        /* --- FITUR GALLERY SLIDER (SCROLL SAMPING) --- */
+        .gallery-container {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+            padding-bottom: 10px; /* Ruang untuk scrollbar halus */
+            /* Sembunyikan scrollbar di browser modern agar rapi */
+            scrollbar-width: thin;
+            scrollbar-color: var(--gold) var(--light-gray);
+        }
+        
+        .gallery-container::-webkit-scrollbar {
+            height: 6px;
+        }
+        .gallery-container::-webkit-scrollbar-thumb {
+            background-color: var(--gold);
+            border-radius: 10px;
+        }
+
+        .gallery-img {
+            flex: 0 0 100%; /* Gambar mengambil lebar penuh container */
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            scroll-snap-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .gallery-hint {
+            font-size: 0.75rem;
+            color: #888;
+            text-align: center;
+            margin-top: -1rem;
+            margin-bottom: 1rem;
+            font-style: italic;
         }
 
         /* Footer */
@@ -379,29 +420,57 @@
             English Check hadir langsung di kampusmu! Kami mengadakan kopdar mingguan, latihan debat, dan persiapan beasiswa secara offline.
         </p>
         <div class="grid-container">
+            
             <div class="card">
-                <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2070&auto=format&fit=crop" alt="Kegiatan di ITS" class="campus-img">
+                <div class="gallery-container">
+                    <img src="its 1.jpg" alt="Mentoring ITS 1" class="gallery-img">
+                    <img src="its2.jpg" alt="Mentoring ITS 2" class="gallery-img">
+                    <img src="its3.jpg" alt="Mentoring ITS 3" class="gallery-img">
+                    <img src="its4.jpg" alt="Mentoring ITS 4" class="gallery-img">
+                    <img src="its5.jpeg" alt="Mentoring ITS 5" class="gallery-img">
+                    <img src="its6.jpeg" alt="Mentoring ITS 6" class="gallery-img">
+                </div>
+                <div class="gallery-hint">↔ Geser foto untuk melihat lainnya</div>
+
                 <span class="campus-badge">ITS Surabaya</span>
-                <h3>Engineering & English</h3>
-                <div class="location-text">📍 Taman Alumni, Sukolilo</div>
-                <p>Diskusi seru membahas teknologi terkini dan persiapan presentasi jurnal internasional.</p>
+               
+                <div class="location-text">📍 Asrama ITS</div>
+                <p>Diskusi seru membahas teknologi terkini, belajar santai di selasar, dan persiapan presentasi jurnal internasional.</p>
             </div>
 
             <div class="card">
-                <img src="https://images.unsplash.com/photo-1544531586-fde5298cdd40?q=80&w=2070&auto=format&fit=crop" alt="Kegiatan di UPN" class="campus-img">
+                <div class="gallery-container">
+                    <img src="upn1.jpeg" alt="Mentoring UPN 1" class="gallery-img">
+                    <img src="upn2.jpeg" alt="Mentoring UPN 2" class="gallery-img">
+                    <img src="upn3.jpeg" alt="Mentoring UPN 3" class="gallery-img">
+                    <img src="upn4.jpeg" alt="Mentoring UPN 4" class="gallery-img">
+                    <img src="upn5.jpeg" alt="Mentoring UPN 5" class="gallery-img">
+                    <img src="upn6.jpeg" alt="Mentoring UPN 6" class="gallery-img">
+                </div>
+                <div class="gallery-hint">↔ Geser foto untuk melihat lainnya</div>
+
                 <span class="campus-badge">UPN Veteran Jatim</span>
-                <h3>Speaking Club</h3>
-                <div class="location-text">📍 Giri Reka, Rungkut</div>
+               
+                <div class="location-text">📍 FASILKOM</div>
                 <p>Latihan public speaking di area terbuka dengan topik hangat seputar sosial dan bisnis.</p>
             </div>
 
             <div class="card">
-                <img src="https://images.unsplash.com/photo-1571260899304-425eee4c7efc?q=80&w=2070&auto=format&fit=crop" alt="Kegiatan di UNAIR" class="campus-img">
+                <div class="gallery-container">
+                    <img src="unair1.jpg" alt="Mentoring UNAIR 1" class="gallery-img">
+                    <img src="unair2.jpg" alt="Mentoring UNAIR 2" class="gallery-img">
+                    <img src="unair3.jpg" alt="Mentoring UNAIR 3" class="gallery-img">
+                    <img src="unair4.jpg" alt="Mentoring UNAIR 4" class="gallery-img">
+                    <img src="unair5.jpg" alt="Mentoring UNAIR 5" class="gallery-img">
+                </div>
+                <div class="gallery-hint">↔ Geser foto untuk melihat lainnya</div>
+
                 <span class="campus-badge">UNAIR</span>
-                <h3>Medical & Debate</h3>
-                <div class="location-text">📍 Gazebo FK, Kampus A</div>
+            
+                <div class="location-text">📍 Kampus C</div>
                 <p>Sesi khusus pembahasan studi kasus medis dan latihan debat kompetitif yang intensif.</p>
             </div>
+            
         </div>
     </section>
 
