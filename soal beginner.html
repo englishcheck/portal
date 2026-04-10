@@ -539,6 +539,29 @@
     const tRangeInput = document.getElementById('t-range');
     const tNumberInput = document.getElementById('t-number');
     const timerDisplay = document.getElementById('timer-display');
+    const API_BASE_URL = 'http://localhost:3000/api';
+
+    async function saveProgressToBackend(moduleKey, percentage, completed) {
+        const token = localStorage.getItem('ec_token');
+        if (!token) return;
+
+        try {
+            await fetch(`${API_BASE_URL}/progress`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    moduleKey,
+                    score: percentage,
+                    completed
+                })
+            });
+        } catch (error) {
+            console.error('Failed to save progress:', error);
+        }
+    }
 
 
     function shuffleArray(array) {
@@ -756,6 +779,8 @@
         
         const percentage = Math.round((score / questions.length) * 100);
         document.getElementById('final-score').textContent = percentage;
+
+        saveProgressToBackend('toefl-structure-beginner', percentage, true);
     }
 
     // Start

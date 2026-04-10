@@ -234,6 +234,42 @@
             gap: 5px;
         }
 
+        .campus-status {
+            display: inline-block;
+            align-self: flex-start;
+            margin-top: 0.75rem;
+            padding: 0.45rem 0.9rem;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            color: #fff;
+        }
+
+        .campus-status.closed {
+            background: #8a8f98;
+        }
+
+        .campus-status.development {
+            background: #8a8f98;
+        }
+
+        .campus-status.soon {
+            background: linear-gradient(135deg, #2f855a, #46a36f);
+            box-shadow: 0 10px 18px rgba(47, 133, 90, 0.24);
+            animation: popup-bounce 1.8s ease-in-out infinite;
+            transform-origin: center;
+        }
+
+        @keyframes popup-bounce {
+            0%, 100% {
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                transform: translateY(-2px) scale(1.04);
+            }
+        }
+
         /* --- FITUR GALLERY SLIDER (SCROLL SAMPING) --- */
         .gallery-container {
             display: flex;
@@ -342,7 +378,7 @@
             <li><a href="#curriculum" onclick="closeMenu()">Kurikulum</a></li>
             <li><a href="#campus" onclick="closeMenu()">Kampus</a></li>
             <li><a href="login dasboard.html" onclick="closeMenu()">Masuk</a></li>
-            <li><a href="#join" class="nav-btn" onclick="closeMenu()">Daftar Gratis</a></li>
+            <li><a href="Daftar.html" class="nav-btn" onclick="closeMenu()">Daftar Gratis</a></li>
         </ul>
 
         <div class="hamburger" onclick="toggleMenu()">
@@ -356,7 +392,7 @@
         <div class="hero-content">
             <h1>Bahasa Inggris Lancar.<br>Masa Depan Cerah.</h1>
             <p>Bergabunglah dengan komunitas mahasiswa terbesar. Belajar gratis dengan kurikulum orisinal yang terstruktur.</p>
-            <a href="#join" class="cta-button">Mulai Belajar Sekarang</a>
+            <a href="Daftar.html" class="cta-button">Mulai Belajar Sekarang</a>
         </div>
     </header>
 
@@ -423,12 +459,11 @@
             
             <div class="card">
                 <div class="gallery-container">
-                    <img src="its 1.jpg" alt="Mentoring ITS 1" class="gallery-img">
-                    <img src="its2.jpg" alt="Mentoring ITS 2" class="gallery-img">
-                    <img src="its3.jpg" alt="Mentoring ITS 3" class="gallery-img">
-                    <img src="its4.jpg" alt="Mentoring ITS 4" class="gallery-img">
-                    <img src="its5.jpeg" alt="Mentoring ITS 5" class="gallery-img">
-                    <img src="its6.jpeg" alt="Mentoring ITS 6" class="gallery-img">
+                    <img src="picture/its/1.JPG" alt="Mentoring ITS 1" class="gallery-img">
+                    <img src="picture/its/2.jpg" alt="Mentoring ITS 2" class="gallery-img">
+                    <img src="picture/its/3.JPG" alt="Mentoring ITS 3" class="gallery-img">
+                    <img src="picture/its/4.jpg" alt="Mentoring ITS 4" class="gallery-img">
+                    <img src="picture/its/5.JPG" alt="Mentoring ITS 5" class="gallery-img">
                 </div>
                 <div class="gallery-hint">↔ Geser foto untuk melihat lainnya</div>
 
@@ -436,16 +471,15 @@
                
                 <div class="location-text">📍 Asrama ITS</div>
                 <p>Diskusi seru membahas teknologi terkini, belajar santai di selasar, dan persiapan presentasi jurnal internasional.</p>
+                <span class="campus-status closed">Sedang dikembangkan 🚧</span>
             </div>
 
             <div class="card">
                 <div class="gallery-container">
-                    <img src="upn1.jpeg" alt="Mentoring UPN 1" class="gallery-img">
-                    <img src="upn2.jpeg" alt="Mentoring UPN 2" class="gallery-img">
-                    <img src="upn3.jpeg" alt="Mentoring UPN 3" class="gallery-img">
-                    <img src="upn4.jpeg" alt="Mentoring UPN 4" class="gallery-img">
-                    <img src="upn5.jpeg" alt="Mentoring UPN 5" class="gallery-img">
-                    <img src="upn6.jpeg" alt="Mentoring UPN 6" class="gallery-img">
+                    <img src="picture/upn/1.jpg" alt="Mentoring UPN 1" class="gallery-img">
+                    <img src="picture/upn/2.jpg" alt="Mentoring UPN 2" class="gallery-img">
+                    <img src="picture/upn/3.jpg" alt="Mentoring UPN 3" class="gallery-img">
+                    <img src="picture/upn/4.jpg" alt="Mentoring UPN 4" class="gallery-img">
                 </div>
                 <div class="gallery-hint">↔ Geser foto untuk melihat lainnya</div>
 
@@ -453,15 +487,14 @@
                
                 <div class="location-text">📍 FASILKOM</div>
                 <p>Latihan public speaking di area terbuka dengan topik hangat seputar sosial dan bisnis.</p>
+                <span class="campus-status soon">✨ Segera dibuka</span>
             </div>
 
             <div class="card">
                 <div class="gallery-container">
-                    <img src="unair1.jpg" alt="Mentoring UNAIR 1" class="gallery-img">
-                    <img src="unair2.jpg" alt="Mentoring UNAIR 2" class="gallery-img">
-                    <img src="unair3.jpg" alt="Mentoring UNAIR 3" class="gallery-img">
-                    <img src="unair4.jpg" alt="Mentoring UNAIR 4" class="gallery-img">
-                    <img src="unair5.jpg" alt="Mentoring UNAIR 5" class="gallery-img">
+                    <img src="picture/unair/1.JPG" alt="Mentoring UNAIR 1" class="gallery-img">
+                    <img src="picture/unair/2.jpg" alt="Mentoring UNAIR 2" class="gallery-img">
+                    <img src="picture/unair/3.jpg" alt="Mentoring UNAIR 3" class="gallery-img">
                 </div>
                 <div class="gallery-hint">↔ Geser foto untuk melihat lainnya</div>
 
@@ -469,6 +502,7 @@
             
                 <div class="location-text">📍 Kampus C</div>
                 <p>Sesi khusus pembahasan studi kasus medis dan latihan debat kompetitif yang intensif.</p>
+                <span class="campus-status development">Sedang dikembangkan 🚧</span>
             </div>
             
         </div>
@@ -479,7 +513,7 @@
         <p style="margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">
             Daftarkan dirimu sekarang. Kuota terbatas setiap batch demi menjaga kualitas pembelajaran.
         </p>
-        <a href="https://forms.google.com/" class="cta-button" style="background: white; color: var(--primary);">Isi Formulir Pendaftaran</a>
+        <a href="Daftar.html" class="cta-button" style="background: white; color: var(--primary);">Isi Formulir Pendaftaran</a>
     </section>
 
     <footer>

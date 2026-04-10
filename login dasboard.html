@@ -280,7 +280,7 @@
                     <input type="email" id="regEmail" placeholder="Email" autocomplete="off">
                 </div>
                 
-                <p id="emailHelp" class="email-hint">Contoh: nama@ecstudent.com</p>
+                <p id="emailHelp" class="email-hint">Contoh: nama@email.com</p>
 
                 <div class="input-group">
                     <input type="password" id="regPassword" placeholder="Password (Min. 6 huruf)" autocomplete="off">
@@ -589,6 +589,8 @@
         const db = getDatabase(app);
         const storage = getStorage(app);
         const auth = getAuth(app);
+        const API_BASE_URL = 'http://localhost:3000/api';
+        let usingBackendSession = false;
 
         // --- AUTH LOGIC START ---
         let isRegisterMode = false;
@@ -618,8 +620,8 @@
                 toggleText.style.display = 'block'; 
                 toggleText.innerText = "Belum punya akun? Daftar";
                 
-                // Show hint specifically for students
-                emailInput.placeholder = "Email (nama@ecstudent.com)";
+                // Show hint for student login/registration
+                emailInput.placeholder = "Email Student";
                 emailHint.style.display = "block";
             } else {
                 title.innerText = "Tutor Login";
@@ -675,30 +677,51 @@
                 return;
             }
 
-            // --- VALIDATION: STUDENT EMAIL MUST END WITH @ecstudent.com ---
             if (isRegisterMode && selectedRole === 'student') {
-                if (!email.endsWith('@ecstudent.com')) {
-                    alert("Gagal Registrasi:\n\nEmail Student WAJIB menggunakan format: nama@ecstudent.com\n\nContoh yang benar: budi@ecstudent.com");
+                if (!name) { alert("Nama wajib diisi!"); return; }
+                alert("Pendaftaran student sekarang melalui halaman Daftar.");
+                window.location.href = 'Daftar.html';
+            } else {
+                if (selectedRole === 'student') {
+                    fetch(`${API_BASE_URL}/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password })
+                    })
+                        .then(async (response) => {
+                            const data = await response.json();
+                            if (!response.ok) {
+                                throw new Error(data.message || 'Login gagal.');
+                            }
+
+                            localStorage.setItem('ec_token', data.token);
+                            localStorage.setItem('ec_user', JSON.stringify(data.user));
+                            localStorage.setItem('ec_username', data.user.name);
+                            localStorage.setItem('ec_role', data.user.role || 'student');
+
+                            usingBackendSession = true;
+
+                            const splash = document.getElementById('splash-screen');
+                            const login = document.getElementById('login-screen');
+                            const dashboard = document.getElementById('dashboard');
+
+                            login.style.opacity = '0';
+                            setTimeout(() => {
+                                login.style.display = 'none';
+                                dashboard.style.display = 'flex';
+                                setupDashboard(data.user.name, data.user.email, false);
+                                window.renderCalendar(new Date().getMonth(), new Date().getFullYear());
+                            }, 300);
+
+                            splash.classList.add('fade-out');
+                            setTimeout(() => splash.style.display = 'none', 500);
+                        })
+                        .catch((error) => {
+                            alert("Login Gagal: " + error.message);
+                        });
                     return;
                 }
 
-                if (!name) { alert("Nama wajib diisi!"); return; }
-                
-                createUserWithEmailAndPassword(auth, email, password)
-                    .then((userCredential) => {
-                        const user = userCredential.user;
-                        updateProfile(user, { displayName: name }).then(() => {
-                            // Simpan data user ke DB (Student)
-                            set(ref(db, 'users/' + user.uid), {
-                                username: name,
-                                email: email,
-                                role: "student"
-                            });
-                            alert("Registrasi Berhasil! Anda akan masuk otomatis.");
-                        });
-                    })
-                    .catch((error) => { alert("Gagal Daftar: " + error.message); });
-            } else {
                 // LOGIN (Both Student & Tutor)
                 signInWithEmailAndPassword(auth, email, password)
                     .then((userCredential) => {
@@ -709,27 +732,28 @@
         };
 
         // Listen for Auth State Changes
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
+            if (usingBackendSession || localStorage.getItem('ec_token')) {
+                return;
+            }
             const splash = document.getElementById('splash-screen');
             const login = document.getElementById('login-screen');
             const dashboard = document.getElementById('dashboard');
 
             if (user) {
                 // User is signed in
-                const email = user.email;
-                const isTutor = (email === "admin@tutor.com");
-
-                // ==========================================
-                // LOGIKA: KELUARKAN SEMUA USER LAMA (RESET PAKSA)
-                // ==========================================
-                if (!isTutor && !email.endsWith('@ecstudent.com')) {
-                    alert("⚠️ SISTEM DIPERBARUI ⚠️\n\nMohon maaf, semua akun lama (Gmail/Yahoo/dll) sudah tidak berlaku.\n\nSilakan DAFTAR KEMBALI menggunakan email khusus: @ecstudent.com");
-                    signOut(auth).then(() => { window.location.reload(); });
-                    return; 
+                const email = user.email || "";
+                let profileData = {};
+                try {
+                    const userSnap = await get(ref(db, 'users/' + user.uid));
+                    if (userSnap.exists()) profileData = userSnap.val();
+                } catch (error) {
+                    console.error('Failed to load user profile:', error);
                 }
-                // ==========================================
 
-                const name = user.displayName || "User";
+                const isTutor = (profileData.role === 'tutor') || (email === "admin@tutor.com");
+                const name = profileData.username || user.displayName || "User";
+                const restoredEmail = profileData.email || email;
                 
                 localStorage.setItem('ec_username', name);
                 localStorage.setItem('ec_role', isTutor ? 'tutor' : 'student');
@@ -740,12 +764,12 @@
                     setTimeout(() => {
                         login.style.display = 'none';
                         dashboard.style.display = 'flex';
-                        setupDashboard(name, email, isTutor); // Pass Email here
+                        setupDashboard(name, restoredEmail, isTutor); // Pass Email here
                         window.renderCalendar(new Date().getMonth(), new Date().getFullYear());
                     }, 300);
                 } else {
                     dashboard.style.display = 'flex';
-                    setupDashboard(name, email, isTutor);
+                    setupDashboard(name, restoredEmail, isTutor);
                     window.renderCalendar(new Date().getMonth(), new Date().getFullYear());
                 }
                 splash.classList.add('fade-out');
@@ -770,9 +794,45 @@
 
         window.confirmLogout = function() {
             if (confirm("Apakah Anda yakin ingin keluar?")) {
-                signOut(auth).then(() => { location.reload(); }).catch((error) => { console.error(error); });
+                localStorage.removeItem('ec_token');
+                localStorage.removeItem('ec_user');
+                localStorage.removeItem('ec_username');
+                localStorage.removeItem('ec_role');
+
+                const user = auth.currentUser;
+                if (user) {
+                    signOut(auth).then(() => { location.reload(); }).catch((error) => { console.error(error); });
+                } else {
+                    location.reload();
+                }
             }
         };
+
+        // Prefill email when redirected from registration page.
+        const emailFromQuery = new URLSearchParams(window.location.search).get('email');
+        if (emailFromQuery) {
+            const emailInput = document.getElementById('regEmail');
+            if (emailInput) emailInput.value = emailFromQuery;
+        }
+
+        const storedToken = localStorage.getItem('ec_token');
+        const storedUserRaw = localStorage.getItem('ec_user');
+        if (storedToken && storedUserRaw) {
+            try {
+                const storedUser = JSON.parse(storedUserRaw);
+                usingBackendSession = true;
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'flex';
+                setupDashboard(storedUser.name || 'Student', storedUser.email || '', false);
+                window.renderCalendar(new Date().getMonth(), new Date().getFullYear());
+                const splash = document.getElementById('splash-screen');
+                splash.classList.add('fade-out');
+                setTimeout(() => splash.style.display = 'none', 500);
+            } catch (error) {
+                localStorage.removeItem('ec_token');
+                localStorage.removeItem('ec_user');
+            }
+        }
 
         // --- NEW: SETTINGS LOGIC ---
         window.changeUsername = function() {
