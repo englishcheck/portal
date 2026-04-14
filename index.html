@@ -271,6 +271,89 @@
             margin-bottom: 1rem; 
         }
         .curriculum-card ul li { margin-bottom: 8px; font-size: 0.95rem; }
+
+        /* Capaian Kami */
+        .achievements-section {
+            background:
+                linear-gradient(120deg, rgba(15, 46, 27, 0.84), rgba(26, 77, 46, 0.8)),
+                url('picture/asset/welpar.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .achievements-wrap {
+            display: grid;
+            grid-template-columns: 1.15fr 1fr;
+            gap: 2rem;
+            align-items: stretch;
+        }
+
+        .achievements-copy {
+            background: rgba(15, 46, 27, 0.36);
+            border-radius: 16px;
+            padding: 2rem;
+            border-left: 5px solid var(--gold);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.22);
+            backdrop-filter: blur(2px);
+        }
+
+        .achievements-copy h2 {
+            color: #f4f7ff;
+            font-size: clamp(2rem, 3.4vw, 3rem);
+            line-height: 1.15;
+            margin-bottom: 1rem;
+        }
+
+        .achievements-copy p {
+            font-size: 1.05rem;
+            color: rgba(232, 245, 233, 0.9);
+            max-width: 40ch;
+        }
+
+        .achievements-grid {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            justify-items: center;
+        }
+
+        .achievement-card {
+            background: rgba(15, 46, 27, 0.82);
+            border-radius: 16px;
+            padding: 1.2rem 1.1rem;
+            border: 1px solid rgba(233, 196, 106, 0.35);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.24);
+            text-align: center;
+            width: 100%;
+            max-width: 320px;
+            min-height: 240px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .achievement-emoji {
+            font-size: 1.7rem;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .achievement-number {
+            font-size: clamp(1.8rem, 3.2vw, 2.4rem);
+            font-weight: 700;
+            color: var(--gold);
+            font-variant-numeric: tabular-nums;
+            line-height: 1.1;
+            margin-bottom: 0.3rem;
+        }
+
+        .achievement-label {
+            font-size: 0.95rem;
+            color: rgba(244, 244, 244, 0.9);
+            font-weight: 600;
+        }
         
         /* --- CSS TAMBAHAN UNTUK FOTO KAMPUS & LOKASI --- */
         .campus-img {
@@ -562,6 +645,42 @@
             
             /* Adjust Card Grid */
             .grid-container { grid-template-columns: 1fr; /* 1 kolom penuh di HP */ }
+
+            .achievements-wrap {
+                grid-template-columns: 1fr;
+                gap: 1.2rem;
+            }
+
+            .achievements-copy {
+                padding: 1.35rem;
+            }
+
+            .achievements-copy p {
+                font-size: 0.96rem;
+                max-width: none;
+            }
+
+            .achievements-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 0.7rem;
+            }
+
+            .achievement-card {
+                padding: 0.9rem 0.45rem;
+                min-height: 170px;
+            }
+
+            .achievement-emoji {
+                font-size: 1.35rem;
+            }
+
+            .achievement-number {
+                font-size: 1.3rem;
+            }
+
+            .achievement-label {
+                font-size: 0.8rem;
+            }
         }
     </style>
 </head>
@@ -654,6 +773,34 @@
                     <li>✅ CV & Cover Letter Clinic</li>
                     <li>✅ TOEFL/IELTS Intro</li>
                 </ul>
+            </div>
+        </div>
+    </section>
+
+    <section id="achievements" class="achievements-section">
+        <div class="achievements-wrap">
+            <div class="achievements-copy">
+                <h2>Capaian Kami</h2>
+                <p>
+                    English Check Memulai Program Rintisan Sejak 2024, Saat ini kami telah menjangkau
+                </p>
+            </div>
+            <div class="achievements-grid" aria-label="Statistik capaian English Check">
+                <div class="achievement-card">
+                    <div class="achievement-emoji" aria-hidden="true">🏫</div>
+                    <div class="achievement-number" data-count-target="3">0</div>
+                    <div class="achievement-label">Kampus</div>
+                </div>
+                <div class="achievement-card">
+                    <div class="achievement-emoji" aria-hidden="true">👩‍🏫</div>
+                    <div class="achievement-number" data-count-target="8">0</div>
+                    <div class="achievement-label">Mentor</div>
+                </div>
+                <div class="achievement-card">
+                    <div class="achievement-emoji" aria-hidden="true">🎓</div>
+                    <div class="achievement-number" data-count-target="100">0</div>
+                    <div class="achievement-label">Student</div>
+                </div>
             </div>
         </div>
     </section>
@@ -809,6 +956,47 @@
         }
 
         initHeroPhotos();
+
+        function initAchievementCounters() {
+            const counterEls = Array.from(document.querySelectorAll('[data-count-target]'));
+            if (!counterEls.length) return;
+
+            const runCounter = (el) => {
+                const target = Number(el.dataset.countTarget || 0);
+                const duration = target >= 100 ? 3200 : 2600;
+                const start = performance.now();
+
+                const tick = (now) => {
+                    const progress = Math.min((now - start) / duration, 1);
+                    const eased = 1 - Math.pow(1 - progress, 3);
+                    const value = Math.floor(eased * target);
+                    el.textContent = String(value).padStart(target >= 100 ? 3 : 1, '0');
+
+                    if (progress < 1) {
+                        requestAnimationFrame(tick);
+                    } else {
+                        el.textContent = String(target);
+                    }
+                };
+
+                requestAnimationFrame(tick);
+            };
+
+            const section = document.getElementById('achievements');
+            if (!section) return;
+
+            const observer = new IntersectionObserver((entries, obs) => {
+                entries.forEach((entry) => {
+                    if (!entry.isIntersecting) return;
+                    counterEls.forEach(runCounter);
+                    obs.disconnect();
+                });
+            }, { threshold: 0.35 });
+
+            observer.observe(section);
+        }
+
+        initAchievementCounters();
 
         function closeWelcomeModal() {
             const overlay = document.getElementById('welcomeOverlay');
