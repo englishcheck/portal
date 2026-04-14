@@ -549,6 +549,40 @@
 			background: rgba(255, 235, 238, 0.55);
 		}
 
+		.consent-field {
+			background: #ffffff;
+			border: 1px solid #e3ece1;
+			border-radius: 16px;
+			padding: 12px 14px;
+		}
+
+		.consent-option {
+			display: flex;
+			align-items: flex-start;
+			gap: 10px;
+		}
+
+		.consent-option input {
+			margin-top: 4px;
+			width: 18px;
+			height: 18px;
+			accent-color: var(--bg-dark);
+			flex-shrink: 0;
+		}
+
+		.consent-option label {
+			font-size: 0.8rem;
+			font-weight: 500;
+			line-height: 1.55;
+			color: #2a5a4d;
+			cursor: pointer;
+		}
+
+		.field-error.consent-field {
+			border-color: #e53935;
+			background: rgba(255, 235, 238, 0.45);
+		}
+
 		.actions {
 			display: grid;
 			gap: 10px;
@@ -580,6 +614,12 @@
 			background: rgba(15, 61, 62, 0.06);
 			color: var(--bg-dark);
 			border: 1px solid rgba(15, 61, 62, 0.1);
+		}
+
+		.btn:disabled {
+			opacity: 0.6;
+			cursor: not-allowed;
+			box-shadow: none;
 		}
 
 		.summary-grid {
@@ -856,13 +896,20 @@
 										<button type="button" class="upload-remove" data-upload-remove="followProof"><i class="fas fa-xmark"></i></button>
 									</div>
 								</div>
-								<input type="file" id="followProof" name="followProof" class="file-input" accept="image/*" required>
-								<div class="helper">Upload screenshot bukti follow kedua akun Instagram.</div>
+								<input type="file" id="followProof" name="followProof" class="file-input" accept="image/*" multiple required>
+								<div class="helper">Upload maksimal 2 foto screenshot bukti follow kedua akun Instagram.</div>
+							</div>
+
+							<div class="field full consent-field" id="consentField">
+								<div class="consent-option">
+									<input type="checkbox" id="policyConsent" name="policyConsent" required>
+									<label for="policyConsent">Dengan mengisi formulir ini, Anda menyetujui segala perubahan kebijakan yang mungkin terjadi (seperti jadwal atau peserta). Anda juga mengizinkan penggunaan data Anda untuk keperluan webinar, pengembangan produk, maupun promosi di masa mendatang oleh English Check serta para mitra dan sponsor acara ini.</label>
+								</div>
 							</div>
 						</div>
 
 						<div class="actions">
-							<button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane" style="margin-right: 8px;"></i>Kirim Pendaftaran</button>
+							<button type="submit" class="btn btn-primary" id="submitBtn" disabled><i class="fas fa-paper-plane" style="margin-right: 8px;"></i>Kirim Pendaftaran</button>
 							<button type="reset" class="btn btn-secondary"><i class="fas fa-rotate-left" style="margin-right: 8px;"></i>Reset Form</button>
 						</div>
 					</form>
@@ -928,10 +975,12 @@
 		const passwordPanel = document.querySelector('.password-panel');
 		const waProofInput = document.getElementById('waProof');
 		const followProofInput = document.getElementById('followProof');
+		const policyConsentInput = document.getElementById('policyConsent');
+		const submitBtn = document.getElementById('submitBtn');
 		const MAX_UPLOAD_SIZE = 100 * 1024 * 1024;
 		const uploadConfig = {
 			waProof: { maxFiles: 5, label: 'foto' },
-			followProof: { maxFiles: 1, label: 'foto' }
+			followProof: { maxFiles: 2, label: 'foto' }
 		};
 
 		const fieldMap = [
@@ -1140,6 +1189,10 @@
 			if (field) field.classList.add('field-error');
 		}
 
+		function updateSubmitState() {
+			submitBtn.disabled = !policyConsentInput.checked;
+		}
+
 		function syncPreview() {
 			fieldMap.forEach(({ id, index, fallback }) => {
 				const value = document.getElementById(id).value.trim() || fallback;
@@ -1179,6 +1232,12 @@
 			});
 		});
 
+		policyConsentInput.addEventListener('change', () => {
+			const field = policyConsentInput.closest('.field');
+			if (field) field.classList.remove('field-error');
+			updateSubmitState();
+		});
+
 		form.addEventListener('reset', () => {
 			setTimeout(() => {
 				clearErrorHighlights();
@@ -1186,6 +1245,7 @@
 				updatePasswordStatus();
 				updateUploadUi('waProof');
 				updateUploadUi('followProof');
+				updateSubmitState();
 				showToast('Form berhasil direset.');
 			}, 0);
 		});
@@ -1204,6 +1264,7 @@
 			const waProofFiles = Array.from(waProofInput.files || []);
 			const followProofFile = followProofInput.files[0];
 			const status = getSelectedStatus();
+			const hasPolicyConsent = policyConsentInput.checked;
 
 			clearErrorHighlights();
 			let hasMissingField = false;
@@ -1219,6 +1280,7 @@
 			if (!password) { setFieldErrorById('password'); passwordPanel.classList.add('panel-error'); hasMissingField = true; }
 			if (!confirmPassword) { setFieldErrorById('confirmPassword'); passwordPanel.classList.add('panel-error'); hasMissingField = true; }
 			if (status === 'Belum dipilih') { statusField.classList.add('field-error'); hasMissingField = true; }
+			if (!hasPolicyConsent) { setFieldErrorById('policyConsent'); hasMissingField = true; }
 
 			if (hasMissingField) {
 				showToast('Mohon lengkapi semua data pendaftaran.');
@@ -1284,7 +1346,8 @@
 				formData.append('major', jurusan);
 				formData.append('academicStatus', status);
 				waProofFiles.forEach((file) => formData.append('waProof', file));
-				formData.append('followProof', followProofFile);
+				const followProofFiles = Array.from(followProofInput.files || []);
+				followProofFiles.forEach((file) => formData.append('followProof', file));
 
 				const response = await fetch(`${API_BASE_URL}/register`, {
 					method: 'POST',
@@ -1313,12 +1376,16 @@
 					localStorage.setItem('ec_user', JSON.stringify(responseData.user));
 				}
 
-				showToast('Pendaftaran berhasil. Mengarahkan ke portal login...');
+				showToast('Pendaftaran berhasil. Mengarahkan ke homepage...');
+				localStorage.setItem('ec_welcome_notice', JSON.stringify({
+					name: nama,
+					timestamp: Date.now()
+				}));
 				form.reset();
 				syncPreview();
 
 				setTimeout(() => {
-					window.location.href = `login dasboard.html?email=${encodeURIComponent(email)}`;
+					window.location.href = 'index.html';
 				}, 900);
 			} catch (error) {
 				showToast('Tidak bisa terhubung ke backend. Pastikan server berjalan.');
@@ -1329,6 +1396,7 @@
 		updatePasswordStatus();
 		updateUploadUi('waProof');
 		updateUploadUi('followProof');
+		updateSubmitState();
 	</script>
 </body>
 </html>

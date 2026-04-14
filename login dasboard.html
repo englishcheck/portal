@@ -38,11 +38,16 @@
         
         /* ROLE CARDS */
         .role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; margin-bottom: 20px; }
-        .role-card { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 15px; padding: 20px 10px; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .role-card { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 15px; padding: 20px 10px; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative; overflow: hidden; }
         .role-card:hover, .role-card:active { background: var(--accent-lime); border-color: var(--accent-lime); }
         .role-card i { font-size: 2rem; color: white; transition: 0.3s; }
         .role-card span { font-size: 0.9rem; font-weight: 600; color: white; transition: 0.3s; }
         .role-card:hover i, .role-card:active i, .role-card:hover span, .role-card:active span { color: var(--bg-dark); }
+        .role-card-locked { cursor: not-allowed; opacity: 0.85; }
+        .role-card-locked:hover, .role-card-locked:active { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+        .role-card-locked:hover i, .role-card-locked:active i, .role-card-locked:hover span, .role-card-locked:active span { color: white; }
+        .role-lock-overlay { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; background: rgba(10, 43, 44, 0.45); }
+        .role-lock-overlay i { font-size: 1.7rem; color: var(--bg-dark); background: var(--accent-lime); width: 44px; height: 44px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 6px 14px rgba(0,0,0,0.25); }
 
         /* AUTH FORM */
         .input-group input { width: 100%; padding: 15px 20px; border-radius: 50px; border: none; outline: none; background: rgba(255,255,255,0.9); font-family: 'Poppins'; font-size: 1rem; color: var(--bg-dark); text-align: center; font-weight: 600; margin-bottom: 15px; }
@@ -267,7 +272,7 @@
             <p class="login-subtitle" id="authSub">Silakan pilih akses anda.</p>
 
             <div class="role-grid" id="roleSelection">
-                <div class="role-card" onclick="selectRole('student')"><i class="fas fa-user-graduate"></i><span>Student</span></div>
+                <div class="role-card role-card-locked" onclick="showStudentPortalLocked()"><i class="fas fa-user-graduate"></i><span>Student</span><div class="role-lock-overlay"><i class="fas fa-lock"></i></div></div>
                 <div class="role-card" onclick="selectRole('tutor')"><i class="fas fa-chalkboard-teacher"></i><span>Tutor</span></div>
             </div>
 
@@ -595,6 +600,10 @@
         // --- AUTH LOGIC START ---
         let isRegisterMode = false;
         let selectedRole = '';
+
+        window.showStudentPortalLocked = function() {
+            alert("Portal Student saat ini dikunci. Silakan login sebagai Tutor.");
+        };
 
         // Select Role Function
         window.selectRole = function(role) {
