@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-	<title>English Check - Daftar Member</title>
+	<title>English Check UPN - Daftar Member</title>
 	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 	<style>
@@ -240,6 +240,18 @@
 			color: var(--text-dark);
 		}
 
+		label a {
+			color: #1976d2;
+			text-decoration: none;
+			font-weight: 700;
+			transition: color 0.2s ease;
+		}
+
+		label a:hover {
+			color: #1565c0;
+			text-decoration: underline;
+		}
+
 		.input-wrap {
 			position: relative;
 		}
@@ -296,6 +308,130 @@
 			font-size: 0.72rem;
 			color: var(--grey-text);
 			margin-top: -2px;
+		}
+
+		.file-input {
+			display: none;
+		}
+
+		.upload-card {
+			background: #ffffff;
+			border: 1px solid #e5ece5;
+			border-radius: 18px;
+			padding: 12px;
+		}
+
+		.upload-dropzone {
+			border: 2px dashed #b7d2c4;
+			border-radius: 14px;
+			background: #f8fbf9;
+			padding: 20px 14px;
+			text-align: center;
+			transition: 0.2s ease;
+			cursor: pointer;
+		}
+
+		.upload-dropzone:hover {
+			border-color: #64b5f6;
+			background: #f5fbff;
+		}
+
+		.upload-dropzone.dragover {
+			border-color: #42a5f5;
+			background: #ecf7ff;
+		}
+
+		.upload-icon {
+			width: 44px;
+			height: 44px;
+			margin: 0 auto 10px;
+			border-radius: 50%;
+			display: grid;
+			place-items: center;
+			font-size: 1.05rem;
+			background: rgba(15, 61, 62, 0.08);
+			color: var(--bg-dark);
+		}
+
+		.upload-text {
+			font-size: 0.82rem;
+			color: #33443f;
+		}
+
+		.upload-text button {
+			border: none;
+			padding: 0;
+			background: transparent;
+			font: inherit;
+			font-weight: 700;
+			color: var(--bg-dark);
+			text-decoration: underline;
+			cursor: pointer;
+		}
+
+		.upload-meta {
+			display: flex;
+			justify-content: space-between;
+			gap: 10px;
+			font-size: 0.72rem;
+			color: #84938d;
+			margin-top: 10px;
+		}
+
+		.upload-file-item {
+			display: none;
+			margin-top: 10px;
+			padding: 10px 11px;
+			border-radius: 12px;
+			background: #f2f6f4;
+			border: 1px solid #e3ebe4;
+			align-items: center;
+			justify-content: space-between;
+			gap: 10px;
+		}
+
+		.upload-file-item.show {
+			display: flex;
+		}
+
+		.upload-file-info {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			min-width: 0;
+		}
+
+		.upload-file-info i {
+			color: #2e7d32;
+			font-size: 1.05rem;
+		}
+
+		.upload-file-name {
+			font-size: 0.78rem;
+			font-weight: 700;
+			color: #29443b;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			max-width: 180px;
+		}
+
+		.upload-file-size {
+			font-size: 0.7rem;
+			color: #7b8a84;
+			margin-top: 1px;
+		}
+
+		.upload-remove {
+			border: none;
+			background: transparent;
+			color: #9aa8a2;
+			font-size: 0.95rem;
+			cursor: pointer;
+		}
+
+		.upload-remove:hover {
+			color: #d32f2f;
 		}
 
 		.password-panel {
@@ -401,6 +537,16 @@
 			border-radius: 16px;
 			padding: 8px;
 			background: rgba(255, 235, 238, 0.45);
+		}
+
+		.field-error .upload-card {
+			border-color: #e53935;
+			background: #fff8f8;
+		}
+
+		.field-error .upload-dropzone {
+			border-color: #e53935;
+			background: rgba(255, 235, 238, 0.55);
 		}
 
 		.actions {
@@ -553,7 +699,7 @@
 						<div class="brand-mark"><i class="fas fa-user-plus"></i></div>
 						<div class="brand-copy">
 							<p>English Check</p>
-							<h1>Daftar Member</h1>
+							<h1>Daftar Member English Check UPN</h1>
 						</div>
 					</div>
 					<div class="hero-badge"><i class="fas fa-shield-heart" style="color: var(--accent-lime);"></i> Community Form</div>
@@ -667,6 +813,52 @@
 									<div class="status-option"><input type="radio" id="status-umum" name="statusAkademik" value="Umum"><label for="status-umum">Umum</label></div>
 								</div>
 							</div>
+
+							<div class="field full" id="waProofField">
+								<label for="waProof">Bukti Kirim Broadcast ke Minimal 2 Grup WhatsApp (Upload Foto)</label>
+								<div class="upload-card">
+									<div class="upload-dropzone" data-upload-dropzone="waProof">
+										<div class="upload-icon"><i class="fas fa-cloud-arrow-up"></i></div>
+										<div class="upload-text">Drag and Drop foto di sini atau <button type="button" data-upload-choose="waProof">Choose file</button></div>
+									</div>
+									<div class="upload-meta"><span>Supported formats: JPG, PNG, WEBP</span><span>Maximum size: 100MB</span></div>
+									<div class="upload-file-item" data-upload-file-item="waProof">
+										<div class="upload-file-info">
+											<i class="fas fa-image"></i>
+											<div>
+												<div class="upload-file-name" data-upload-file-name="waProof">No file selected</div>
+												<div class="upload-file-size" data-upload-file-size="waProof">0 MB</div>
+											</div>
+										</div>
+										<button type="button" class="upload-remove" data-upload-remove="waProof"><i class="fas fa-xmark"></i></button>
+									</div>
+								</div>
+								<input type="file" id="waProof" name="waProof" class="file-input" accept="image/*" multiple required>
+								<div class="helper">Upload maksimal 5 foto screenshot bukti broadcast ke minimal 2 grup WhatsApp.</div>
+							</div>
+
+							<div class="field full" id="followProofField">
+								<label for="followProof">Bukti Follow <a href="https://www.instagram.com/englishcheck_id/" target="_blank">@englishcheck_id</a> & <a href="https://www.instagram.com/englishcheck_upnvjt/" target="_blank">@englishcheck_upnvjt</a> (Upload Foto)</label>
+								<div class="upload-card">
+									<div class="upload-dropzone" data-upload-dropzone="followProof">
+										<div class="upload-icon"><i class="fas fa-cloud-arrow-up"></i></div>
+										<div class="upload-text">Drag and Drop foto di sini atau <button type="button" data-upload-choose="followProof">Choose file</button></div>
+									</div>
+									<div class="upload-meta"><span>Supported formats: JPG, PNG, WEBP</span><span>Maximum size: 100MB</span></div>
+									<div class="upload-file-item" data-upload-file-item="followProof">
+										<div class="upload-file-info">
+											<i class="fas fa-image"></i>
+											<div>
+												<div class="upload-file-name" data-upload-file-name="followProof">No file selected</div>
+												<div class="upload-file-size" data-upload-file-size="followProof">0 MB</div>
+											</div>
+										</div>
+										<button type="button" class="upload-remove" data-upload-remove="followProof"><i class="fas fa-xmark"></i></button>
+									</div>
+								</div>
+								<input type="file" id="followProof" name="followProof" class="file-input" accept="image/*" required>
+								<div class="helper">Upload screenshot bukti follow kedua akun Instagram.</div>
+							</div>
 						</div>
 
 						<div class="actions">
@@ -734,6 +926,13 @@
 		const passwordStatus = document.getElementById('passwordStatus');
 		const statusField = document.getElementById('statusField');
 		const passwordPanel = document.querySelector('.password-panel');
+		const waProofInput = document.getElementById('waProof');
+		const followProofInput = document.getElementById('followProof');
+		const MAX_UPLOAD_SIZE = 100 * 1024 * 1024;
+		const uploadConfig = {
+			waProof: { maxFiles: 5, label: 'foto' },
+			followProof: { maxFiles: 1, label: 'foto' }
+		};
 
 		const fieldMap = [
 			{ id: 'nama', index: 0, fallback: 'Belum diisi' },
@@ -749,6 +948,127 @@
 			toast.classList.add('show');
 			clearTimeout(window.__toastTimer);
 			window.__toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+		}
+
+		function formatFileSize(bytes) {
+			if (!bytes || Number.isNaN(bytes)) return '0 MB';
+			const mb = bytes / (1024 * 1024);
+			return `${mb < 0.1 ? mb.toFixed(2) : mb.toFixed(1)} MB`;
+		}
+
+		function updateUploadUi(inputId) {
+			const input = document.getElementById(inputId);
+			const files = Array.from(input.files || []);
+			const item = document.querySelector(`[data-upload-file-item="${inputId}"]`);
+			const nameEl = document.querySelector(`[data-upload-file-name="${inputId}"]`);
+			const sizeEl = document.querySelector(`[data-upload-file-size="${inputId}"]`);
+			if (!item || !nameEl || !sizeEl) return;
+
+			if (files.length) {
+				const totalSize = files.reduce((acc, current) => acc + current.size, 0);
+				const primaryName = files[0].name;
+				const extraCount = files.length - 1;
+				item.classList.add('show');
+				nameEl.textContent = extraCount > 0 ? `${primaryName} +${extraCount} foto` : primaryName;
+				sizeEl.textContent = `${files.length} file • ${formatFileSize(totalSize)}`;
+			} else {
+				item.classList.remove('show');
+				nameEl.textContent = 'No file selected';
+				sizeEl.textContent = '0 MB';
+			}
+		}
+
+		function setFileFromDrop(input, files) {
+			const dt = new DataTransfer();
+			files.forEach((file) => dt.items.add(file));
+			input.files = dt.files;
+		}
+
+		function sanitizeFiles(files, maxFiles) {
+			const imageFiles = files.filter((file) => file.type.startsWith('image/'));
+			return imageFiles.slice(0, maxFiles);
+		}
+
+		function setupUploadField(inputId) {
+			const input = document.getElementById(inputId);
+			const chooseBtn = document.querySelector(`[data-upload-choose="${inputId}"]`);
+			const dropzone = document.querySelector(`[data-upload-dropzone="${inputId}"]`);
+			const removeBtn = document.querySelector(`[data-upload-remove="${inputId}"]`);
+			const maxFiles = (uploadConfig[inputId] && uploadConfig[inputId].maxFiles) || 1;
+
+			chooseBtn.addEventListener('click', () => input.click());
+
+			input.addEventListener('change', () => {
+				let files = Array.from(input.files || []);
+				const hadNonImage = files.some((file) => !file.type.startsWith('image/'));
+				if (hadNonImage) {
+					input.value = '';
+					updateUploadUi(inputId);
+					showToast('Hanya file gambar yang diperbolehkan.');
+					return;
+				}
+
+				if (files.length > maxFiles) {
+					files = files.slice(0, maxFiles);
+					setFileFromDrop(input, files);
+					showToast(`Maksimal ${maxFiles} foto untuk bagian ini.`);
+				}
+
+				if (files.some((file) => file.size > MAX_UPLOAD_SIZE)) {
+					input.value = '';
+					updateUploadUi(inputId);
+					showToast('Ukuran file maksimal 100MB.');
+					return;
+				}
+
+				updateUploadUi(inputId);
+				const field = input.closest('.field');
+				if (field) field.classList.remove('field-error');
+			});
+
+			dropzone.addEventListener('dragover', (e) => {
+				e.preventDefault();
+				dropzone.classList.add('dragover');
+			});
+
+			dropzone.addEventListener('dragleave', () => {
+				dropzone.classList.remove('dragover');
+			});
+
+			dropzone.addEventListener('drop', (e) => {
+				e.preventDefault();
+				dropzone.classList.remove('dragover');
+				const droppedFilesRaw = Array.from(e.dataTransfer.files || []);
+				if (!droppedFilesRaw.length) return;
+				if (droppedFilesRaw.some((file) => !file.type.startsWith('image/'))) {
+					showToast('Hanya file gambar yang diperbolehkan.');
+					return;
+				}
+				if (droppedFilesRaw.some((file) => file.size > MAX_UPLOAD_SIZE)) {
+					showToast('Ukuran file maksimal 100MB.');
+					return;
+				}
+
+				const currentFiles = Array.from(input.files || []);
+				const combined = maxFiles > 1 ? [...currentFiles, ...droppedFilesRaw] : [droppedFilesRaw[0]];
+				const deduped = combined.filter((file, index, arr) => {
+					return arr.findIndex((f) => f.name === file.name && f.size === file.size && f.lastModified === file.lastModified) === index;
+				});
+				const safeFiles = sanitizeFiles(deduped, maxFiles);
+				if (safeFiles.length < deduped.length) {
+					showToast(`Maksimal ${maxFiles} foto untuk bagian ini.`);
+				}
+
+				setFileFromDrop(input, safeFiles);
+				updateUploadUi(inputId);
+				const field = input.closest('.field');
+				if (field) field.classList.remove('field-error');
+			});
+
+			removeBtn.addEventListener('click', () => {
+				input.value = '';
+				updateUploadUi(inputId);
+			});
 		}
 
 		function getSelectedStatus() {
@@ -837,6 +1157,9 @@
 			});
 		});
 
+		setupUploadField('waProof');
+		setupUploadField('followProof');
+
 		passwordInput.addEventListener('input', () => {
 			updatePasswordStatus();
 			const field = passwordInput.closest('.field');
@@ -861,6 +1184,8 @@
 				clearErrorHighlights();
 				syncPreview();
 				updatePasswordStatus();
+				updateUploadUi('waProof');
+				updateUploadUi('followProof');
 				showToast('Form berhasil direset.');
 			}, 0);
 		});
@@ -876,6 +1201,8 @@
 			const jurusan = document.getElementById('jurusan').value.trim();
 			const password = passwordInput.value;
 			const confirmPassword = confirmPasswordInput.value;
+			const waProofFiles = Array.from(waProofInput.files || []);
+			const followProofFile = followProofInput.files[0];
 			const status = getSelectedStatus();
 
 			clearErrorHighlights();
@@ -887,12 +1214,20 @@
 			if (!instagram) { setFieldErrorById('instagram'); hasMissingField = true; }
 			if (!instansi) { setFieldErrorById('instansi'); hasMissingField = true; }
 			if (!jurusan) { setFieldErrorById('jurusan'); hasMissingField = true; }
+			if (waProofFiles.length === 0) { setFieldErrorById('waProof'); hasMissingField = true; }
+			if (!followProofFile) { setFieldErrorById('followProof'); hasMissingField = true; }
 			if (!password) { setFieldErrorById('password'); passwordPanel.classList.add('panel-error'); hasMissingField = true; }
 			if (!confirmPassword) { setFieldErrorById('confirmPassword'); passwordPanel.classList.add('panel-error'); hasMissingField = true; }
 			if (status === 'Belum dipilih') { statusField.classList.add('field-error'); hasMissingField = true; }
 
 			if (hasMissingField) {
 				showToast('Mohon lengkapi semua data pendaftaran.');
+				return;
+			}
+
+			if (waProofFiles.length > 5) {
+				setFieldErrorById('waProof');
+				showToast('Maksimal 5 foto untuk bukti broadcast grup WhatsApp.');
 				return;
 			}
 
@@ -939,24 +1274,25 @@
 			}
 
 			try {
+				const formData = new FormData();
+				formData.append('name', nama);
+				formData.append('email', email);
+				formData.append('password', password);
+				formData.append('whatsapp', whatsapp);
+				formData.append('instagram', instagram);
+				formData.append('institution', instansi);
+				formData.append('major', jurusan);
+				formData.append('academicStatus', status);
+				waProofFiles.forEach((file) => formData.append('waProof', file));
+				formData.append('followProof', followProofFile);
+
 				const response = await fetch(`${API_BASE_URL}/register`, {
 					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify({
-						name: nama,
-						email,
-						password,
-						whatsapp,
-						instagram,
-						institution: instansi,
-						major: jurusan,
-						academicStatus: status
-					})
+					body: formData
 				});
 
-				const responseData = await response.json();
+				const isJson = (response.headers.get('content-type') || '').includes('application/json');
+				const responseData = isJson ? await response.json() : { message: 'Gagal daftar. Coba lagi.' };
 
 				if (!response.ok) {
 					if (response.status === 409) {
@@ -991,6 +1327,8 @@
 
 		syncPreview();
 		updatePasswordStatus();
+		updateUploadUi('waProof');
+		updateUploadUi('followProof');
 	</script>
 </body>
 </html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pilih Chapter Kampus - English Check</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #143d2a;
+            --primary-soft: #1f5a3f;
+            --accent: #f1c661;
+            --bg: #f3f8f5;
+            --white: #ffffff;
+            --text: #1f2b24;
+            --muted: #5c6b63;
+            --locked: #8d98a1;
+            --shadow: 0 16px 34px rgba(20, 61, 42, 0.13);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background:
+                radial-gradient(circle at 10% 15%, rgba(241, 198, 97, 0.2), transparent 28%),
+                radial-gradient(circle at 90% 10%, rgba(31, 90, 63, 0.12), transparent 30%),
+                var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 18px;
+        }
+
+        .wrapper {
+            width: min(1020px, 100%);
+        }
+
+        .top {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 7px 14px;
+            border-radius: 999px;
+            background: rgba(20, 61, 42, 0.08);
+            color: var(--primary-soft);
+            font-size: 0.78rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: clamp(1.35rem, 2.8vw, 2rem);
+            line-height: 1.25;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .cards {
+            margin-top: 24px;
+            display: grid;
+            gap: 14px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .card {
+            background: var(--white);
+            border: 1px solid #e5ece7;
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: var(--shadow);
+            display: grid;
+            gap: 12px;
+        }
+
+        .card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .campus {
+            font-size: 1.02rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .state {
+            font-size: 0.76rem;
+            font-weight: 700;
+            padding: 4px 9px;
+            border-radius: 999px;
+        }
+
+        .state.locked {
+            background: #eef1f4;
+            color: #5f6b73;
+        }
+
+        .state.open {
+            background: rgba(46, 125, 50, 0.12);
+            color: #23622a;
+        }
+
+        .desc {
+            color: #45534d;
+            font-size: 0.86rem;
+            min-height: 46px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 12px;
+            padding: 11px 12px;
+            font: inherit;
+            font-weight: 700;
+            text-align: center;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+        }
+
+        .btn.locked {
+            background: #edf1f4;
+            color: var(--locked);
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .btn.open {
+            background: linear-gradient(135deg, #2f855a, #46a36f);
+            color: #fff;
+            box-shadow: 0 10px 20px rgba(47, 133, 90, 0.28);
+        }
+
+        .btn.open:hover {
+            transform: translateY(-1px);
+        }
+
+        .footer-action {
+            margin-top: 18px;
+            text-align: center;
+        }
+
+        .back {
+            font-size: 0.86rem;
+            color: var(--primary-soft);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .back:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 860px) {
+            .cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="wrapper">
+        <div class="top">
+            <span class="badge">Pilih Chapter Kampus</span>
+            <h1>Isi Formulir Pendaftaran & Mau Belajar Sekarang</h1>
+            <p class="subtitle">Pilih chapter kampus yang tersedia. Chapter dengan ikon gembok belum bisa diakses.</p>
+        </div>
+
+        <section class="cards">
+            <article class="card">
+                <div class="card-head">
+                    <h2 class="campus">ITS</h2>
+                    <span class="state locked">Terkunci</span>
+                </div>
+                <p class="desc">Chapter ITS sedang disiapkan. Akses akan dibuka pada batch berikutnya.</p>
+                <button class="btn locked" type="button">🔒 Segera dibuka</button>
+            </article>
+
+            <article class="card">
+                <div class="card-head">
+                    <h2 class="campus">UNAIR</h2>
+                    <span class="state locked">Terkunci</span>
+                </div>
+                <p class="desc">Chapter UNAIR saat ini masih dalam tahap pengembangan program.</p>
+                <button class="btn locked" type="button">🔒 Segera dibuka</button>
+            </article>
+
+            <article class="card">
+                <div class="card-head">
+                    <h2 class="campus">UPN Veteran Jatim</h2>
+                    <span class="state open">Tersedia</span>
+                </div>
+                <p class="desc">Chapter UPN sudah aktif. Lanjutkan langsung ke form Daftar Member English Check UPN.</p>
+                <a class="btn open" href="Daftar.html">Daftar Member English Check UPN</a>
+            </article>
+        </section>
+
+        <div class="footer-action">
+            <a href="index.html" class="back">Kembali ke beranda</a>
+        </div>
+    </main>
+</body>
+</html>

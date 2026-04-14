@@ -261,6 +261,16 @@
             transform-origin: center;
         }
 
+        .campus-status.link {
+            text-decoration: none;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .campus-status.link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 22px rgba(47, 133, 90, 0.28);
+        }
+
         @keyframes popup-bounce {
             0%, 100% {
                 transform: translateY(0) scale(1);
@@ -378,7 +388,7 @@
             <li><a href="#curriculum" onclick="closeMenu()">Kurikulum</a></li>
             <li><a href="#campus" onclick="closeMenu()">Kampus</a></li>
             <li><a href="login dasboard.html" onclick="closeMenu()">Masuk</a></li>
-            <li><a href="Daftar.html" class="nav-btn" onclick="closeMenu()">Daftar Gratis</a></li>
+            <li><a href="pilih-kampus.html" class="nav-btn" onclick="closeMenu()">Daftar Gratis</a></li>
         </ul>
 
         <div class="hamburger" onclick="toggleMenu()">
@@ -392,7 +402,7 @@
         <div class="hero-content">
             <h1>Bahasa Inggris Lancar.<br>Masa Depan Cerah.</h1>
             <p>Bergabunglah dengan komunitas mahasiswa terbesar. Belajar gratis dengan kurikulum orisinal yang terstruktur.</p>
-            <a href="Daftar.html" class="cta-button">Mulai Belajar Sekarang</a>
+            <a href="pilih-kampus.html" class="cta-button">Mulai Belajar Sekarang</a>
         </div>
     </header>
 
@@ -487,7 +497,7 @@
                
                 <div class="location-text">📍 FASILKOM</div>
                 <p>Latihan public speaking di area terbuka dengan topik hangat seputar sosial dan bisnis.</p>
-                <span class="campus-status soon">✨ Segera dibuka</span>
+                <a href="Daftar.html" class="campus-status soon link">Daftar Sekarang</a>
             </div>
 
             <div class="card">
@@ -513,7 +523,7 @@
         <p style="margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">
             Daftarkan dirimu sekarang. Kuota terbatas setiap batch demi menjaga kualitas pembelajaran.
         </p>
-        <a href="Daftar.html" class="cta-button" style="background: white; color: var(--primary);">Isi Formulir Pendaftaran</a>
+        <a href="pilih-kampus.html" class="cta-button" style="background: white; color: var(--primary);">Isi Formulir Pendaftaran</a>
     </section>
 
     <footer>
