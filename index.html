@@ -112,24 +112,91 @@
             text-align: center;
             padding: 0 20px;
             margin-top: 0;
+            position: relative;
+            overflow: hidden;
         }
 
         .hero-content {
             max-width: 800px;
             color: var(--white);
             margin-top: 60px; /* Kompensasi navbar fixed */
+            position: relative;
+            z-index: 2;
+            padding: 28px 26px;
+            border-radius: 24px;
+            background: radial-gradient(circle at center, rgba(15, 46, 27, 0.38), rgba(15, 46, 27, 0.18) 55%, rgba(15, 46, 27, 0) 100%);
+        }
+
+        .hero-media-ring {
+            position: absolute;
+            inset: 88px 3% 34px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .hero-photo {
+            position: absolute;
+            width: clamp(102px, 11vw, 170px);
+            aspect-ratio: 4 / 3;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 3px solid rgba(255, 255, 255, 0.65);
+            box-shadow: 0 16px 28px rgba(0, 0, 0, 0.28);
+            transform: rotate(var(--rot, 0deg));
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            animation: float-card 7s ease-in-out infinite;
+            animation-delay: var(--delay, 0s);
+            opacity: 0.88;
+            filter: saturate(0.92);
+        }
+
+        .hero-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .hero-photo.p1 { top: 7%; left: 4%; --rot: -7deg; --delay: 0s; }
+        .hero-photo.p2 { top: 7%; right: 4%; --rot: 8deg; --delay: 0.4s; }
+        .hero-photo.p3 { top: 33%; left: 2%; --rot: -8deg; --delay: 0.9s; }
+        .hero-photo.p4 { top: 33%; right: 2%; --rot: 7deg; --delay: 1.4s; }
+        .hero-photo.p5 { bottom: 11%; left: 10%; --rot: 6deg; --delay: 0.2s; }
+        .hero-photo.p6 { bottom: 11%; right: 10%; --rot: -6deg; --delay: 1.1s; }
+        .hero-photo.p7 { top: 6%; left: 22%; --rot: -5deg; --delay: 0.7s; }
+        .hero-photo.p8 { top: 6%; right: 22%; --rot: 5deg; --delay: 1.6s; }
+
+        .hero-photo.size-lg { width: clamp(132px, 14vw, 220px); }
+        .hero-photo.size-md { width: clamp(102px, 11vw, 170px); }
+        .hero-photo.size-sm { width: clamp(82px, 8.4vw, 126px); }
+
+        .hero-photo.p7,
+        .hero-photo.p8 {
+            opacity: 0.72;
+            filter: saturate(0.86);
+        }
+
+        @keyframes float-card {
+            0%, 100% {
+                transform: translateY(0) rotate(var(--rot, 0deg));
+            }
+            50% {
+                transform: translateY(-8px) rotate(calc(var(--rot, 0deg) + 1.2deg));
+            }
         }
 
         .hero h1 {
             font-size: 3.5rem;
             line-height: 1.2;
             margin-bottom: 1.5rem;
+            text-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
         }
 
         .hero p {
             font-size: 1.2rem;
             margin-bottom: 2rem;
             opacity: 0.9;
+            text-shadow: 0 6px 14px rgba(0, 0, 0, 0.22);
         }
 
         .cta-button {
@@ -329,6 +396,93 @@
             margin-top: auto;
         }
 
+        .welcome-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(7, 29, 18, 0.52);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .welcome-overlay.show {
+            display: flex;
+        }
+
+        .welcome-modal {
+            width: min(680px, 100%);
+            background: linear-gradient(160deg, #ffffff 0%, #f3fbf5 100%);
+            border: 1px solid rgba(26, 77, 46, 0.16);
+            border-radius: 20px;
+            box-shadow: 0 24px 46px rgba(15, 46, 27, 0.28);
+            position: relative;
+            padding: 26px 24px 24px;
+            animation: welcome-pop 0.22s ease-out;
+        }
+
+        @keyframes welcome-pop {
+            from { opacity: 0; transform: translateY(8px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .welcome-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(26, 77, 46, 0.1);
+            color: var(--primary-dark);
+            font-size: 1.05rem;
+            cursor: pointer;
+            line-height: 1;
+            font-weight: 700;
+        }
+
+        .welcome-close:hover {
+            background: rgba(26, 77, 46, 0.18);
+        }
+
+        .welcome-title {
+            color: var(--primary);
+            margin-bottom: 12px;
+            font-size: 1.5rem;
+            line-height: 1.3;
+        }
+
+        .welcome-dear {
+            margin-bottom: 12px;
+            color: #1b5e20;
+            font-weight: 700;
+        }
+
+        .welcome-name {
+            color: #c58b1f;
+            background: rgba(233, 196, 106, 0.22);
+            padding: 2px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(197, 139, 31, 0.35);
+            display: inline-block;
+            font-weight: 800;
+            letter-spacing: 0.01em;
+        }
+
+        .welcome-modal p {
+            margin-bottom: 12px;
+            color: #2f4036;
+            font-size: 0.96rem;
+        }
+
+        .welcome-sign {
+            margin-top: 14px;
+            color: #183d2b;
+            font-weight: 700;
+        }
+
         /* --- 5. MOBILE RESPONSIVE RULES (MEDIA QUERIES) --- */
         @media (max-width: 768px) {
             /* Navbar Mobile */
@@ -368,6 +522,40 @@
             /* Adjust Hero Text */
             .hero h1 { font-size: 2.2rem; }
             .hero p { font-size: 1rem; }
+
+            .hero-content {
+                padding: 18px 14px;
+            }
+
+            .hero-media-ring {
+                inset: 90px 1% 28px;
+            }
+
+            .hero-photo {
+                width: clamp(74px, 20vw, 108px);
+                border-radius: 12px;
+                border-width: 2px;
+            }
+
+            .hero-photo.p7,
+            .hero-photo.p8 {
+                display: none;
+            }
+
+            .hero-photo.p3 { top: 42%; left: 0; }
+            .hero-photo.p4 { top: 42%; right: 0; }
+            .hero-photo.p5 { bottom: 16%; left: 4%; }
+            .hero-photo.p6 { bottom: 14%; right: 4%; }
+
+            .hero-photo.p5,
+            .hero-photo.p6 {
+                width: clamp(90px, 25vw, 138px);
+            }
+
+            .hero-photo.p7,
+            .hero-photo.p8 {
+                top: 12%;
+            }
             
             /* Adjust Padding Section */
             section { padding: 4rem 20px; }
@@ -399,6 +587,16 @@
     </nav>
 
     <header class="hero" id="home">
+        <div class="hero-media-ring" id="heroMediaRing" aria-hidden="true">
+            <figure class="hero-photo p1" data-depth="1.8"><img data-random-hero="1" alt="English Check activity photo"></figure>
+            <figure class="hero-photo p2" data-depth="2.2"><img data-random-hero="1" alt="English Check activity photo"></figure>
+            <figure class="hero-photo p3" data-depth="2.6"><img data-random-hero="1" alt="English Check activity photo"></figure>
+            <figure class="hero-photo p4" data-depth="2.1"><img data-random-hero="1" alt="English Check activity photo"></figure>
+            <figure class="hero-photo p5" data-depth="1.9"><img data-random-hero="1" alt="English Check activity photo"></figure>
+            <figure class="hero-photo p6" data-depth="2.4"><img data-random-hero="1" alt="English Check activity photo"></figure>
+            <figure class="hero-photo p7" data-depth="1.6"><img data-random-hero="1" alt="English Check activity photo"></figure>
+            <figure class="hero-photo p8" data-depth="1.6"><img data-random-hero="1" alt="English Check activity photo"></figure>
+        </div>
         <div class="hero-content">
             <h1>Bahasa Inggris Lancar.<br>Masa Depan Cerah.</h1>
             <p>Bergabunglah dengan komunitas mahasiswa terbesar. Belajar gratis dengan kurikulum orisinal yang terstruktur.</p>
@@ -530,6 +728,24 @@
         <p>&copy; 2024 English Check Community. Surabaya, Indonesia.</p>
     </footer>
 
+    <div class="welcome-overlay" id="welcomeOverlay" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
+        <div class="welcome-modal">
+            <button type="button" class="welcome-close" id="welcomeCloseBtn" aria-label="Tutup notifikasi">X</button>
+            <h3 class="welcome-title" id="welcomeTitle"><strong>Welcome to English Check! ✨</strong></h3>
+            <p class="welcome-dear"><strong>Dear, <span id="welcomeName" class="welcome-name">Member Baru</span></strong></p>
+            <p>
+                Terima kasih banyak sudah mendaftar sebagai member baru
+                <strong>English Check Chapter UPNVJ</strong>. Kami sangat senang kamu bergabung dalam perjalanan belajar bahasa Inggris bersama kami! 🎓🚀
+            </p>
+            <p>
+                Untuk informasi lebih lanjut, tim kami akan segera mengirimkan konfirmasi pendaftaran melalui email kamu.
+                Pastikan cek folder inbox atau spam secara berkala, ya! 📩
+            </p>
+            <p>Ready to level up your English? See you soon! 📖🔥</p>
+            <p class="welcome-sign"><strong>Warm Regards,<br>English Check Teams</strong></p>
+        </div>
+    </div>
+
     <script>
         // Fungsi untuk membuka/tutup menu saat tombol hamburger diklik
         function toggleMenu() {
@@ -546,6 +762,86 @@
             nav.classList.remove('active');
             hamburger.classList.remove('active');
         }
+
+        function initHeroPhotos() {
+            const imagePool = [
+                'picture/upn/1.jpg',
+                'picture/upn/2.jpg',
+                'picture/upn/3.jpg',
+                'picture/upn/4.jpg',
+                'picture/its/1.JPG',
+                'picture/its/2.jpg',
+                'picture/its/3.JPG',
+                'picture/its/4.jpg',
+                'picture/its/5.JPG',
+                'picture/unair/1.JPG',
+                'picture/unair/2.jpg',
+                'picture/unair/3.jpg'
+            ];
+
+            const photoEls = Array.from(document.querySelectorAll('[data-random-hero]'));
+            const randomFrom = (pool) => pool[Math.floor(Math.random() * pool.length)];
+            const pairA = randomFrom(['size-md', 'size-lg']);
+            const pairB = randomFrom(['size-sm', 'size-md']);
+            const pairC = randomFrom(['size-md', 'size-lg']);
+            const pairD = 'size-sm';
+            const pairMap = {
+                p1: pairA, p2: pairA,
+                p3: pairB, p4: pairB,
+                p5: pairC, p6: pairC,
+                p7: pairD, p8: pairD
+            };
+            const shuffled = imagePool
+                .map((src) => ({ src, sort: Math.random() }))
+                .sort((a, b) => a.sort - b.sort)
+                .map((entry) => entry.src);
+
+            photoEls.forEach((img, index) => {
+                img.src = shuffled[index % shuffled.length];
+                img.loading = 'lazy';
+                const frame = img.closest('.hero-photo');
+                if (frame) {
+                    frame.classList.remove('size-sm', 'size-md', 'size-lg');
+                    const className = Array.from(frame.classList).find((name) => /^p[1-8]$/.test(name));
+                    frame.classList.add(pairMap[className] || randomFrom(['size-sm', 'size-md', 'size-lg']));
+                }
+            });
+        }
+
+        initHeroPhotos();
+
+        function closeWelcomeModal() {
+            const overlay = document.getElementById('welcomeOverlay');
+            overlay.classList.remove('show');
+            localStorage.removeItem('ec_welcome_notice');
+        }
+
+        (function showWelcomeIfNeeded() {
+            const raw = localStorage.getItem('ec_welcome_notice');
+            if (!raw) return;
+
+            let welcomeData;
+            try {
+                welcomeData = JSON.parse(raw);
+            } catch (error) {
+                localStorage.removeItem('ec_welcome_notice');
+                return;
+            }
+
+            const nameEl = document.getElementById('welcomeName');
+            const overlay = document.getElementById('welcomeOverlay');
+            const closeBtn = document.getElementById('welcomeCloseBtn');
+
+            nameEl.textContent = welcomeData && welcomeData.name ? welcomeData.name : 'Member Baru';
+            overlay.classList.add('show');
+
+            closeBtn.addEventListener('click', closeWelcomeModal);
+            overlay.addEventListener('click', (event) => {
+                if (event.target === overlay) {
+                    closeWelcomeModal();
+                }
+            });
+        })();
     </script>
 
 </body>

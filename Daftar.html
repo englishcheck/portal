@@ -856,8 +856,8 @@
 										<button type="button" class="upload-remove" data-upload-remove="followProof"><i class="fas fa-xmark"></i></button>
 									</div>
 								</div>
-								<input type="file" id="followProof" name="followProof" class="file-input" accept="image/*" required>
-								<div class="helper">Upload screenshot bukti follow kedua akun Instagram.</div>
+								<input type="file" id="followProof" name="followProof" class="file-input" accept="image/*" multiple required>
+								<div class="helper">Upload maksimal 2 foto screenshot bukti follow kedua akun Instagram.</div>
 							</div>
 						</div>
 
@@ -931,7 +931,7 @@
 		const MAX_UPLOAD_SIZE = 100 * 1024 * 1024;
 		const uploadConfig = {
 			waProof: { maxFiles: 5, label: 'foto' },
-			followProof: { maxFiles: 1, label: 'foto' }
+			followProof: { maxFiles: 2, label: 'foto' }
 		};
 
 		const fieldMap = [
@@ -1284,7 +1284,8 @@
 				formData.append('major', jurusan);
 				formData.append('academicStatus', status);
 				waProofFiles.forEach((file) => formData.append('waProof', file));
-				formData.append('followProof', followProofFile);
+				const followProofFiles = Array.from(followProofInput.files || []);
+				followProofFiles.forEach((file) => formData.append('followProof', file));
 
 				const response = await fetch(`${API_BASE_URL}/register`, {
 					method: 'POST',
@@ -1313,12 +1314,16 @@
 					localStorage.setItem('ec_user', JSON.stringify(responseData.user));
 				}
 
-				showToast('Pendaftaran berhasil. Mengarahkan ke portal login...');
+				showToast('Pendaftaran berhasil. Mengarahkan ke homepage...');
+				localStorage.setItem('ec_welcome_notice', JSON.stringify({
+					name: nama,
+					timestamp: Date.now()
+				}));
 				form.reset();
 				syncPreview();
 
 				setTimeout(() => {
-					window.location.href = `login dasboard.html?email=${encodeURIComponent(email)}`;
+					window.location.href = 'index.html';
 				}, 900);
 			} catch (error) {
 				showToast('Tidak bisa terhubung ke backend. Pastikan server berjalan.');

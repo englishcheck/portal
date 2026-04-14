@@ -4,12 +4,24 @@ const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const sqlite3 = require('sqlite3').verbose();
+const multer = require('multer');
 const path = require('path');
+const fs = require('fs/promises');
+const { randomUUID } = require('crypto');
+const https = require('https');
+const http = require('http');
 
 const app = express();
-const { PORT: ENV_PORT, JWT_SECRET } = process.env;
+const {
+  PORT: ENV_PORT,
+  JWT_SECRET,
+  GOOGLE_SHEETS_WEBHOOK_URL,
+  PUBLIC_BASE_URL,
+} = process.env;
 const PORT = ENV_PORT || 3000;
 const SALT_ROUNDS = 12;
+const upload = multer({ storage: multer.memoryStorage() });
+const uploadsDir = path.join(__dirname, 'uploads');
 
 if (!JWT_SECRET) {
   console.error('Missing JWT_SECRET. Set it in backend/.env before starting the server.');
@@ -18,6 +30,7 @@ if (!JWT_SECRET) {
 
 app.use(cors());
 app.use(express.json());
+app.use('/uploads', express.static(uploadsDir));
 
 const dbPath = path.join(__dirname, 'data', 'english-check.db');
 const db = new sqlite3.Database(dbPath);
@@ -119,11 +132,138 @@ function authMiddleware(req, res, next) {
   }
 }
 
+function postJson(url, payload, redirectCount = 0) {
+  return new Promise((resolve, reject) => {
+    const data = JSON.stringify(payload);
+    const requestUrl = new URL(url);
+    const transport = requestUrl.protocol === 'http:' ? http : https;
+
+    const request = transport.request(
+      {
+        protocol: requestUrl.protocol,
+        hostname: requestUrl.hostname,
+        port: requestUrl.port || (requestUrl.protocol === 'http:' ? 80 : 443),
+        path: `${requestUrl.pathname}${requestUrl.search}`,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(data),
+        },
+        timeout: 8000,
+      },
+      (response) => {
+        let body = '';
+        response.on('data', (chunk) => {
+          body += chunk;
+        });
+        response.on('end', () => {
+          if (
+            [301, 302, 303, 307, 308].includes(response.statusCode) &&
+            response.headers.location
+          ) {
+            if (redirectCount >= 5) {
+              reject(new Error('Google Sheets sync failed: too many redirects'));
+              return;
+            }
+
+            const redirectedUrl = new URL(response.headers.location, requestUrl).toString();
+            postJson(redirectedUrl, payload, redirectCount + 1)
+              .then(resolve)
+              .catch(reject);
+            return;
+          }
+
+          if (response.statusCode >= 200 && response.statusCode < 300) {
+            const contentType = String(response.headers['content-type'] || '').toLowerCase();
+            const normalizedBody = String(body || '').toLowerCase();
+            const looksLikeHtmlError =
+              contentType.includes('text/html') ||
+              normalizedBody.includes('<title>error</title>') ||
+              normalizedBody.includes('you do not have permission to access the requested document');
+
+            if (looksLikeHtmlError) {
+              reject(new Error('Google Sheets sync failed: Apps Script returned an HTML error page. Check Web App access permissions.'));
+              return;
+            }
+
+            resolve(body);
+            return;
+          }
+          reject(new Error(`Google Sheets sync failed with status ${response.statusCode}`));
+        });
+      }
+    );
+
+    request.on('timeout', () => {
+      request.destroy(new Error('Google Sheets sync timeout'));
+    });
+    request.on('error', reject);
+    request.write(data);
+    request.end();
+  });
+}
+
+function getBaseUrl(req) {
+  return PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
+}
+
+function sanitizeOriginalName(fileName) {
+  return String(fileName || 'file')
+    .replace(/[^a-zA-Z0-9._-]/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^_+|_+$/g, '');
+}
+
+function formatStudentId(userId) {
+  return `262${String(userId).padStart(3, '0')}`;
+}
+
+async function saveUploadedFiles(req) {
+  await fs.mkdir(uploadsDir, { recursive: true });
+
+  const collectFiles = (fieldName) => Array.isArray(req.files?.[fieldName]) ? req.files[fieldName] : [];
+  const baseUrl = getBaseUrl(req);
+
+  const waFiles = collectFiles('waProof');
+  const followFiles = collectFiles('followProof');
+
+  const waProofUrls = [];
+  for (const file of waFiles) {
+    const safeName = sanitizeOriginalName(file.originalname);
+    const filename = `${Date.now()}-${randomUUID()}-${safeName}`;
+    const filePath = path.join(uploadsDir, filename);
+    await fs.writeFile(filePath, file.buffer);
+    waProofUrls.push(`${baseUrl}/uploads/${filename}`);
+  }
+
+  const followProofUrls = [];
+  for (const file of followFiles) {
+    const safeName = sanitizeOriginalName(file.originalname);
+    const filename = `${Date.now()}-${randomUUID()}-${safeName}`;
+    const filePath = path.join(uploadsDir, filename);
+    await fs.writeFile(filePath, file.buffer);
+    followProofUrls.push(`${baseUrl}/uploads/${filename}`);
+  }
+
+  return { waProofUrls, followProofUrls };
+}
+
+async function syncUserToGoogleSheets(userPayload) {
+  if (!GOOGLE_SHEETS_WEBHOOK_URL) {
+    return;
+  }
+
+  await postJson(GOOGLE_SHEETS_WEBHOOK_URL, userPayload);
+}
+
 app.get('/api/health', (req, res) => {
   res.json({ ok: true });
 });
 
-app.post('/api/register', async (req, res) => {
+app.post('/api/register', upload.fields([
+  { name: 'waProof', maxCount: 5 },
+  { name: 'followProof', maxCount: 2 },
+]), async (req, res) => {
   try {
     const {
       name,
@@ -163,6 +303,7 @@ app.post('/api/register', async (req, res) => {
 
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
     const createdAt = Date.now();
+    const { waProofUrls, followProofUrls } = await saveUploadedFiles(req);
 
     const result = await run(
       `
@@ -182,10 +323,31 @@ app.post('/api/register', async (req, res) => {
       [name, email, passwordHash, whatsapp, instagram, institution, major, academicStatus, createdAt]
     );
 
+    const studentId = formatStudentId(result.id);
+
     const user = await get(
       'SELECT id, name, email, role, academic_status FROM users WHERE id = ?',
       [result.id]
     );
+
+    try {
+      await syncUserToGoogleSheets({
+        studentId,
+        name,
+        email,
+        whatsapp,
+        instagram,
+        institution,
+        major,
+        academicStatus,
+        role: user.role,
+        registeredAt: new Date(createdAt).toISOString(),
+        waProofUrls,
+        followProofUrls,
+      });
+    } catch (syncError) {
+      console.error(syncError.message);
+    }
 
     const token = generateToken(user);
 
@@ -194,6 +356,7 @@ app.post('/api/register', async (req, res) => {
       token,
       user: {
         id: user.id,
+        studentId,
         name: user.name,
         email: user.email,
         role: user.role,
