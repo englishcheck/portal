@@ -274,6 +274,8 @@
 
         /* Capaian Kami */
         .achievements-section {
+            position: relative;
+            overflow: hidden;
             background:
                 linear-gradient(120deg, rgba(15, 46, 27, 0.84), rgba(26, 77, 46, 0.8)),
                 url('picture/asset/welpar.png');
@@ -283,6 +285,8 @@
         }
 
         .achievements-wrap {
+            position: relative;
+            z-index: 1;
             display: grid;
             grid-template-columns: 1.15fr 1fr;
             gap: 2rem;
@@ -819,6 +823,7 @@
                     <img src="picture/its/3.JPG" alt="Mentoring ITS 3" class="gallery-img">
                     <img src="picture/its/4.jpg" alt="Mentoring ITS 4" class="gallery-img">
                     <img src="picture/its/5.JPG" alt="Mentoring ITS 5" class="gallery-img">
+                    <img src="picture/its/6.jpg" alt="Mentoring ITS 6" class="gallery-img">
                 </div>
                 <div class="gallery-hint">↔ Geser foto untuk melihat lainnya</div>
 
@@ -835,6 +840,8 @@
                     <img src="picture/upn/2.jpg" alt="Mentoring UPN 2" class="gallery-img">
                     <img src="picture/upn/3.jpg" alt="Mentoring UPN 3" class="gallery-img">
                     <img src="picture/upn/4.jpg" alt="Mentoring UPN 4" class="gallery-img">
+                    <img src="picture/upn/5.jpg" alt="Mentoring UPN 5" class="gallery-img">
+                    <img src="picture/upn/6.jpg" alt="Mentoring UPN 6" class="gallery-img">
                 </div>
                 <div class="gallery-hint">↔ Geser foto untuk melihat lainnya</div>
 
@@ -850,6 +857,9 @@
                     <img src="picture/unair/1.JPG" alt="Mentoring UNAIR 1" class="gallery-img">
                     <img src="picture/unair/2.jpg" alt="Mentoring UNAIR 2" class="gallery-img">
                     <img src="picture/unair/3.jpg" alt="Mentoring UNAIR 3" class="gallery-img">
+                    <img src="picture/unair/4.JPG" alt="Mentoring UNAIR 4" class="gallery-img">
+                    <img src="picture/unair/5.JPG" alt="Mentoring UNAIR 5" class="gallery-img">
+                    <img src="picture/unair/6.JPG" alt="Mentoring UNAIR 6" class="gallery-img">
                 </div>
                 <div class="gallery-hint">↔ Geser foto untuk melihat lainnya</div>
 
@@ -944,7 +954,6 @@
                 .map((entry) => entry.src);
 
             photoEls.forEach((img, index) => {
-                img.src = shuffled[index % shuffled.length];
                 img.loading = 'lazy';
                 const frame = img.closest('.hero-photo');
                 if (frame) {
@@ -952,6 +961,18 @@
                     const className = Array.from(frame.classList).find((name) => /^p[1-8]$/.test(name));
                     frame.classList.add(pairMap[className] || randomFrom(['size-sm', 'size-md', 'size-lg']));
                 }
+
+                if (index === 6) {
+                    img.src = 'picture/asset/home1.jpg';
+                    return;
+                }
+
+                if (index === 7) {
+                    img.src = 'picture/asset/home2.JPG';
+                    return;
+                }
+
+                img.src = shuffled[index % shuffled.length];
             });
         }
 
