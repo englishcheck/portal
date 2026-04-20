@@ -962,8 +962,26 @@
 
 	<div class="toast" id="toastMsg"><i class="fas fa-circle-check" style="color: var(--accent-lime);"></i><span>Data pendaftaran berhasil dikirim.</span></div>
 
-	<script>
-		const API_BASE_URL = 'http://localhost:3000/api';
+	<script type="module">
+		import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+		import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+		import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+		import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
+
+		const firebaseConfig = {
+			apiKey: "AIzaSyB9f4UIQ-1EP7pGPWU1p4OJ3Qx2pOWcJJQ",
+			authDomain: "english-check-fd0f8.firebaseapp.com",
+			databaseURL: "https://english-check-fd0f8-default-rtdb.asia-southeast1.firebasedatabase.app",
+			projectId: "english-check-fd0f8",
+			storageBucket: "english-check-fd0f8.firebasestorage.app",
+			messagingSenderId: "281709263666",
+			appId: "1:281709263666:web:27b96a04d2fa7b6919352b"
+		};
+
+		const app = initializeApp(firebaseConfig);
+		const auth = getAuth(app);
+		const db = getDatabase(app);
+		const storage = getStorage(app);
 
 		const form = document.getElementById('memberForm');
 		const toast = document.getElementById('toastMsg');
@@ -1193,6 +1211,24 @@
 			submitBtn.disabled = !policyConsentInput.checked;
 		}
 
+		async function uploadProofFiles(uid, files, folderName) {
+			const uploadTasks = files.map(async (file, index) => {
+				const filePath = `proofs/${uid}/${folderName}/${Date.now()}_${index}_${file.name}`;
+				const fileRef = storageRef(storage, filePath);
+				await uploadBytes(fileRef, file);
+				const url = await getDownloadURL(fileRef);
+				return {
+					name: file.name,
+					size: file.size,
+					type: file.type,
+					url,
+					path: filePath
+				};
+			});
+
+			return Promise.all(uploadTasks);
+		}
+
 		function syncPreview() {
 			fieldMap.forEach(({ id, index, fallback }) => {
 				const value = document.getElementById(id).value.trim() || fallback;
@@ -1336,45 +1372,35 @@
 			}
 
 			try {
-				const formData = new FormData();
-				formData.append('name', nama);
-				formData.append('email', email);
-				formData.append('password', password);
-				formData.append('whatsapp', whatsapp);
-				formData.append('instagram', instagram);
-				formData.append('institution', instansi);
-				formData.append('major', jurusan);
-				formData.append('academicStatus', status);
-				waProofFiles.forEach((file) => formData.append('waProof', file));
-				const followProofFiles = Array.from(followProofInput.files || []);
-				followProofFiles.forEach((file) => formData.append('followProof', file));
+				const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+				const user = userCredential.user;
+				await updateProfile(user, { displayName: nama });
 
-				const response = await fetch(`${API_BASE_URL}/register`, {
-					method: 'POST',
-					body: formData
+				const followProofFiles = Array.from(followProofInput.files || []);
+				const waProofUploads = await uploadProofFiles(user.uid, waProofFiles, 'waProof');
+				const followProofUploads = await uploadProofFiles(user.uid, followProofFiles, 'followProof');
+
+				await set(ref(db, `users/${user.uid}`), {
+					username: nama,
+					email,
+					whatsapp,
+					instagram,
+					instansi,
+					jurusan,
+					status,
+					role: 'student',
+					policyConsent: true,
+					waProof: waProofUploads,
+					followProof: followProofUploads,
+					createdAt: Date.now()
 				});
 
-				const isJson = (response.headers.get('content-type') || '').includes('application/json');
-				const responseData = isJson ? await response.json() : { message: 'Gagal daftar. Coba lagi.' };
-
-				if (!response.ok) {
-					if (response.status === 409) {
-						setFieldErrorById('email');
-						showToast('Email sudah terdaftar. Silakan login di portal.');
-						return;
-					}
-
-					showToast(responseData.message || 'Gagal daftar. Coba lagi.');
-					return;
-				}
-
-				if (responseData.token) {
-					localStorage.setItem('ec_token', responseData.token);
-				}
-
-				if (responseData.user) {
-					localStorage.setItem('ec_user', JSON.stringify(responseData.user));
-				}
+				localStorage.setItem('ec_user', JSON.stringify({
+					id: user.uid,
+					name: nama,
+					email,
+					role: 'student'
+				}));
 
 				showToast('Pendaftaran berhasil. Mengarahkan ke homepage...');
 				localStorage.setItem('ec_welcome_notice', JSON.stringify({
@@ -1388,7 +1414,26 @@
 					window.location.href = 'index.html';
 				}, 900);
 			} catch (error) {
-				showToast('Tidak bisa terhubung ke backend. Pastikan server berjalan.');
+				if (error.code === 'auth/email-already-in-use') {
+					setFieldErrorById('email');
+					showToast('Email sudah terdaftar. Silakan login di portal.');
+					return;
+				}
+
+				if (error.code === 'auth/invalid-email') {
+					setFieldErrorById('email');
+					showToast('Email tidak valid untuk pendaftaran.');
+					return;
+				}
+
+				if (error.code === 'auth/weak-password') {
+					setFieldErrorById('password');
+					passwordPanel.classList.add('panel-error');
+					showToast('Password terlalu lemah. Gunakan minimal 6 karakter.');
+					return;
+				}
+
+				showToast('Gagal daftar. Coba lagi beberapa saat.');
 			}
 		});
 
