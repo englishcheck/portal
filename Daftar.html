@@ -966,7 +966,6 @@
 		import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
 		import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 		import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
-		import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
 
 		const firebaseConfig = {
 			apiKey: "AIzaSyB9f4UIQ-1EP7pGPWU1p4OJ3Qx2pOWcJJQ",
@@ -981,7 +980,12 @@
 		const app = initializeApp(firebaseConfig);
 		const auth = getAuth(app);
 		const db = getDatabase(app);
-		const storage = getStorage(app);
+
+		const DRIVE_UPLOAD_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxKnNq5lFoCWpO7pOKI2hlhHZ4mEW7CY5_dTNrFOf_hRK7lXTxTB4Gp8rYGsXJ0Z9b0yw/exec';
+		const DRIVE_FOLDER_IDS = {
+			waProof: '1sHp0O2wQEWy2npOy9wBlyOY74D_smL0H',
+			followProof: '11ba8IGAR8FWBB6mN4FyMoWzMAhJGhTJh'
+		};
 
 		const form = document.getElementById('memberForm');
 		const toast = document.getElementById('toastMsg');
@@ -1211,21 +1215,67 @@
 			submitBtn.disabled = !policyConsentInput.checked;
 		}
 
-		async function uploadProofFiles(uid, files, folderName) {
-			const uploadTasks = files.map(async (file, index) => {
-				const filePath = `proofs/${uid}/${folderName}/${Date.now()}_${index}_${file.name}`;
-				const fileRef = storageRef(storage, filePath);
-				await uploadBytes(fileRef, file);
-				const url = await getDownloadURL(fileRef);
-				return {
-					name: file.name,
-					size: file.size,
-					type: file.type,
-					url,
-					path: filePath
+		function fileToBase64(file) {
+			return new Promise((resolve, reject) => {
+				const reader = new FileReader();
+				reader.onload = () => {
+					const result = String(reader.result || '');
+					const base64 = result.includes(',') ? result.split(',')[1] : result;
+					resolve(base64);
 				};
+				reader.onerror = () => reject(new Error('Gagal membaca file.'));
+				reader.readAsDataURL(file);
+			});
+		}
+
+		async function uploadSingleFileToDrive(uid, file, folderName, index) {
+			if (!DRIVE_UPLOAD_ENDPOINT) {
+				throw new Error('DRIVE_UPLOAD_ENDPOINT belum diisi.');
+			}
+
+			const folderId = DRIVE_FOLDER_IDS[folderName];
+			if (!folderId) {
+				throw new Error(`Folder ID untuk ${folderName} belum diatur.`);
+			}
+
+			const base64Data = await fileToBase64(file);
+			const payload = {
+				uid,
+				folderName,
+				folderId,
+				fileName: `${Date.now()}_${index}_${file.name}`,
+				mimeType: file.type || 'application/octet-stream',
+				base64Data
+			};
+
+			const response = await fetch(DRIVE_UPLOAD_ENDPOINT, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'text/plain;charset=utf-8'
+				},
+				body: JSON.stringify(payload)
 			});
 
+			if (!response.ok) {
+				throw new Error('Upload Google Drive gagal.');
+			}
+
+			const result = await response.json();
+			if (!result.ok) {
+				throw new Error(result.message || 'Upload Google Drive gagal.');
+			}
+
+			return {
+				name: file.name,
+				size: file.size,
+				type: file.type,
+				url: result.fileUrl,
+				path: result.fileId
+			};
+		}
+
+		async function uploadProofFiles(uid, files, folderName) {
+			const uploadTasks = files.map((file, index) => uploadSingleFileToDrive(uid, file, folderName, index));
 			return Promise.all(uploadTasks);
 		}
 
@@ -1414,6 +1464,8 @@
 					window.location.href = 'index.html';
 				}, 900);
 			} catch (error) {
+				console.error('Registration error:', error.code, error.message);
+				
 				if (error.code === 'auth/email-already-in-use') {
 					setFieldErrorById('email');
 					showToast('Email sudah terdaftar. Silakan login di portal.');
@@ -1433,7 +1485,22 @@
 					return;
 				}
 
-				showToast('Gagal daftar. Coba lagi beberapa saat.');
+				if (error.message && error.message.includes('DRIVE_UPLOAD_ENDPOINT belum diisi')) {
+					showToast('Endpoint Google Drive belum diatur. Isi DRIVE_UPLOAD_ENDPOINT terlebih dulu.');
+					return;
+				}
+
+				if (error.message && error.message.toLowerCase().includes('upload google drive gagal')) {
+					showToast('Gagal mengunggah bukti ke Google Drive. Coba lagi beberapa saat.');
+					return;
+				}
+
+				if (error.message && error.message.includes('permission')) {
+					showToast('Gagal menyimpan data. Hubungi admin jika masalah berlanjut.');
+					return;
+				}
+
+				showToast('Gagal daftar: ' + (error.message || 'Coba lagi beberapa saat.'));
 			}
 		});
 
