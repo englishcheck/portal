@@ -981,7 +981,7 @@
 		const auth = getAuth(app);
 		const db = getDatabase(app);
 
-		const DRIVE_UPLOAD_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwEmyihFw0zErbgFnLcJOAxP7xSICiP7wVHh2R8f1PP_p2V61WFLK4ALuMggsCYQWZW0A/exec';
+		const DRIVE_UPLOAD_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwPU_BmeK1bkOPmAi2PFKBG8yaFu0gzR9PHHj85mKWPb8em81MO2TDb6IAcCuSFCAlHOw/exec';
 		const DRIVE_FOLDER_IDS = {
 			waProof: '1sHp0O2wQEWy2npOy9wBlyOY74D_smL0H',
 			followProof: '11ba8IGAR8FWBB6mN4FyMoWzMAhJGhTJh'
@@ -1279,6 +1279,31 @@
 			return Promise.all(uploadTasks);
 		}
 
+		async function sendRegistrationToSheet(registrationData) {
+			try {
+				const response = await fetch(DRIVE_UPLOAD_ENDPOINT, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'text/plain;charset=utf-8'
+					},
+					body: JSON.stringify({
+						registrationData: registrationData
+					})
+				});
+
+				if (!response.ok) {
+					console.warn('Failed to send registration to sheet:', response.statusText);
+					return false;
+				}
+
+				const result = await response.json();
+				return result.ok === true;
+			} catch (err) {
+				console.warn('Error sending registration to sheet:', err.message);
+				return false;
+			}
+		}
+
 		function syncPreview() {
 			fieldMap.forEach(({ id, index, fallback }) => {
 				const value = document.getElementById(id).value.trim() || fallback;
@@ -1444,6 +1469,22 @@
 					followProof: followProofUploads,
 					createdAt: Date.now()
 				});
+
+				// Send registration data to Google Sheet
+				const sheetData = {
+					uid: user.uid,
+					nama,
+					email,
+					whatsapp,
+					instagram,
+					instansi,
+					jurusan,
+					status,
+					timestamp: new Date().toISOString(),
+					waProof: waProofUploads,
+					followProof: followProofUploads
+				};
+				await sendRegistrationToSheet(sheetData);
 
 				localStorage.setItem('ec_user', JSON.stringify({
 					id: user.uid,
