@@ -539,27 +539,45 @@
     const tRangeInput = document.getElementById('t-range');
     const tNumberInput = document.getElementById('t-number');
     const timerDisplay = document.getElementById('timer-display');
-    const API_BASE_URL = 'http://localhost:3000/api';
+    // Firebase progress saving
+    const firebaseConfig = {
+      apiKey: "AIzaSyB9f4UIQ-1EP7pGPWU1p4OJ3Qx2pOWcJJQ",
+      authDomain: "english-check-fd0f8.firebaseapp.com",
+      databaseURL: "https://english-check-fd0f8-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "english-check-fd0f8",
+      storageBucket: "english-check-fd0f8.firebasestorage.app",
+      messagingSenderId: "521547816547",
+      appId: "1:521547816547:web:2f0b89a53eef540ca48d1e"
+    };
+
+    let firebaseDb, firebaseAuth;
+    
+    (async () => {
+      const { initializeApp } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js');
+      const { getDatabase, ref, set } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js');
+      const { getAuth } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js');
+      
+      const fbApp = initializeApp(firebaseConfig);
+      firebaseDb = getDatabase(fbApp);
+      firebaseAuth = getAuth(fbApp);
+    })();
 
     async function saveProgressToBackend(moduleKey, percentage, completed) {
-        const token = localStorage.getItem('ec_token');
-        if (!token) return;
-
+        if (!firebaseAuth || !firebaseAuth.currentUser) return;
+        
         try {
-            await fetch(`${API_BASE_URL}/progress`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    moduleKey,
-                    score: percentage,
-                    completed
-                })
-            });
+          const { getDatabase, ref, set } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js');
+          const db = getDatabase();
+          const userId = firebaseAuth.currentUser.uid;
+          const progressRef = ref(db, `progress/${userId}/${moduleKey}`);
+          await set(progressRef, {
+            moduleKey,
+            score: percentage,
+            completed,
+            timestamp: new Date().toISOString()
+          });
         } catch (error) {
-            console.error('Failed to save progress:', error);
+          console.error('Failed to save progress:', error);
         }
     }
 
