@@ -981,7 +981,7 @@
 		const auth = getAuth(app);
 		const db = getDatabase(app);
 
-		const DRIVE_UPLOAD_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwuZYuSh75AArH5Q6N1_p8tOPJ9VLr-qqswweTkOma_zhahbog4juJjlJ_QGDcf5qHSOQ/exec';
+		const DRIVE_UPLOAD_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxewjmuM01HQXOwajNdZUBxsHcILbUloN7IwSoejfUqvL3daF70hkI5U6ls9AnLFpEl-g/exec';
 		const DRIVE_FOLDER_IDS = {
 			waProof: '1sHp0O2wQEWy2npOy9wBlyOY74D_smL0H',
 			followProof: '11ba8IGAR8FWBB6mN4FyMoWzMAhJGhTJh'
@@ -1281,13 +1281,32 @@
 
 		async function sendRegistrationToSheet(registrationData) {
 			try {
+				const waProofUrls = Array.isArray(registrationData.waProof)
+					? registrationData.waProof.map((item) => item.url || '')
+					: [];
+				const followProofUrls = Array.isArray(registrationData.followProof)
+					? registrationData.followProof.map((item) => item.url || '')
+					: [];
+
 				const response = await fetch(DRIVE_UPLOAD_ENDPOINT, {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'text/plain;charset=utf-8'
 					},
 					body: JSON.stringify({
-						registrationData: registrationData
+						registeredAt: registrationData.timestamp,
+						studentId: registrationData.uid,
+						name: registrationData.nama,
+						email: registrationData.email,
+						whatsapp: registrationData.whatsapp,
+						instagram: registrationData.instagram,
+						institution: registrationData.instansi,
+						major: registrationData.jurusan,
+						academicStatus: registrationData.status,
+						role: 'student',
+						waProofUrls,
+						followProofUrls,
+						registrationData
 					})
 				});
 
@@ -1485,25 +1504,6 @@
 					followProof: followProofUploads
 				};
 				await sendRegistrationToSheet(sheetData);
-
-				// Send user UID to Apps Script untuk sync ke Sheet
-				try {
-					const syncPayload = {
-						uid: user.uid
-					};
-					const syncResponse = await fetch(DRIVE_UPLOAD_ENDPOINT, {
-						method: 'POST',
-						headers: {
-							'Content-Type': 'text/plain;charset=utf-8'
-						},
-						body: JSON.stringify(syncPayload)
-					});
-					if (!syncResponse.ok) {
-						console.warn('Failed to sync to sheet:', syncResponse.statusText);
-					}
-				} catch (syncErr) {
-					console.warn('Error syncing to sheet:', syncErr.message);
-				}
 
 				localStorage.setItem('ec_user', JSON.stringify({
 					id: user.uid,
