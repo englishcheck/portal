@@ -981,7 +981,7 @@
 		const auth = getAuth(app);
 		const db = getDatabase(app);
 
-		const DRIVE_UPLOAD_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwPU_BmeK1bkOPmAi2PFKBG8yaFu0gzR9PHHj85mKWPb8em81MO2TDb6IAcCuSFCAlHOw/exec';
+		const DRIVE_UPLOAD_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwuZYuSh75AArH5Q6N1_p8tOPJ9VLr-qqswweTkOma_zhahbog4juJjlJ_QGDcf5qHSOQ/exec';
 		const DRIVE_FOLDER_IDS = {
 			waProof: '1sHp0O2wQEWy2npOy9wBlyOY74D_smL0H',
 			followProof: '11ba8IGAR8FWBB6mN4FyMoWzMAhJGhTJh'
@@ -1485,6 +1485,25 @@
 					followProof: followProofUploads
 				};
 				await sendRegistrationToSheet(sheetData);
+
+				// Send user UID to Apps Script untuk sync ke Sheet
+				try {
+					const syncPayload = {
+						uid: user.uid
+					};
+					const syncResponse = await fetch(DRIVE_UPLOAD_ENDPOINT, {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'text/plain;charset=utf-8'
+						},
+						body: JSON.stringify(syncPayload)
+					});
+					if (!syncResponse.ok) {
+						console.warn('Failed to sync to sheet:', syncResponse.statusText);
+					}
+				} catch (syncErr) {
+					console.warn('Error syncing to sheet:', syncErr.message);
+				}
 
 				localStorage.setItem('ec_user', JSON.stringify({
 					id: user.uid,
